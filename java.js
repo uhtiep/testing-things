@@ -30,3 +30,17 @@ function clearMessages() {
     const displayText = document.getElementById('displayText');
     displayText.innerHTML = '';  // Clears all messages
 }
+
+function goToNextPage() {
+    // Hide the main page and show the game page
+    document.getElementById('mainPage').style.display = 'none';
+    document.getElementById('nextButton').style.display = 'none';
+    document.getElementById('gamePage').style.display = 'block';
+}
+
+function goBack() {
+    // Hide the game page and show the main page again
+    document.getElementById('gamePage').style.display = 'none';
+    document.getElementById('nextButton').style.display = 'block';
+    document.getElementById('mainPage').style.display = 'block';
+}
