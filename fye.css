@@ -1,23 +1,26 @@
 body {
     font-family: Arial, sans-serif;
+    text-align: center;
 }
 
 .container {
     margin: 20px;
 }
 
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    margin: 10px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
 #displayText {
     margin-top: 20px;
     font-size: 18px;
-}
-
-.blue-check {
-    color: blue;
-    margin-left: 10px;
-}
-
-button {
-    margin-top: 10px;
 }
 
 #nextButton, #backButton {
