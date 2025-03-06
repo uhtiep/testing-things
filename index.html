@@ -29,22 +29,27 @@
         <button onclick="clickShell()">Click Uhtiep Shell</button>
         <p>Uhtiep Shells per second: <span id="uhtiepPerSecond">0</span></p>
 
-        <!-- Purchasable Items -->
-        <button onclick="buyFactory()" id="buyFactoryButton">Buy Uhtiep Shell Factory (50 shells)</button>
-        <button onclick="buyMine()" id="buyMineButton">Buy Uhtiep Shell Mine (150 shells)</button>
-        <button onclick="buyRobot()" id="buyRobotButton">Buy Uhtiep Shell Robot (400 shells)</button>
-        <button onclick="buyFarm()" id="buyFarmButton">Buy Uhtiep Shell Farm (800 shells)</button>
-        <button onclick="buyCrane()" id="buyCraneButton">Buy Uhtiep Shell Crane (2000 shells)</button>
-        <button onclick="buyRefinery()" id="buyRefineryButton">Buy Uhtiep Shell Refinery (5000 shells)</button>
-        <button onclick="buyFactoryUpgrade()" id="buyFactoryUpgradeButton">Upgrade Factory (10000 shells)</button>
-        <button onclick="buyAutomation()" id="buyAutomationButton">Buy Uhtiep Automation (25000 shells)</button>
-        <button onclick="buyAsteroid()" id="buyAsteroidButton">Buy Uhtiep Asteroid (50000 shells)</button>
-        <button onclick="buySuperRobot()" id="buySuperRobotButton">Buy Super Uhtiep Robot (100000 shells)</button>
-        <button onclick="rebirth()" id="rebirthButton">Rebirth (Cost: 50000 shells)</button>
+        <!-- Sidebar for Purchases and Rebirth -->
+        <div id="sidebar">
+            <button onclick="buyFactory()" id="buyFactoryButton">Buy Uhtiep Shell Factory (50 shells)</button>
+            <button onclick="buyMine()" id="buyMineButton">Buy Uhtiep Shell Mine (150 shells)</button>
+            <button onclick="buyRobot()" id="buyRobotButton">Buy Uhtiep Shell Robot (400 shells)</button>
+            <button onclick="buyFarm()" id="buyFarmButton">Buy Uhtiep Shell Farm (800 shells)</button>
+            <button onclick="buyCrane()" id="buyCraneButton">Buy Uhtiep Shell Crane (2000 shells)</button>
+            <button onclick="buyRefinery()" id="buyRefineryButton">Buy Uhtiep Shell Refinery (5000 shells)</button>
+            <button onclick="buyFactoryUpgrade()" id="buyFactoryUpgradeButton">Upgrade Factory (10000 shells)</button>
+            <button onclick="buyAutomation()" id="buyAutomationButton">Buy Uhtiep Automation (25000 shells)</button>
+            <button onclick="buyAsteroid()" id="buyAsteroidButton">Buy Uhtiep Asteroid (50000 shells)</button>
+            <button onclick="buySuperRobot()" id="buySuperRobotButton">Buy Super Uhtiep Robot (100000 shells)</button>
+            <button onclick="rebirth()" id="rebirthButton">Rebirth (Cost: 50000 shells)</button>
+        </div>
 
         <!-- Back Button -->
         <button onclick="goBack()" id="backButton">Back</button>
     </div>
+
+    <!-- Shell Earned Animation -->
+    <div id="shellAnimationContainer"></div>
 
     <script src="java.js"></script>
     <script src="uhtiep-clicker.js"></script>
