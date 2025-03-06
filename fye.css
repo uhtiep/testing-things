@@ -7,6 +7,6 @@ h1{
     font-family: 'Gill Sans';
 }
 body{
-    cursor: crosshair;
-    background-color: black;
+    cursor: all-scroll;
+    background-color: rgb(169, 9, 9);
 }
