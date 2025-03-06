@@ -1,3 +1,4 @@
+/* uhtiep-clicker.js */
 let shells = 0;
 let shellsPerClick = 1;
 let shellsPerSecond = 0;
@@ -6,9 +7,11 @@ let rebirthCost = 50000;
 let spcUpgrades = [];
 let spsUpgrades = [];
 
-for (let i = 1; i <= 25; i++) {
-    spcUpgrades.push({ name: `SPC Upgrade ${i}`, cost: i * 100, bonus: i });
-    spsUpgrades.push({ name: `SPS Upgrade ${i}`, cost: i * 150, bonus: i });
+const upgradeNames = ["Tiny Shell Boost", "Sand Collector", "Ocean Wave Helper", "Shell Magnet", "Tide Enhancer", "Sea Breeze Bonus", "Starfish Assistant", "Coral Growth", "Deep Sea Secret", "Tsunami Boost", "Pearl Finder", "Crab Workforce", "Whale Donation", "Dolphin Trainer", "Sunken Treasure", "Shell Engineer", "Underwater King", "Mermaid Assistance", "Poseidon's Favor", "Ocean Spirit", "Shell Alchemy", "Lost City Discovery", "Uhtiep Blessing", "Divine Ocean Power", "Eternal Tide"];
+
+for (let i = 0; i < 25; i++) {
+    spcUpgrades.push({ name: upgradeNames[i] + " (SPC)", cost: (i + 1) * 100, bonus: (i + 1) });
+    spsUpgrades.push({ name: upgradeNames[i] + " (SPS)", cost: (i + 1) * 150, bonus: (i + 1) });
 }
 
 function clickShell() {
