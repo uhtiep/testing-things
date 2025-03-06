@@ -1,6 +1,7 @@
 body {
     font-family: Arial, sans-serif;
     text-align: center;
+    margin: 0;
 }
 
 .container {
@@ -39,14 +40,82 @@ button:hover {
     background-color: #45a049;
 }
 
-.game-container {
-    text-align: center;
-    margin: 50px;
-}
-
+/* Sidebar Styles */
 #sidebar {
-    position: fixed;
+    position: absolute;
     top: 80px;
     left: 20px;
-    width: 200px;
+    padding: 10px;
+    background-color: #f1f1f1;
+    border-radius: 10px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+#sidebar button {
+    display: block;
+    margin-bottom: 10px;
+    padding: 12px;
+    font-size: 14px;
+    width: 250px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#sidebar button:hover {
+    background-color: #45a049;
+}
+
+/* Rebirth Button */
+#rebirthButton {
+    position: fixed;
+    top: 50%;
+    right: 10px;
+    padding: 20px;
+    font-size: 18px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transform: translateY(-50%);
+}
+
+#rebirthButton:hover {
+    background-color: #e53935;
+}
+
+.game-container {
+    position: relative;
+    text-align: center;
+    margin-top: 100px;
+}
+
+.shell-message {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    opacity: 1;
+    animation: moveMessage 2.5s forwards;
+}
+
+.shell-message img {
+    width: 30px;
+    margin-right: 10px;
+}
+
+/* Keyframes for shell flying and fading */
+@keyframes moveMessage {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(var(--rand-x)) translateY(var(--rand-y));
+    }
 }

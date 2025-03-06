@@ -29,7 +29,7 @@
         <button onclick="clickShell()">Click Uhtiep Shell</button>
         <p>Uhtiep Shells per second: <span id="uhtiepPerSecond">0</span></p>
 
-        <!-- Sidebar for Purchases and Rebirth -->
+        <!-- Sidebar for Purchases -->
         <div id="sidebar">
             <button onclick="buyFactory()" id="buyFactoryButton">Buy Uhtiep Shell Factory (50 shells)</button>
             <button onclick="buyMine()" id="buyMineButton">Buy Uhtiep Shell Mine (150 shells)</button>
@@ -41,16 +41,16 @@
             <button onclick="buyAutomation()" id="buyAutomationButton">Buy Uhtiep Automation (25000 shells)</button>
             <button onclick="buyAsteroid()" id="buyAsteroidButton">Buy Uhtiep Asteroid (50000 shells)</button>
             <button onclick="buySuperRobot()" id="buySuperRobotButton">Buy Super Uhtiep Robot (100000 shells)</button>
-            <button onclick="rebirth()" id="rebirthButton">Rebirth (Cost: 50000 shells)</button>
         </div>
+
+        <!-- Rebirth Button on the Right -->
+        <button onclick="rebirth()" id="rebirthButton">Rebirth (Cost: 50000 shells)</button>
 
         <!-- Back Button -->
         <button onclick="goBack()" id="backButton">Back</button>
     </div>
 
-    <!-- Shell Earned Animation -->
-    <div id="shellAnimationContainer"></div>
-
+    <div id="shellMessageContainer"></div> <!-- Shell message animations container -->
     <script src="java.js"></script>
     <script src="uhtiep-clicker.js"></script>
 </body>
