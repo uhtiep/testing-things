@@ -175,4 +175,20 @@ function rebirth() {
 
 function updateDisplay() {
     document.getElementById('uhtiepCounter').textContent = `Uhtiep Shells: ${uhtiepShells}`;
-    document.getElementById('uhtiepPerSe
+    document.getElementById('uhtiepPerSecond').textContent = uhtiepPerSecond;
+}
+
+function updateFactoryButton() {
+    document.getElementById('buyFactoryButton').textContent = `Buy Uhtiep Shell Factory (${factoryPrice} shells)`;
+}
+
+function updateMineButton() {
+    document.getElementById('buyMineButton').textContent = `Buy Uhtiep Shell Mine (${minePrice} shells)`;
+}
+
+// Add other update functions for the new items...
+setInterval(function() {
+    uhtiepShells += uhtiepPerSecond;
+    updateDisplay();
+}, 1000);
+
