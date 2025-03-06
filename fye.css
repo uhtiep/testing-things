@@ -1,9 +1,22 @@
+/* fye.css */
 body {
     font-family: Arial, sans-serif;
     text-align: center;
     margin: 0;
     padding: 0;
     background-color: #f4f4f4;
+    background: repeating-linear-gradient(45deg, #a7c7e7, #a7c7e7 10px, #7aa6c2 10px, #7aa6c2 20px);
+    background-size: 200% 200%;
+    animation: moveBackground 5s linear infinite;
+}
+
+@keyframes moveBackground {
+    from {
+        background-position: 0 0;
+    }
+    to {
+        background-position: 100% 100%;
+    }
 }
 
 #navigation {
