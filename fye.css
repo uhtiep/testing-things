@@ -1,4 +1,8 @@
-body{
-    font-family: sans-serif;
-    color: rgba(255, 230, 0, 0.452);
+h1{
+    font-family: verdana;
+    color: rgb(31, 231, 17);
+}
+p{
+    font-family: system-ui;
+    color: rgb(9, 87, 213);
 }
