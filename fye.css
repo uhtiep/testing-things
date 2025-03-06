@@ -2,10 +2,6 @@ h1{
     font-family: verdana;
     color: rgb(31, 231, 17);
 }
-p{
-    font-family: system-ui;
-    color: rgb(9, 87, 213);
-}
 ::backdrop{
     color: blueviolet;
 }
