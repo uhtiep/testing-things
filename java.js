@@ -1,3 +1,5 @@
-let a = 21;
-let miguel = gay;
-document.getElementById("p1").textContent = `the number ${a} can be ${miguel} if tried`;
+let a;
+a = 12;
+let b;
+b = 13;
+document.getElementById("pp").textContent = ` ${a} plus ${b} = test`
