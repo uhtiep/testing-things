@@ -20,3 +20,8 @@ function submitText() {
     // Clear the input after submission
     document.getElementById('textInput').value = '';
 }
+
+function clearMessages() {
+    const displayText = document.getElementById('displayText');
+    displayText.innerHTML = '';  // Clears all messages
+}
