@@ -3,55 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Text Submission & Uhtiep Shell Clicker</title>
+    <title>Uhtiep Shell Clicker</title>
     <link rel="stylesheet" href="fye.css">
 </head>
 <body>
-    <!-- Main Page (Text Submission) -->
-    <div id="mainPage" class="container">
-        <input type="text" id="usernameInput" placeholder="Enter your username">
-        <input type="text" id="textInput" placeholder="Enter some text">
-        <input type="checkbox" id="checkbox"> Mark as done
-        <button onclick="submitText()">Submit</button>
-        <button onclick="clearMessages()">Clear</button>
-    </div>
-
-    <!-- Display Text Below -->
-    <div id="displayText"></div>
-
-    <!-- Next Button -->
-    <button onclick="goToNextPage()" id="nextButton">Next</button>
-
-    <!-- Uhtiep Shell Clicker Game -->
-    <div id="gamePage" class="game-container" style="display: none;">
+    <div id="gamePage" class="game-container">
         <h1>Uhtiep Shell Clicker</h1>
         <p id="uhtiepCounter">Uhtiep Shells: 0</p>
-        <button onclick="clickShell()">Click Uhtiep Shell</button>
+        <button onclick="clickShell()" id="shellClickButton">Click Uhtiep Shell</button>
         <p>Uhtiep Shells per second: <span id="uhtiepPerSecond">0</span></p>
+        <p>Uhtiep Shells per click: <span id="uhtiepPerClick">1</span></p>
 
         <!-- Sidebar for Purchases -->
         <div id="sidebar">
-            <button onclick="buyFactory()" id="buyFactoryButton">Buy Uhtiep Shell Factory (50 shells)</button>
-            <button onclick="buyMine()" id="buyMineButton">Buy Uhtiep Shell Mine (150 shells)</button>
-            <button onclick="buyRobot()" id="buyRobotButton">Buy Uhtiep Shell Robot (400 shells)</button>
-            <button onclick="buyFarm()" id="buyFarmButton">Buy Uhtiep Shell Farm (800 shells)</button>
-            <button onclick="buyCrane()" id="buyCraneButton">Buy Uhtiep Shell Crane (2000 shells)</button>
-            <button onclick="buyRefinery()" id="buyRefineryButton">Buy Uhtiep Shell Refinery (5000 shells)</button>
-            <button onclick="buyFactoryUpgrade()" id="buyFactoryUpgradeButton">Upgrade Factory (10000 shells)</button>
-            <button onclick="buyAutomation()" id="buyAutomationButton">Buy Uhtiep Automation (25000 shells)</button>
-            <button onclick="buyAsteroid()" id="buyAsteroidButton">Buy Uhtiep Asteroid (50000 shells)</button>
-            <button onclick="buySuperRobot()" id="buySuperRobotButton">Buy Super Uhtiep Robot (100000 shells)</button>
+            <h2>Upgrades (SPS)</h2>
+            <button onclick="buyItem('factory')" id="buyFactoryButton">Factory (Owned: 0) | +2 SPS | Cost: 50 shells</button>
+            <button onclick="buyItem('mine')" id="buyMineButton">Mine (Owned: 0) | +5 SPS | Cost: 150 shells</button>
+            <button onclick="buyItem('robot')" id="buyRobotButton">Robot (Owned: 0) | +10 SPS | Cost: 400 shells</button>
+            <button onclick="buyItem('farm')" id="buyFarmButton">Farm (Owned: 0) | +20 SPS | Cost: 800 shells</button>
+            <button onclick="buyItem('crane')" id="buyCraneButton">Crane (Owned: 0) | +50 SPS | Cost: 2000 shells</button>
+            <button onclick="buyItem('refinery')" id="buyRefineryButton">Refinery (Owned: 0) | +100 SPS | Cost: 5000 shells</button>
+            <button onclick="buyItem('asteroid')" id="buyAsteroidButton">Asteroid (Owned: 0) | +250 SPS | Cost: 15000 shells</button>
+            <button onclick="buyItem('drill')" id="buyDrillButton">Drill (Owned: 0) | +500 SPS | Cost: 40000 shells</button>
+            <button onclick="buyItem('automation')" id="buyAutomationButton">Automation (Owned: 0) | +1000 SPS | Cost: 100000 shells</button>
+            <button onclick="buyItem('superRobot')" id="buySuperRobotButton">Super Robot (Owned: 0) | +5000 SPS | Cost: 500000 shells</button>
+
+            <h2>Click Upgrades (SPC)</h2>
+            <button onclick="buyItem('strongerClick')" id="buyStrongerClickButton">Stronger Click (Owned: 0) | +2 SPC | Cost: 100 shells</button>
+            <button onclick="buyItem('doubleClick')" id="buyDoubleClickButton">Double Click (Owned: 0) | +5 SPC | Cost: 500 shells</button>
+            <button onclick="buyItem('tripleClick')" id="buyTripleClickButton">Triple Click (Owned: 0) | +10 SPC | Cost: 2000 shells</button>
+            <button onclick="buyItem('turboClick')" id="buyTurboClickButton">Turbo Click (Owned: 0) | +20 SPC | Cost: 8000 shells</button>
+            <button onclick="buyItem('autoClick')" id="buyAutoClickButton">Auto Click (Owned: 0) | +50 SPC | Cost: 25000 shells</button>
+            <button onclick="buyItem('hyperClick')" id="buyHyperClickButton">Hyper Click (Owned: 0) | +100 SPC | Cost: 75000 shells</button>
+            <button onclick="buyItem('ultraClick')" id="buyUltraClickButton">Ultra Click (Owned: 0) | +250 SPC | Cost: 200000 shells</button>
+            <button onclick="buyItem('omegaClick')" id="buyOmegaClickButton">Omega Click (Owned: 0) | +500 SPC | Cost: 500000 shells</button>
         </div>
 
         <!-- Rebirth Button on the Right -->
         <button onclick="rebirth()" id="rebirthButton">Rebirth (Cost: 50000 shells)</button>
 
-        <!-- Back Button -->
-        <button onclick="goBack()" id="backButton">Back</button>
+        <div id="shellMessageContainer"></div>
     </div>
 
-    <div id="shellMessageContainer"></div> <!-- Shell message animations container -->
-    <script src="java.js"></script>
     <script src="uhtiep-clicker.js"></script>
 </body>
 </html>
