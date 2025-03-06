@@ -1,11 +1,15 @@
 function submitText() {
+    const usernameInput = document.getElementById('usernameInput').value;
     const textInput = document.getElementById('textInput').value;
     const checkbox = document.getElementById('checkbox').checked;
     const displayText = document.getElementById('displayText');
 
     if (textInput) {
         let textElement = document.createElement('p');
-        textElement.textContent = textInput;
+        
+        // Use username if provided, otherwise default to "Anonymous"
+        let username = usernameInput ? usernameInput : "Anonymous";
+        textElement.textContent = `${username}: ${textInput}`;
 
         if (checkbox) {
             let checkIcon = document.createElement('span');
@@ -18,6 +22,7 @@ function submitText() {
     }
 
     // Clear the input after submission
+    document.getElementById('usernameInput').value = '';
     document.getElementById('textInput').value = '';
 }
 
