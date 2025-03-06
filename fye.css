@@ -1,31 +1,22 @@
-p{
-    color: blue;
-    font-family: Arial;
+body {
+    font-family: Arial, sans-serif;
 }
-h1{
-    color: brown;
-    font-family: 'Gill Sans';
+
+.container {
+    margin: 20px;
 }
-body{
-    cursor: all-scroll;
-    background-color: rgb(169, 9, 9);
-}
-.uithingy {
-    width: 300px;
-    margin: 50px auto;
-    background-color: #1b089757;
-    padding: 20px;
-    border: 1px solid #000000;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-button {
-    align-items: center;
-    height: 100px;
-    width: 100px;
+
+#displayText {
+    margin-top: 20px;
     font-size: 18px;
-    border: none;
-    border-radius: 5px;
-    background-color: #2b00ff;
-    color: #ff0000;
-    cursor: copy;
 }
+
+.blue-check {
+    color: blue;
+    margin-left: 10px;
+}
+
+button {
+    margin-top: 10px;
+}
+
