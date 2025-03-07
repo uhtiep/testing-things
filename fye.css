@@ -39,6 +39,53 @@ body {
     padding: 20px;
 }
 
+/* Roblox-like UI for Text Submission */
+#text-submission {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #232527;
+    border-radius: 10px;
+    padding: 20px;
+    width: 50%;
+    margin: 20px auto;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+#text-submission input, #text-submission button {
+    width: 90%;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+}
+
+#text-submission input {
+    background: #3b3f42;
+    color: white;
+}
+
+#text-submission button {
+    background: #0074e4;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#text-submission button:hover {
+    background: #005bb5;
+}
+
+#message-display {
+    background: #1c1e20;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    width: 90%;
+    margin-top: 10px;
+    text-align: left;
+}
+
 #clickShellButton {
     font-size: 24px;
     padding: 15px;
@@ -123,5 +170,8 @@ body {
     }
     button {
         width: 80%;
+    }
+    #text-submission {
+        width: 90%;
     }
 }
