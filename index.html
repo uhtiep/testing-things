@@ -9,10 +9,14 @@
 <body>
     <div id="battleScreen">
         <div id="battleInfo">
-            <div id="playerHealth">Player Health: 100</div>
-            <div id="enemyHealth">Enemy Health: 100</div>
+            <div id="playerHealth">HP: 100</div>
+            <div id="enemyHealth">Enemy HP: 100</div>
         </div>
-        
+
+        <div id="battleBox">
+            <div id="playerHeart"></div>
+        </div>
+
         <div id="actionButtons">
             <button id="attackButton">Attack</button>
             <button id="actButton">Act</button>
@@ -22,12 +26,8 @@
         <div id="messageBox">
             <p id="battleMessage">Your turn!</p>
         </div>
-
-        <div id="enemy">
-            <pre id="enemySprite">/\\_/\\  </pre> <!-- Simple ASCII for the enemy -->
-        </div>
     </div>
-    
+
     <script src="game.js"></script>
 </body>
 </html>

@@ -1,10 +1,9 @@
-/* Basic CSS for Deltarune-style battle */
+/* General battle screen */
 body {
-    margin: 0;
-    padding: 0;
     font-family: 'Courier New', Courier, monospace;
-    background-color: #000;
+    background-color: black;
     color: white;
+    text-align: center;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -12,49 +11,65 @@ body {
 }
 
 #battleScreen {
-    width: 80%;
-    height: 60%;
-    border: 5px solid white;
-    border-radius: 10px;
+    width: 500px;
+    height: 400px;
     background-color: #111;
+    border: 5px solid white;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    padding: 20px;
+    position: relative;
 }
 
+/* Battle Info */
 #battleInfo {
-    font-size: 20px;
-    margin-bottom: 20px;
+    font-size: 18px;
+    margin-bottom: 10px;
 }
 
+/* Battle Box (where heart moves) */
+#battleBox {
+    width: 300px;
+    height: 150px;
+    border: 3px solid white;
+    background-color: black;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Player's Heart */
+#playerHeart {
+    width: 15px;
+    height: 15px;
+    background-color: red;
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 50%;
+}
+
+/* Enemy projectiles */
+.projectile {
+    width: 10px;
+    height: 10px;
+    background-color: yellow;
+    position: absolute;
+    border-radius: 50%;
+}
+
+/* Buttons */
 #actionButtons button {
     background-color: #333;
     border: 2px solid white;
     color: white;
-    padding: 15px 30px;
-    margin: 10px;
+    padding: 10px 20px;
+    margin: 5px;
     cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-#actionButtons button:hover {
-    background-color: #555;
 }
 
 #messageBox {
-    font-size: 18px;
-    margin-top: 20px;
-}
-
-#enemySprite {
-    font-size: 30px;
-    margin-top: 20px;
-}
-
-#enemy {
-    margin-top: 20px;
-    display: flex;
-    justify-content: center;
+    font-size: 16px;
+    margin-top: 10px;
 }
