@@ -40,10 +40,16 @@ body {
 }
 
 #clickShellButton {
-    font-size: 20px;
-    padding: 10px;
+    font-size: 24px;
+    padding: 15px;
     margin: 20px;
     cursor: pointer;
+    background-color: #ffcc00;
+    border: 3px solid #d4a017;
+    border-radius: 50%;
+    width: 150px;
+    height: 150px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
 }
 
 #shop-container {
@@ -53,9 +59,13 @@ body {
     max-width: 1200px;
     margin: 20px auto;
     align-items: flex-start;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-#spcItems {
+#shop-spc, #shop-sps {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -63,33 +73,31 @@ body {
     overflow-y: auto;
     width: 45%;
     padding: 10px;
-    background: rgba(255, 255, 255, 0.8);
+    background: rgba(245, 245, 245, 0.95);
     border-radius: 10px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
     align-self: flex-start;
+    border: 2px solid #888;
 }
 
-#spsItems {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    max-height: 80vh;
-    overflow-y: auto;
-    width: 45%;
-    padding: 10px;
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 10px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-    align-self: flex-start;
+#shop-spc {
+    border-right: 3px solid #666;
+}
+
+#shop-sps {
+    border-left: 3px solid #666;
 }
 
 #rebirthBtn {
     margin-top: 20px;
-    padding: 10px;
-    background-color: red;
+    padding: 15px;
+    background-color: #ff4444;
     color: white;
     border: none;
     cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
 }
 
 .floating-text {
@@ -97,6 +105,9 @@ body {
     font-size: 20px;
     opacity: 1;
     transition: transform 2.5s ease-out, opacity 2.5s ease-out;
+    color: #ffcc00;
+    font-weight: bold;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 @media (max-width: 768px) {
