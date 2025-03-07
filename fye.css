@@ -15,7 +15,7 @@ body {
         background-position: 0 0;
     }
     to {
-        background-position: 100% 100%;
+        background-position: 0 100%;
     }
 }
 
@@ -48,10 +48,10 @@ body {
 
 #shop {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
-    max-width: 100%;
-    overflow-x: auto;
+    max-height: 100vh;
+    overflow-y: auto;
     margin-top: 20px;
     white-space: nowrap;
 }
