@@ -1,6 +1,6 @@
 /* fye.css */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Roboto', sans-serif;
     text-align: center;
     margin: 0;
     padding: 0;
@@ -50,6 +50,7 @@ body {
     width: 50%;
     margin: 20px auto;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    font-family: 'Source Sans Pro', sans-serif;
 }
 
 #text-submission input, #text-submission button {
@@ -58,6 +59,7 @@ body {
     padding: 10px;
     border-radius: 5px;
     border: none;
+    font-size: 16px;
 }
 
 #text-submission input {
@@ -70,6 +72,7 @@ body {
     color: white;
     font-weight: bold;
     cursor: pointer;
+    text-transform: uppercase;
 }
 
 #text-submission button:hover {
@@ -84,6 +87,25 @@ body {
     width: 90%;
     margin-top: 10px;
     text-align: left;
+    font-size: 16px;
+    font-family: 'Source Sans Pro', sans-serif;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.message {
+    padding: 5px 10px;
+    border-radius: 5px;
+    background: #2d2f31;
+    display: flex;
+    align-items: center;
+}
+
+.username {
+    font-weight: bold;
+    margin-right: 5px;
+    color: #55aaff;
 }
 
 #clickShellButton {
