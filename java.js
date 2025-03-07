@@ -19,3 +19,4 @@ function submitMessage() {
 function clearMessages() {
     document.getElementById('messageList').innerHTML = '';
 }
+

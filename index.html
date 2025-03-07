@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Uhtiep stuff</title>
+    <title>Uhtiep Stuff</title>
     <link rel="stylesheet" href="fye.css">
 </head>
 <body>
+    <!-- Navigation Bar -->
     <div id="navigation">
         <button onclick="showPage('textPage')">Text Submission</button>
         <button onclick="showPage('clickerPage')">Uhtiep Clicker</button>
+        <button onclick="showPage('tetrisPage')">Tetris</button> <!-- Added Tetris button -->
     </div>
 
     <!-- Text Submission Page -->
@@ -42,7 +44,18 @@
         <div id="floatingMessages"></div>
     </div>
 
+    <!-- Tetris Page -->
+    <div id="tetrisPage" class="page" style="display:none;">
+        <h1>Tetris</h1>
+        <canvas id="tetrisCanvas" width="300" height="600"></canvas>
+        <p id="tetrisScore">Score: 0</p>
+        <button onclick="startTetris()">Start Game</button>
+        <button onclick="pauseTetris()">Pause Game</button>
+        <button onclick="resetTetris()">Reset Game</button>
+    </div>
+
     <script src="java.js"></script>
     <script src="uhtiep-clicker.js"></script>
+    <script src="tetris.js"></script> <!-- Include your Tetris game logic file -->
 </body>
 </html>

@@ -93,3 +93,16 @@ function renderUpgrades() {
 }
 
 document.addEventListener('DOMContentLoaded', renderUpgrades);
+
+// uhtiep-clicker.js
+
+// Show the selected page and hide the other
+function showPage(pageId) {
+    const pages = document.querySelectorAll('.page');
+    pages.forEach(page => {
+        page.style.display = 'none';
+    });
+
+    const selectedPage = document.getElementById(pageId);
+    selectedPage.style.display = 'block';
+}

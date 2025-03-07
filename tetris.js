@@ -1,106 +1,43 @@
 // tetris.js
 
-const canvas = document.getElementById("tetris-canvas");
-const ctx = canvas.getContext("2d");
-canvas.width = 300;
-canvas.height = 600;
-const ROWS = 20;
-const COLS = 10;
-const BLOCK_SIZE = canvas.width / COLS;
-let board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+// Example basic Tetris game logic
 
-const tetrominoes = [
-    [[1, 1, 1, 1]], // I
-    [[1, 1], [1, 1]], // O
-    [[0, 1, 1], [1, 1, 0]], // S
-    [[1, 1, 0], [0, 1, 1]], // Z
-    [[1, 1, 1], [0, 1, 0]], // T
-    [[1, 1, 1], [1, 0, 0]], // L
-    [[1, 1, 1], [0, 0, 1]] // J
-];
+let canvas = document.getElementById('tetrisCanvas');
+let ctx = canvas.getContext('2d');
+let scoreDisplay = document.getElementById('tetrisScore');
+let score = 0;
 
-let piece = randomPiece();
-let position = { x: 3, y: 0 };
-
-function randomPiece() {
-    return tetrominoes[Math.floor(Math.random() * tetrominoes.length)];
+// Start the game
+function startTetris() {
+    score = 0;
+    scoreDisplay.textContent = "Score: " + score;
+    // Start game logic, e.g., start game loop
+    console.log("Tetris Game Started");
+    // Initialize game objects here
 }
 
-function drawBlock(x, y, color = "cyan") {
-    ctx.fillStyle = color;
-    ctx.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
-    ctx.strokeStyle = "black";
-    ctx.strokeRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+// Pause the game
+function pauseTetris() {
+    // Implement game pause logic
+    console.log("Game Paused");
 }
 
-function drawBoard() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    board.forEach((row, y) => row.forEach((cell, x) => {
-        if (cell) drawBlock(x, y, "gray");
-    }));
-    piece.forEach((row, y) => row.forEach((cell, x) => {
-        if (cell) drawBlock(position.x + x, position.y + y);
-    }));
+// Reset the game
+function resetTetris() {
+    score = 0;
+    scoreDisplay.textContent = "Score: " + score;
+    // Reset game state
+    console.log("Game Reset");
+    // Reinitialize game objects
 }
 
-function movePiece(dir) {
-    position.x += dir;
-    if (collision()) position.x -= dir;
+// Example game loop (you need to expand this)
+function gameLoop() {
+    // Main game loop logic (move pieces, check collisions, etc.)
+    // Draw everything
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+    // Draw game pieces and grid here
 }
 
-function dropPiece() {
-    position.y++;
-    if (collision()) {
-        position.y--;
-        mergePiece();
-        piece = randomPiece();
-        position = { x: 3, y: 0 };
-        if (collision()) resetGame();
-    }
-}
-
-function collision() {
-    return piece.some((row, dy) =>
-        row.some((cell, dx) =>
-            cell &&
-            (board[position.y + dy] === undefined ||
-                board[position.y + dy][position.x + dx] === undefined ||
-                board[position.y + dy][position.x + dx])
-        )
-    );
-}
-
-function mergePiece() {
-    piece.forEach((row, y) => row.forEach((cell, x) => {
-        if (cell) board[position.y + y][position.x + x] = 1;
-    }));
-    clearLines();
-}
-
-function clearLines() {
-    board = board.filter(row => row.some(cell => !cell));
-    while (board.length < ROWS) board.unshift(Array(COLS).fill(0));
-}
-
-function resetGame() {
-    board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
-}
-
-document.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowLeft") movePiece(-1);
-    if (e.key === "ArrowRight") movePiece(1);
-    if (e.key === "ArrowDown") dropPiece();
-    if (e.key === "ArrowUp") rotatePiece();
-});
-
-function rotatePiece() {
-    const rotated = piece[0].map((_, i) => piece.map(row => row[i])).reverse();
-    const oldPiece = piece;
-    piece = rotated;
-    if (collision()) piece = oldPiece;
-}
-
-setInterval(() => {
-    dropPiece();
-    drawBoard();
-}, 500);
+// Call `gameLoop` at a set interval for game updates
+setInterval(gameLoop, 1000 / 60); // 60 frames per second
