@@ -1,158 +1,72 @@
-// Player object
-const player = {
-    element: document.getElementById('player'),
-    x: 100,
-    y: 300,
-    width: 100,
-    height: 100,
-    speed: 20,
-    attackRange: 100, // Range of basic attack
-};
+// Initialize player and enemy stats
+let playerHealth = 100;
+let enemyHealth = 100;
 
-// Enemy object
-const enemy = {
-    element: document.getElementById('enemy'),
-    x: 600,
-    y: 300,
-    width: 100,
-    height: 100,
-};
+// Reference to HTML elements
+const playerHealthElement = document.getElementById("playerHealth");
+const enemyHealthElement = document.getElementById("enemyHealth");
+const battleMessageElement = document.getElementById("battleMessage");
 
-// Attack range (shown when basic attack is performed)
-let attackRangeElement = null;
+// Action Buttons
+const attackButton = document.getElementById("attackButton");
+const actButton = document.getElementById("actButton");
+const defendButton = document.getElementById("defendButton");
 
-// Function to update player position
-function updatePlayerPosition() {
-    player.element.style.left = `${player.x}px`;
-    player.element.style.top = `${player.y}px`;
+// Functions for actions
+function attack() {
+    const damage = Math.floor(Math.random() * 20) + 10; // Random damage between 10 and 30
+    enemyHealth -= damage;
+    battleMessageElement.innerText = `You attacked the enemy for ${damage} damage!`;
+
+    // Update enemy health
+    if (enemyHealth <= 0) {
+        enemyHealth = 0;
+        battleMessageElement.innerText = "You defeated the enemy!";
+        disableActions();
+    }
+    updateHealth();
 }
 
-// Function to handle player movement
-function movePlayer(direction) {
-    player.element.classList.remove("idle");
-    player.element.classList.add("run");
-
-    switch (direction) {
-        case 'up':
-            player.y -= player.speed;
-            break;
-        case 'down':
-            player.y += player.speed;
-            break;
-        case 'left':
-            player.x -= player.speed;
-            break;
-        case 'right':
-            player.x += player.speed;
-            break;
-    }
-
-    updatePlayerPosition();
+function act() {
+    const result = Math.random() < 0.5 ? 'You comforted the enemy. They feel better.' : 'The enemy is confused!';
+    battleMessageElement.innerText = result;
 }
 
-// Function to stop running and go idle
-function stopMoving() {
-    player.element.classList.remove("run");
-    player.element.classList.add("idle");
+function defend() {
+    const damageBlocked = Math.floor(Math.random() * 10) + 5; // Block between 5-15 damage
+    playerHealth += damageBlocked;
+    battleMessageElement.innerText = `You blocked some damage! You gained ${damageBlocked} health.`;
+
+    if (playerHealth > 100) playerHealth = 100; // Maximum health is 100
+    updateHealth();
 }
 
-// Function to handle basic attack (Z)
-function basicAttack() {
-    player.element.classList.remove("run", "idle");
-    player.element.classList.add("attack1");
-
-    if (attackRangeElement) {
-        attackRangeElement.remove(); // Remove the previous attack range
-    }
-
-    attackRangeElement = document.createElement('div');
-    attackRangeElement.classList.add('attack-range');
-    attackRangeElement.style.left = `${player.x + player.width}px`; // Position it based on player
-    attackRangeElement.style.top = `${player.y + player.height / 2 - 10}px`; // Center vertically
-    document.getElementById('gameArea').appendChild(attackRangeElement);
-
-    // Check if the enemy is within range
-    if (
-        player.x + player.width + player.attackRange > enemy.x &&
-        player.x < enemy.x + enemy.width &&
-        player.y < enemy.y + enemy.height &&
-        player.y + player.height > enemy.y
-    ) {
-        // Damage enemy (simple collision detection)
-        console.log('Enemy hit with basic attack!');
-        enemy.element.style.backgroundColor = "#ff69b4"; // Change enemy color to indicate hit
-        enemy.element.classList.add("hit"); // Add hit animation
-        setTimeout(() => {
-            enemy.element.style.backgroundColor = "#ff0000"; // Reset color
-            enemy.element.classList.remove("hit"); // Remove hit animation
-        }, 500);
-    }
-
-    // Reset attack animation
-    setTimeout(() => {
-        player.element.classList.remove("attack1");
-    }, 500);
+// Update health values on the screen
+function updateHealth() {
+    playerHealthElement.innerText = `Player Health: ${playerHealth}`;
+    enemyHealthElement.innerText = `Enemy Health: ${enemyHealth}`;
 }
 
-// Function to handle heavy attack (X)
-function heavyAttack() {
-    player.element.classList.remove("run", "idle");
-    player.element.classList.add("heavyAttack");
-
-    if (attackRangeElement) {
-        attackRangeElement.remove(); // Remove the previous attack range
-    }
-
-    attackRangeElement = document.createElement('div');
-    attackRangeElement.classList.add('attack-range');
-    attackRangeElement.style.left = `${player.x + player.width + 50}px`; // Bigger range for heavy attack
-    attackRangeElement.style.top = `${player.y + player.height / 2 - 20}px`; // Center vertically
-    attackRangeElement.style.width = '200px'; // Heavy attack range
-    document.getElementById('gameArea').appendChild(attackRangeElement);
-
-    // Check if the enemy is within range
-    if (
-        player.x + player.width + 50 < enemy.x + enemy.width &&
-        player.x + player.width + 250 > enemy.x &&
-        player.y < enemy.y + enemy.height &&
-        player.y + player.height > enemy.y
-    ) {
-        // Damage enemy (heavy attack)
-        console.log('Enemy hit with heavy attack!');
-        enemy.element.style.backgroundColor = "#ff69b4"; // Change enemy color to indicate hit
-        enemy.element.classList.add("hit"); // Add hit animation
-        setTimeout(() => {
-            enemy.element.style.backgroundColor = "#ff0000"; // Reset color
-            enemy.element.classList.remove("hit"); // Remove hit animation
-        }, 500);
-    }
-
-    // Reset attack animation
-    setTimeout(() => {
-        player.element.classList.remove("heavyAttack");
-    }, 500);
+// Disable action buttons when the battle is over
+function disableActions() {
+    attackButton.disabled = true;
+    actButton.disabled = true;
+    defendButton.disabled = true;
 }
 
-// Event listeners for player controls
-document.addEventListener('keydown', (event) => {
-    if (event.key === 'w' || event.key === 'ArrowUp') {
-        movePlayer('up');
-    } else if (event.key === 's' || event.key === 'ArrowDown') {
-        movePlayer('down');
-    } else if (event.key === 'a' || event.key === 'ArrowLeft') {
-        movePlayer('left');
-    } else if (event.key === 'd' || event.key === 'ArrowRight') {
-        movePlayer('right');
-    } else if (event.key === 'z') {
-        basicAttack();
-    } else if (event.key === 'x') {
-        heavyAttack();
-    }
-});
+// Reset the game after the battle is over
+function resetGame() {
+    playerHealth = 100;
+    enemyHealth = 100;
+    battleMessageElement.innerText = "Your turn!";
+    attackButton.disabled = false;
+    actButton.disabled = false;
+    defendButton.disabled = false;
+    updateHealth();
+}
 
-// Event listener for stopping movement
-document.addEventListener('keyup', (event) => {
-    if (event.key === 'w' || event.key === 's' || event.key === 'a' || event.key === 'd' || event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
-        stopMoving();
-    }
-});
+// Attach event listeners to buttons
+attackButton.addEventListener("click", attack);
+actButton.addEventListener("click", act);
+defendButton.addEventListener("click", defend);
+
