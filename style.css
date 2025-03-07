@@ -1,0 +1,51 @@
+/* General game area */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #333;
+    font-family: Arial, sans-serif;
+}
+
+/* Game container */
+#gameArea {
+    position: relative;
+    width: 800px;
+    height: 600px;
+    background-color: #222;
+    border: 3px solid #555;
+}
+
+/* Character styles */
+.character {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background-color: #00ff00;
+    border-radius: 5px;
+    transition: all 0.1s;
+}
+
+#player {
+    background-color: #00ff00; /* Green for player */
+}
+
+#enemy {
+    background-color: #ff0000; /* Red for enemy */
+    top: 150px;
+    left: 500px;
+}
+
+/* Basic attack range (temporary visual representation) */
+.attack-range {
+    position: absolute;
+    width: 100px;
+    height: 20px;
+    background-color: rgba(255, 0, 0, 0.5);
+    border-radius: 5px;
+    display: none;
+}
+ 

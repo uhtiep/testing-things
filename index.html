@@ -3,59 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Uhtiep Stuff</title>
-    <link rel="stylesheet" href="fye.css">
+    <title>Dungeon Crawler</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <div id="navigation">
-        <button onclick="showPage('textPage')">Text Submission</button>
-        <button onclick="showPage('clickerPage')">Uhtiep Clicker</button>
-        <button onclick="showPage('tetrisPage')">Tetris</button>
+    <div id="gameArea">
+        <div id="player" class="character"></div>
+        <div id="enemy" class="character"></div>
     </div>
-
-    <!-- Text Submission Page -->
-    <div id="textPage" class="page">
-        <h1>Text Submission</h1>
-        <input type="text" id="username" placeholder="Username">
-        <input type="text" id="userMessage" placeholder="Enter message">
-        <input type="checkbox" id="addCheck"> Blue Check
-        <button onclick="submitMessage()">Submit</button>
-        <button onclick="clearMessages()">Clear</button>
-        <div id="messageList"></div>
-    </div>
-
-    <!-- Uhtiep Clicker Page -->
-    <div id="clickerPage" class="page" style="display:none;">
-        <h1>Uhtiep Shell Clicker</h1>
-        <p id="shellCount">Uhtiep Shells: 0</p>
-        <button onclick="clickShell()" id="clickShellButton">Click Uhtiep Shell</button>
-        <p>Shells per second: <span id="shellsPerSecond">0</span></p>
-        <p>Shells per click: <span id="shellsPerClick">1</span></p>
-
-        <div id="shop">
-            <h2>Upgrades (SPS)</h2>
-            <div id="spsItems"></div>
-            <h2>Upgrades (SPC)</h2>
-            <div id="spcItems"></div>
-        </div>
-
-        <button onclick="rebirth()" id="rebirthBtn">Rebirth (Cost: 50000 shells)</button>
-        <div id="floatingMessages"></div>
-    </div>
-
-    <!-- Tetris Page -->
-    <div id="tetrisPage" class="page" style="display:none;">
-        <h1>Tetris</h1>
-        <canvas id="tetrisCanvas" width="300" height="600"></canvas>
-        <p id="tetrisScore">Score: 0</p>
-        <button onclick="startTetris()">Start Game</button>
-        <button onclick="pauseTetris()">Pause Game</button>
-        <button onclick="resetTetris()">Reset Game</button>
-    </div>
-
-    <script src="java.js"></script>
-    <script src="uhtiep-clicker.js"></script>
-    <script src="tetris.js"></script>
+    <script src="game.js"></script>
 </body>
 </html>
