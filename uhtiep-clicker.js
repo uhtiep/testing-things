@@ -106,3 +106,28 @@ function showPage(pageId) {
     const selectedPage = document.getElementById(pageId);
     selectedPage.style.display = 'block';
 }
+
+// uhtiep-clicker.js
+
+function showPage("clickerPage") {
+    const pages = document.querySelectorAll('.page');
+    pages.forEach(page => {
+        page.style.display = 'none';
+        page.classList.remove('puzzle', 'flip', 'flipBook', 'disintegration');
+    });
+
+    const selectedPage = document.getElementById("clickerPage");
+    selectedPage.style.display = 'block';
+
+    // Randomly pick a transition effect
+    const effects = ['puzzle', 'flip', 'flipBook', 'disintegration'];
+    const randomEffect = effects[Math.floor(Math.random() * effects.length)];
+
+    // Apply the random transition effect
+    selectedPage.classList.add(randomEffect);
+
+    // Reset the opacity after transition
+    setTimeout(() => {
+        selectedPage.style.opacity = '1';
+    }, 1000); // Ensure this matches the duration of your animations
+}
