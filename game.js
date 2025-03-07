@@ -2,20 +2,20 @@
 const player = {
     element: document.getElementById('player'),
     x: 100,
-    y: 100,
-    width: 50,
-    height: 50,
-    speed: 5,
+    y: 300,
+    width: 100,
+    height: 100,
+    speed: 20,
     attackRange: 100, // Range of basic attack
 };
 
 // Enemy object
 const enemy = {
     element: document.getElementById('enemy'),
-    x: 500,
-    y: 150,
-    width: 50,
-    height: 50,
+    x: 600,
+    y: 300,
+    width: 100,
+    height: 100,
 };
 
 // Attack range (shown when basic attack is performed)
@@ -68,8 +68,10 @@ function basicAttack() {
         // Damage enemy (simple collision detection)
         console.log('Enemy hit with basic attack!');
         enemy.element.style.backgroundColor = "#ff69b4"; // Change enemy color to indicate hit
+        enemy.element.classList.add("hit"); // Add hit animation
         setTimeout(() => {
             enemy.element.style.backgroundColor = "#ff0000"; // Reset color
+            enemy.element.classList.remove("hit"); // Remove hit animation
         }, 500);
     }
 }
@@ -97,8 +99,10 @@ function heavyAttack() {
         // Damage enemy (heavy attack)
         console.log('Enemy hit with heavy attack!');
         enemy.element.style.backgroundColor = "#ff69b4"; // Change enemy color to indicate hit
+        enemy.element.classList.add("hit"); // Add hit animation
         setTimeout(() => {
             enemy.element.style.backgroundColor = "#ff0000"; // Reset color
+            enemy.element.classList.remove("hit"); // Remove hit animation
         }, 500);
     }
 }
