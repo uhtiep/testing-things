@@ -29,11 +29,12 @@ body, html {
     height: 100px;
     font-size: 24px;
     white-space: pre;
-    color: #fff;
     text-align: center;
+    color: #fff;
     transition: all 0.1s ease-in-out;
 }
 
+/* Player & Enemy basic position */
 #player {
     color: #00ff00; /* Green for player */
     left: 100px;
@@ -46,6 +47,61 @@ body, html {
     top: 300px;
 }
 
+/* Idle animation */
+@keyframes idle {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(0deg); }
+}
+
+/* Run animation */
+@keyframes run {
+    0% { transform: translateX(0px); }
+    50% { transform: translateX(10px); }
+    100% { transform: translateX(0px); }
+}
+
+/* Attack 1 animation */
+@keyframes attack1 {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* Heavy attack animation */
+@keyframes heavyAttack {
+    0% { transform: scale(1); }
+    50% { transform: rotate(30deg); }
+    100% { transform: scale(1); }
+}
+
+/* Hit animation */
+@keyframes hit {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.6; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Character states */
+.idle {
+    animation: idle 1s infinite;
+}
+
+.run {
+    animation: run 0.5s infinite;
+}
+
+.attack1 {
+    animation: attack1 0.5s ease-in-out;
+}
+
+.heavyAttack {
+    animation: heavyAttack 0.5s ease-in-out;
+}
+
+.hit {
+    animation: hit 0.5s ease-in-out;
+}
+
 /* Basic attack range */
 .attack-range {
     position: absolute;
@@ -54,24 +110,4 @@ body, html {
     background-color: rgba(255, 0, 0, 0.5);
     border-radius: 5px;
     display: none;
-}
-
-/* Attack hit animation */
-@keyframes hitEffect {
-    0% {
-        transform: scale(1);
-        opacity: 1;
-    }
-    50% {
-        transform: scale(1.2);
-        opacity: 0.6;
-    }
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-.hit {
-    animation: hitEffect 0.5s ease-in-out;
 }

@@ -29,6 +29,9 @@ function updatePlayerPosition() {
 
 // Function to handle player movement
 function movePlayer(direction) {
+    player.element.classList.remove("idle");
+    player.element.classList.add("run");
+
     switch (direction) {
         case 'up':
             player.y -= player.speed;
@@ -43,11 +46,21 @@ function movePlayer(direction) {
             player.x += player.speed;
             break;
     }
+
     updatePlayerPosition();
+}
+
+// Function to stop running and go idle
+function stopMoving() {
+    player.element.classList.remove("run");
+    player.element.classList.add("idle");
 }
 
 // Function to handle basic attack (Z)
 function basicAttack() {
+    player.element.classList.remove("run", "idle");
+    player.element.classList.add("attack1");
+
     if (attackRangeElement) {
         attackRangeElement.remove(); // Remove the previous attack range
     }
@@ -74,10 +87,18 @@ function basicAttack() {
             enemy.element.classList.remove("hit"); // Remove hit animation
         }, 500);
     }
+
+    // Reset attack animation
+    setTimeout(() => {
+        player.element.classList.remove("attack1");
+    }, 500);
 }
 
 // Function to handle heavy attack (X)
 function heavyAttack() {
+    player.element.classList.remove("run", "idle");
+    player.element.classList.add("heavyAttack");
+
     if (attackRangeElement) {
         attackRangeElement.remove(); // Remove the previous attack range
     }
@@ -105,6 +126,11 @@ function heavyAttack() {
             enemy.element.classList.remove("hit"); // Remove hit animation
         }, 500);
     }
+
+    // Reset attack animation
+    setTimeout(() => {
+        player.element.classList.remove("heavyAttack");
+    }, 500);
 }
 
 // Event listeners for player controls
@@ -121,5 +147,12 @@ document.addEventListener('keydown', (event) => {
         basicAttack();
     } else if (event.key === 'x') {
         heavyAttack();
+    }
+});
+
+// Event listener for stopping movement
+document.addEventListener('keyup', (event) => {
+    if (event.key === 'w' || event.key === 's' || event.key === 'a' || event.key === 'd' || event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+        stopMoving();
     }
 });
