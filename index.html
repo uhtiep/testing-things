@@ -3,26 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Friday Night Funkin' Browser Version</title>
-    <link rel="stylesheet" href="fye.css">
+    <title>Random Roblox Game Picker</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="game-container">
-        <h1>Friday Night Funkin' - Browser Edition</h1>
-        <div id="game">
-            <div id="health-bar">
-                <div id="health"></div>
-            </div>
-            <div id="game-screen">
-                <div id="player" class="character"></div>
-                <div id="opponent" class="character"></div>
-            </div>
-            <div id="note-container">
-                <!-- Notes will be dynamically generated here -->
-            </div>
-            <div id="instructions">Press Arrow Keys to Play!</div>
+    <div class="container">
+        <h1>Random Roblox Game Picker</h1>
+        <button id="getGameButton">Pick a Random Game</button>
+
+        <div id="gameInfo">
+            <h2 id="gameName"></h2>
+            <p><strong>Total Visits:</strong> <span id="totalVisits"></span></p>
+            <p><strong>Current Players:</strong> <span id="currentPlayers"></span></p>
+            <p><a id="gameLink" href="" target="_blank">Play the game</a></p>
+            <h3>Gameplay Video:</h3>
+            <iframe id="gameVideo" width="560" height="315" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         </div>
     </div>
-    <script src="index.js"></script>
+
+    <script src="script.js"></script>
 </body>
 </html>
