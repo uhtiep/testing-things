@@ -28,16 +28,11 @@ const games = [
     { name: "Funky Friday", url: "https://www.roblox.com/games/6456357529/Funky-Friday", embed: "https://www.youtube.com/embed/k0wCjOB8HDs" },
     { name: "Dungeon Quest", url: "https://www.roblox.com/games/6031259457/Dungeon-Quest", embed: "https://www.youtube.com/embed/QvTeNkHzrdo" },
     { name: "Anime Fighters Simulator", url: "https://www.roblox.com/games/8239846009/Anime-Fighters-Simulator", embed: "https://www.youtube.com/embed/nPsyC54HkLU" },
-    { name: "Rogue Lineage", url: "https://www.roblox.com/games/3012683500/Rogue-Lineage", embed: "https://www.youtube.com/embed/Vzzv2A4e_WA" },
-    { name: "Pet Simulator", url: "https://www.roblox.com/games/3143102095/Pet-Simulator", embed: "https://www.youtube.com/embed/kU0cHl2JjHg" },
     { name: "Phantom Forces", url: "https://www.roblox.com/games/292439477/Phantom-Forces", embed: "https://www.youtube.com/embed/K-MxMHIspMI" },
-    { name: "All Star Tower Defense", url: "https://www.roblox.com/games/4622112756/All-Star-Tower-Defense", embed: "https://www.youtube.com/embed/HzbKoG7tQ8A" },
     { name: "Lumber Tycoon 2", url: "https://www.roblox.com/games/86194414/Lumber-Tycoon-2", embed: "https://www.youtube.com/embed/1wBGZpAqzVQ" },
     { name: "Shindo Life", url: "https://www.roblox.com/games/6120752138/Shindo-Life", embed: "https://www.youtube.com/embed/W6q9pcwsKyk" },
-    { name: "SharkBite", url: "https://www.roblox.com/games/137250995/SharkBite", embed: "https://www.youtube.com/embed/tH2mkwERcfE" },
-    { name: "Super Bomb Survival", url: "https://www.roblox.com/games/422994837/Super-Bomb-Survival", embed: "https://www.youtube.com/embed/qkPqlfYp4G8" },
 
-    // Adding 25 more games
+    // Replaced deleted or incorrect games with new ones
     { name: "The Normal Elevator", url: "https://www.roblox.com/games/2672521554/The-Normal-Elevator", embed: "https://www.youtube.com/embed/t8y4h52xhhQ" },
     { name: "Superhero Tycoon", url: "https://www.roblox.com/games/480191661/Superhero-Tycoon", embed: "https://www.youtube.com/embed/Wv4-mKrQGCg" },
     { name: "Escape Room Tycoon", url: "https://www.roblox.com/games/6238852823/Escape-Room-Tycoon", embed: "https://www.youtube.com/embed/D-pvqs7hhtk" },
