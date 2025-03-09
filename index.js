@@ -25,6 +25,11 @@ const shiftsLeftDisplay = document.getElementById('shifts-left');
 const workCooldownMessage = document.getElementById('work-cooldown-message');
 const gambleButton = document.getElementById('gamble-button');
 const gambleMessage = document.getElementById('gamble-message');
+const stealButton = document.getElementById('steal-button');
+const searchButton = document.getElementById('search-button');
+const begButton = document.getElementById('beg-button');
+const robButton = document.getElementById('rob-button');
+const activityMessage = document.getElementById('activity-message');
 const chatBox = document.getElementById('chat-box');
 const chatInput = document.getElementById('chat-input');
 const sendChatButton = document.getElementById('send-chat');
@@ -102,36 +107,28 @@ applyJobButton.addEventListener('click', () => {
     job = jobs[Math.floor(Math.random() * jobs.length)];
     shiftsLeft = job.shiftsRequired;
     saveUserData();
-    jobSection.innerHTML = `
-        <h3>Current Job: ${job.name}</h3>
-        <button id="work-button">Work</button>
-        <p id="shifts-left">Shifts Left: ${shiftsLeft}</p>
-    `;
-    workButton.style.display = 'inline-block';
-    shiftsLeftDisplay.style.display = 'inline-block';
+
+    jobSection.style.display = 'block';
+    applyJobButton.style.display = 'none';
+    workButton.style.display = 'block';
+    workMessage.textContent = `Job applied: ${job.name}`;
 });
 
 // Handle Work Button
 workButton.addEventListener('click', () => {
     const currentTime = Date.now();
-    const workCooldown = 3600000; // 1 hour cooldown in milliseconds
+    const workCooldown = 3600000; // 1-hour cooldown
 
-    if (currentTime - lastWorkTime >= workCooldown || chatInput.value === "uhtiepisthebestsigma") {
-        if (chatInput.value === "uhtiepisthebestsigma") {
-            lastWorkTime = 0; // No cooldown when the secret code is entered
-        } else {
-            lastWorkTime = currentTime;
-        }
-
+    if (currentTime - lastWorkTime >= workCooldown) {
         if (shiftsLeft > 0) {
-            currency += job.pay;
+            const earnedCoins = job.pay;
+            currency += earnedCoins;
             shiftsLeft -= 1;
+            lastWorkTime = currentTime;
             saveUserData();
-            workMessage.textContent = `You earned ${job.pay} coins! Shifts left: ${shiftsLeft}`;
+            workMessage.textContent = `You earned ${earnedCoins} coins! Shifts left: ${shiftsLeft}`;
             currencyDisplay.textContent = currency;
-        }
-
-        if (shiftsLeft === 0) {
+        } else {
             workMessage.textContent = `Job done! Apply for a new job.`;
             workButton.style.display = 'none';
         }
@@ -160,5 +157,65 @@ gambleButton.addEventListener('click', () => {
         saveUserData();
     } else {
         gambleMessage.textContent = 'You need at least 1 coin to gamble!';
+    }
+});
+
+// Handle Other Activities
+stealButton.addEventListener('click', () => {
+    const result = Math.random() < 0.5 ? 'lost' : 'won';
+    const amount = Math.floor(Math.random() * 10) + 1;
+
+    if (result === 'won') {
+        currency += amount;
+        activityMessage.textContent = `You stole ${amount} coins!`;
+    } else {
+        currency -= amount;
+        activityMessage.textContent = `You tried to steal and lost ${amount} coins.`;
+    }
+
+    currencyDisplay.textContent = currency;
+    saveUserData();
+});
+
+searchButton.addEventListener('click', () => {
+    const amount = Math.floor(Math.random() * 5) + 1;
+    currency += amount;
+    activityMessage.textContent = `You found ${amount} coins while searching.`;
+    currencyDisplay.textContent = currency;
+    saveUserData();
+});
+
+begButton.addEventListener('click', () => {
+    const amount = Math.floor(Math.random() * 3) + 1;
+    currency += amount;
+    activityMessage.textContent = `You begged and got ${amount} coins.`;
+    currencyDisplay.textContent = currency;
+    saveUserData();
+});
+
+robButton.addEventListener('click', () => {
+    const result = Math.random() < 0.5 ? 'failed' : 'succeeded';
+    const amount = Math.floor(Math.random() * 20) + 1;
+
+    if (result === 'succeeded') {
+        currency += amount;
+        activityMessage.textContent = `You robbed and got ${amount} coins!`;
+    } else {
+        currency -= amount;
+        activityMessage.textContent = `You tried to rob and failed, losing ${amount} coins.`;
+    }
+
+    currencyDisplay.textContent = currency;
+    saveUserData();
+});
+
+// Handle Chat
+sendChatButton.addEventListener('click', () => {
+    const message = chatInput.value;
+    if (message) {
+        const messageElement = document.createElement('p');
+        messageElement.textContent = message;
+        chatBox.appendChild(messageElement);
+        chatInput.value = '';
     }
 });
