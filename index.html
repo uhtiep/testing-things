@@ -23,10 +23,37 @@
     <main>
         <section class="hero-banner">
             <h2>Find Your Next Anime</h2>
-            <p>Click below to discover an anime to watch!</p>
+            <p>Select your genres and streaming service!</p>
+
+            <!-- Genre Selector -->
+            <label for="genres">Choose Genres:</label>
+            <select id="genres" multiple>
+                <option value="Action">Action</option>
+                <option value="Drama">Drama</option>
+                <option value="Comedy">Comedy</option>
+                <option value="Adventure">Adventure</option>
+                <option value="Fantasy">Fantasy</option>
+                <option value="Slice of Life">Slice of Life</option>
+                <!-- Add more genres as needed -->
+            </select>
+
+            <!-- Streaming Service Selector -->
+            <label for="streamingService">Choose Streaming Service:</label>
+            <select id="streamingService">
+                <option value="Zoro">Zoro.to</option>
+                <option value="9anime">9anime</option>
+                <option value="Miruiro">Miruiro</option>
+                <option value="Anipa">Anipa</option>
+                <option value="Soft">Soft</option>
+                <option value="Aniwave">Aniwave</option>
+                <option value="Aniflix">Aniflix</option>
+            </select>
+
+            <!-- Button to pick anime -->
             <button id="pickAnimeBtn">Pick a Random Anime</button>
         </section>
 
+        <!-- Anime Embed Section -->
         <section id="animeEmbed" class="anime-container"></section>
     </main>
 
