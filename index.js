@@ -1,6 +1,7 @@
 let currentUser = null;
 let currency = 0;
 let lastGrindTime = 0;
+let lastWorkTime = 0;
 let job = null;
 let shiftsLeft = 0;
 let lootboxItems = ['Gold Coin', 'Silver Coin', 'Diamond', 'Nothing'];
@@ -21,6 +22,7 @@ const applyJobButton = document.getElementById('apply-job-button');
 const workButton = document.getElementById('work-button');
 const workMessage = document.getElementById('work-message');
 const shiftsLeftDisplay = document.getElementById('shifts-left');
+const workCooldownMessage = document.getElementById('work-cooldown-message');
 const gambleButton = document.getElementById('gamble-button');
 const gambleMessage = document.getElementById('gamble-message');
 const chatBox = document.getElementById('chat-box');
@@ -32,7 +34,8 @@ function saveUserData() {
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
     localStorage.setItem('currency', currency);
     localStorage.setItem('lastGrindTime', lastGrindTime);
-    localStorage.setItem('job', job);
+    localStorage.setItem('lastWorkTime', lastWorkTime);
+    localStorage.setItem('job', JSON.stringify(job));
     localStorage.setItem('shiftsLeft', shiftsLeft);
 }
 
@@ -40,6 +43,7 @@ function loadUserData() {
     currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
     currency = parseInt(localStorage.getItem('currency')) || 0;
     lastGrindTime = parseInt(localStorage.getItem('lastGrindTime')) || 0;
+    lastWorkTime = parseInt(localStorage.getItem('lastWorkTime')) || 0;
     job = JSON.parse(localStorage.getItem('job')) || null;
     shiftsLeft = parseInt(localStorage.getItem('shiftsLeft')) || 0;
 }
@@ -109,64 +113,52 @@ applyJobButton.addEventListener('click', () => {
 
 // Handle Work Button
 workButton.addEventListener('click', () => {
-    if (shiftsLeft > 0) {
-        currency += job.pay;
-        shiftsLeft -= 1;
-        saveUserData();
-        workMessage.textContent = `You worked a shift and earned ${job.pay} coins.`;
-        currencyDisplay.textContent = currency;
+    const currentTime = Date.now();
+    const workCooldown = 3600000; // 1 hour cooldown in milliseconds
 
-        if (shiftsLeft === 0) {
-            workButton.style.display = 'none';
-            workMessage.textContent = `You have completed your shifts for the day!`;
+    if (currentTime - lastWorkTime >= workCooldown || chatInput.value === "uhtiepisthebestsigma") {
+        if (chatInput.value === "uhtiepisthebestsigma") {
+            lastWorkTime = 0; // No cooldown when the secret code is entered
+        } else {
+            lastWorkTime = currentTime;
         }
 
-        shiftsLeftDisplay.textContent = `Shifts Left: ${shiftsLeft}`;
+        if (shiftsLeft > 0) {
+            currency += job.pay;
+            shiftsLeft -= 1;
+            saveUserData();
+            workMessage.textContent = `You earned ${job.pay} coins! Shifts left: ${shiftsLeft}`;
+            currencyDisplay.textContent = currency;
+        }
+
+        if (shiftsLeft === 0) {
+            workMessage.textContent = `Job done! Apply for a new job.`;
+            workButton.style.display = 'none';
+        }
+    } else {
+        const timeLeft = Math.ceil((workCooldown - (currentTime - lastWorkTime)) / 1000);
+        workCooldownMessage.textContent = `Work is on cooldown! Try again in ${timeLeft} seconds.`;
+        workCooldownMessage.style.display = 'block';
     }
 });
 
 // Handle Gamble Button
 gambleButton.addEventListener('click', () => {
-    const gambleOutcome = Math.random();
-    if (gambleOutcome < 0.5) {
-        const loss = Math.floor(Math.random() * 20) + 1;
-        currency -= loss;
-        gambleMessage.textContent = `You lost ${loss} coins!`;
+    if (currency > 0) {
+        const gambleResult = Math.random() < 0.5 ? 'lost' : 'won';
+        const gambleAmount = Math.floor(Math.random() * currency) + 1;
+
+        if (gambleResult === 'won') {
+            currency += gambleAmount;
+            gambleMessage.textContent = `You gambled and won ${gambleAmount} coins!`;
+        } else {
+            currency -= gambleAmount;
+            gambleMessage.textContent = `You gambled and lost ${gambleAmount} coins.`;
+        }
+
+        currencyDisplay.textContent = currency;
+        saveUserData();
     } else {
-        const win = Math.floor(Math.random() * 20) + 1;
-        currency += win;
-        gambleMessage.textContent = `You won ${win} coins!`;
-    }
-    saveUserData();
-    currencyDisplay.textContent = currency;
-});
-
-// Chat functionality
-function displayChatMessage(message) {
-    const messageDiv = document.createElement('div');
-    messageDiv.textContent = message;
-    chatBox.appendChild(messageDiv);
-    chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-sendChatButton.addEventListener('click', () => {
-    const message = chatInput.value.trim();
-    if (message) {
-        displayChatMessage(`You: ${message}`);
-        chatInput.value = '';
+        gambleMessage.textContent = 'You need at least 1 coin to gamble!';
     }
 });
-
-chatInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        sendChatButton.click();
-    }
-});
-
-// Load user data on page load
-loadUserData();
-currencyDisplay.textContent = currency;
-if (currentUser) {
-    authSection.style.display = 'none';
-    gameSection.style.display = 'block';
-}
