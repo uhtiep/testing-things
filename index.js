@@ -1,3 +1,4 @@
+// Array of game objects with name and game ID
 const games = [
     { name: "Adopt Me!", gameId: "920587237" },
     { name: "Brookhaven", gameId: "4924922222" },
@@ -60,13 +61,14 @@ const games = [
     { name: "Rogue Lineage", gameId: "3233176128" },
     { name: "Piggy", gameId: "4623386862" },
     { name: "Tower of Hell", gameId: "1962086860" },
-    // Continue adding more games until you reach 400 entries.
+    // Add more games to reach 400 games...
 ];
 
+// Function to load a random game and show it on the page
 function loadRandomGame() {
     const randomGame = games[Math.floor(Math.random() * games.length)];
 
-    // Determine the popularity of the game
+    // Determine the popularity of the game and its color
     let popularity = "";
     let popularityColor = "";
 
@@ -83,12 +85,15 @@ function loadRandomGame() {
 
     const gameUrl = `https://www.roblox.com/games/${randomGame.gameId}`;
 
-    // Display the game data
+    // Update the HTML content to show the selected game's data
     document.getElementById('gameName').textContent = `Game: ${randomGame.name}`;
     document.getElementById('totalVisits').textContent = `Total Visits: Not Provided`;
     document.getElementById('currentPlayers').innerHTML = `<span style="color: ${popularityColor};">${popularity}</span>`;
     document.getElementById('gameLink').innerHTML = `<a href="${gameUrl}" target="_blank">Play Game</a>`;
 }
 
-// Load random game on page load
+// Attach the click event to the "Get Random Game" button
+document.getElementById('randomGameButton').addEventListener('click', loadRandomGame);
+
+// Load a random game when the page is first loaded
 loadRandomGame();
