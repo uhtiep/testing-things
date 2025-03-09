@@ -3,24 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Random Image Clicker</title>
+    <title>Dank Memer Mimic</title>
     <link rel="stylesheet" href="fye.css">
 </head>
 <body>
     <header>
-        <h1>Random Image Clicker</h1>
-        <p>Click the button to see a new random image!</p>
+        <h1>Dank Memer Mimic</h1>
+        <p>Welcome to the Dank Memer-inspired experience! Earn currency, chat, and play mini-games!</p>
     </header>
 
-    <main>
-        <div id="image-container">
-            <img id="random-image" src="" alt="Random Image" />
-        </div>
-        <button id="click-btn">Click me!</button>
-    </main>
+    <div id="game-container">
+        <!-- Currency section -->
+        <section id="currency-section">
+            <h2>Currency: <span id="currency">0</span> Coins</h2>
+            <button id="grind-button">Grind for Coins</button>
+        </section>
+
+        <!-- Mini-games section -->
+        <section id="minigames-section">
+            <h2>Mini-games</h2>
+            <p>Coming soon! Play mini-games here.</p>
+        </section>
+
+        <!-- Live chat section -->
+        <section id="chat-section">
+            <h2>Live Chat</h2>
+            <div id="chat-box"></div>
+            <input type="text" id="chat-input" placeholder="Type your message..." />
+            <button id="send-chat">Send</button>
+        </section>
+    </div>
 
     <footer>
-        <p>&copy; 2025 Random Image Clicker</p>
+        <p>&copy; 2025 Dank Memer Mimic</p>
     </footer>
 
     <script src="index.js"></script>

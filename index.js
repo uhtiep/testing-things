@@ -1,26 +1,40 @@
-// Array of random image URLs (you can add your own or find free-to-use ones online)
-const images = [
-    'https://source.unsplash.com/random/300x300?cat',
-    'https://source.unsplash.com/random/300x300?dog',
-    'https://source.unsplash.com/random/300x300?nature',
-    'https://source.unsplash.com/random/300x300?city',
-    'https://source.unsplash.com/random/300x300?space',
-    'https://source.unsplash.com/random/300x300?beach',
-    'https://source.unsplash.com/random/300x300?food',
-    'https://source.unsplash.com/random/300x300?mountain',
-    'https://source.unsplash.com/random/300x300?ocean',
-    'https://source.unsplash.com/random/300x300?forest'
-];
+// Set up currency
+let currency = 0;
+const currencyDisplay = document.getElementById('currency');
+const grindButton = document.getElementById('grind-button');
 
-// Function to set a random image to the img tag
-function setRandomImage() {
-    const randomIndex = Math.floor(Math.random() * images.length);
-    const randomImageUrl = images[randomIndex];
-    document.getElementById('random-image').src = randomImageUrl;
+// Simulate currency grinding when clicking the button
+grindButton.addEventListener('click', () => {
+    const earnedCoins = Math.floor(Math.random() * 10) + 1; // Random coins between 1 and 10
+    currency += earnedCoins;
+    currencyDisplay.textContent = currency;
+});
+
+// Chat functionality
+const chatBox = document.getElementById('chat-box');
+const chatInput = document.getElementById('chat-input');
+const sendChatButton = document.getElementById('send-chat');
+
+// Function to display the chat message
+function displayChatMessage(message) {
+    const messageDiv = document.createElement('div');
+    messageDiv.textContent = message;
+    chatBox.appendChild(messageDiv);
+    chatBox.scrollTop = chatBox.scrollHeight; // Auto scroll to the latest message
 }
 
-// Event listener for the button click
-document.getElementById('click-btn').addEventListener('click', setRandomImage);
+// Send chat message
+sendChatButton.addEventListener('click', () => {
+    const message = chatInput.value.trim();
+    if (message) {
+        displayChatMessage(`You: ${message}`);
+        chatInput.value = ''; // Clear the input field
+    }
+});
 
-// Set an initial random image when the page loads
-window.onload = setRandomImage;
+// Optional: You can also handle "Enter" to send a message
+chatInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        sendChatButton.click();
+    }
+});
