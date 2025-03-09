@@ -14,25 +14,27 @@ let ball = {
     dy: 0,
     gravity: 0.5,
     friction: 0.98,
-    jumpPower: -10
+    jumpPower: -10,
+    speed: 3
 };
 
 let ground = {
-    x: 0,
     y: canvas.height - 30,
-    width: canvas.width,
+    width: 3000,  // Large enough for scrolling
     height: 30,
     color: 'green'
 };
 
 // Game Settings
 let isJumping = false;
+let isOnGround = true;
 let level = 1;
 let score = 0;
+let backgroundOffset = 0;
 
 function drawBall() {
     ctx.beginPath();
-    ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+    ctx.arc(ball.x - backgroundOffset, ball.y, ball.radius, 0, Math.PI * 2);
     ctx.fillStyle = ball.color;
     ctx.fill();
     ctx.closePath();
@@ -40,23 +42,25 @@ function drawBall() {
 
 function drawGround() {
     ctx.fillStyle = ground.color;
-    ctx.fillRect(ground.x, ground.y, ground.width, ground.height);
+    ctx.fillRect(-backgroundOffset, ground.y, ground.width, ground.height);
 }
 
 function moveBall() {
     if (ball.y + ball.radius < ground.y) {
         ball.dy += ball.gravity;  // Gravity effect
+        isOnGround = false;
     } else {
         ball.dy = 0;
         ball.y = ground.y - ball.radius;
         if (isJumping) {
             isJumping = false;
         }
+        isOnGround = true;
     }
 
     ball.x += ball.dx;
     ball.y += ball.dy;
-    
+
     // Ball friction
     ball.dx *= ball.friction;
     ball.dy *= ball.friction;
@@ -64,13 +68,17 @@ function moveBall() {
 
 function keyControl() {
     if (keyState['ArrowRight']) {
-        ball.dx += 0.5;
+        if (ball.x < canvas.width - 100) {
+            ball.dx = ball.speed;  // Move right at a constant speed
+        }
     }
     if (keyState['ArrowLeft']) {
-        ball.dx -= 0.5;
+        if (ball.x > 100) {
+            ball.dx = -ball.speed;  // Move left at a constant speed
+        }
     }
-    if (keyState['ArrowUp'] && !isJumping) {
-        ball.dy = ball.jumpPower;
+    if (keyState['ArrowUp'] && isOnGround && !isJumping) {
+        ball.dy = ball.jumpPower;  // Jump
         isJumping = true;
     }
 }
@@ -82,13 +90,18 @@ window.addEventListener('keyup', (e) => keyState[e.key] = false);
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+
     drawBall();
     drawGround();
-    
+
     moveBall();
     keyControl();
-    
+
+    // Side-scrolling effect
+    if (ball.x > canvas.width - 100) {
+        backgroundOffset = ball.x - (canvas.width - 100);  // Keep ball at the right of the screen
+    }
+
     requestAnimationFrame(draw);
 }
 
@@ -100,6 +113,8 @@ function startLevel(level) {
     ball.dx = 0;
     ball.dy = 0;
     isJumping = false;
+    isOnGround = true;
+    backgroundOffset = 0;
 
     if (level === 1) {
         // Basic physics (gravity, ground)
