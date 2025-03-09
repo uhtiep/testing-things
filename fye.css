@@ -30,12 +30,15 @@ header {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-#currency-section {
-    margin-bottom: 20px;
-    text-align: center;
+#auth-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 30px;
 }
 
-#currency-section button {
+#auth-button, #grind-button, #lootbox-button {
     padding: 10px 20px;
     background-color: #4CAF50;
     color: white;
@@ -45,8 +48,12 @@ header {
     font-size: 16px;
 }
 
-#currency-section button:hover {
+#auth-button:hover, #grind-button:hover, #lootbox-button:hover {
     background-color: #45a049;
+}
+
+#game-section {
+    text-align: center;
 }
 
 #minigames-section {

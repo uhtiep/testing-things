@@ -13,16 +13,22 @@
     </header>
 
     <div id="game-container">
-        <!-- Currency section -->
-        <section id="currency-section">
-            <h2>Currency: <span id="currency">0</span> Coins</h2>
-            <button id="grind-button">Grind for Coins</button>
+        <!-- User login and sign up -->
+        <section id="auth-section">
+            <h2 id="auth-title">Sign Up</h2>
+            <input type="text" id="username" placeholder="Username" />
+            <input type="password" id="password" placeholder="Password" />
+            <button id="auth-button">Sign Up</button>
+            <p id="auth-message"></p>
         </section>
 
-        <!-- Mini-games section -->
-        <section id="minigames-section">
-            <h2>Mini-games</h2>
-            <p>Coming soon! Play mini-games here.</p>
+        <!-- Currency and grind section (visible after login) -->
+        <section id="game-section" style="display:none;">
+            <h2>Currency: <span id="currency">0</span> Coins</h2>
+            <button id="grind-button">Grind for Coins</button>
+            <p id="cooldown-message" style="color: red; display: none;">You need to wait before grinding again!</p>
+            <button id="lootbox-button">Open Lootbox</button>
+            <p id="lootbox-message"></p>
         </section>
 
         <!-- Live chat section -->
