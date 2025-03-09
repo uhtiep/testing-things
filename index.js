@@ -1,136 +1,91 @@
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-
-canvas.width = 800;
-canvas.height = 600;
-
-// Game Objects
-let ball = {
-    x: 100,
-    y: 500,
-    radius: 20,
-    color: 'red',
-    dx: 0,
-    dy: 0,
-    gravity: 0.5,
-    friction: 0.98,
-    jumpPower: -10,
-    speed: 3
-};
-
-let ground = {
-    y: canvas.height - 30,
-    width: 3000,  // Large enough for scrolling
-    height: 30,
-    color: 'green'
-};
-
-// Game Settings
-let isJumping = false;
-let isOnGround = true;
-let level = 1;
+// Game Constants
+const noteSpeed = 3; // Speed at which the notes fall
+const noteHitThreshold = 20; // Distance when the note is considered "hit"
+let health = 100; // Player's health
 let score = 0;
-let backgroundOffset = 0;
+let gameOver = false;
+let noteInterval; // To store the interval for generating notes
+let notes = []; // Array to store notes
+let keyPresses = { left: false, down: false, up: false, right: false };
 
-function drawBall() {
-    ctx.beginPath();
-    ctx.arc(ball.x - backgroundOffset, ball.y, ball.radius, 0, Math.PI * 2);
-    ctx.fillStyle = ball.color;
-    ctx.fill();
-    ctx.closePath();
+// DOM Elements
+const healthBar = document.getElementById('health');
+const noteContainer = document.getElementById('note-container');
+const instructions = document.getElementById('instructions');
+
+// Function to generate a new note
+function generateNote() {
+    const note = document.createElement('div');
+    note.classList.add('note');
+    const notePosition = ['left', 'down', 'up', 'right'][Math.floor(Math.random() * 4)];  // Random direction
+    note.style.left = `${Math.random() * 550}px`; // Random horizontal position within the screen
+    note.dataset.position = notePosition;
+    noteContainer.appendChild(note);
+    notes.push(note);
 }
 
-function drawGround() {
-    ctx.fillStyle = ground.color;
-    ctx.fillRect(-backgroundOffset, ground.y, ground.width, ground.height);
-}
+// Function to move notes down and check for collisions
+function moveNotes() {
+    notes.forEach((note, index) => {
+        let noteTop = parseInt(note.style.bottom) || 0;
+        note.style.bottom = `${noteTop + noteSpeed}px`;
 
-function moveBall() {
-    if (ball.y + ball.radius < ground.y) {
-        ball.dy += ball.gravity;  // Gravity effect
-        isOnGround = false;
-    } else {
-        ball.dy = 0;
-        ball.y = ground.y - ball.radius;
-        if (isJumping) {
-            isJumping = false;
+        // Check if the note reaches the hit zone
+        if (noteTop > noteHitThreshold && !note.classList.contains('hit')) {
+            if (!keyPresses[note.dataset.position]) {
+                // Missed the note, reduce health
+                health -= 10;
+                updateHealth();
+                note.classList.add('missed');
+            } else {
+                // Hit the note, increase score
+                score += 10;
+                note.classList.add('hit');
+            }
+            setTimeout(() => note.remove(), 300); // Remove note after it hits or misses
+            notes.splice(index, 1); // Remove note from array
         }
-        isOnGround = true;
-    }
-
-    ball.x += ball.dx;
-    ball.y += ball.dy;
-
-    // Ball friction
-    ball.dx *= ball.friction;
-    ball.dy *= ball.friction;
+    });
 }
 
-function keyControl() {
-    if (keyState['ArrowRight']) {
-        if (ball.x < canvas.width - 100) {
-            ball.dx = ball.speed;  // Move right at a constant speed
-        }
-    }
-    if (keyState['ArrowLeft']) {
-        if (ball.x > 100) {
-            ball.dx = -ball.speed;  // Move left at a constant speed
-        }
-    }
-    if (keyState['ArrowUp'] && isOnGround && !isJumping) {
-        ball.dy = ball.jumpPower;  // Jump
-        isJumping = true;
+// Update the health bar
+function updateHealth() {
+    healthBar.style.width = `${health}%`;
+    if (health <= 0) {
+        gameOver = true;
+        instructions.textContent = "Game Over! Refresh to play again.";
+        clearInterval(noteInterval); // Stop the game
     }
 }
 
-// Keyboard events for controlling the ball
-let keyState = {};
-window.addEventListener('keydown', (e) => keyState[e.key] = true);
-window.addEventListener('keyup', (e) => keyState[e.key] = false);
-
-function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    drawBall();
-    drawGround();
-
-    moveBall();
-    keyControl();
-
-    // Side-scrolling effect
-    if (ball.x > canvas.width - 100) {
-        backgroundOffset = ball.x - (canvas.width - 100);  // Keep ball at the right of the screen
+// Handle key presses for player input
+document.addEventListener('keydown', (event) => {
+    if (gameOver) return;
+    switch (event.key) {
+        case 'ArrowLeft': keyPresses.left = true; break;
+        case 'ArrowDown': keyPresses.down = true; break;
+        case 'ArrowUp': keyPresses.up = true; break;
+        case 'ArrowRight': keyPresses.right = true; break;
     }
+});
 
-    requestAnimationFrame(draw);
+document.addEventListener('keyup', (event) => {
+    if (gameOver) return;
+    switch (event.key) {
+        case 'ArrowLeft': keyPresses.left = false; break;
+        case 'ArrowDown': keyPresses.down = false; break;
+        case 'ArrowUp': keyPresses.up = false; break;
+        case 'ArrowRight': keyPresses.right = false; break;
+    }
+});
+
+// Start the game
+function startGame() {
+    instructions.textContent = "Press Arrow Keys to Play!";
+    noteInterval = setInterval(() => {
+        generateNote();
+        moveNotes();
+    }, 1000); // Generate notes every 1 second
 }
 
-// Level mechanics
-function startLevel(level) {
-    // Reset ball position and state
-    ball.x = 100;
-    ball.y = 500;
-    ball.dx = 0;
-    ball.dy = 0;
-    isJumping = false;
-    isOnGround = true;
-    backgroundOffset = 0;
-
-    if (level === 1) {
-        // Basic physics (gravity, ground)
-        console.log("Level 1: Basic physics introduced.");
-    } else if (level === 2) {
-        // Physics-based puzzles (add obstacles or platforms)
-        console.log("Level 2: Physics-based puzzles introduced.");
-    } else if (level === 3) {
-        // Puzzle-based mechanics (moving platforms, switches)
-        console.log("Level 3: General puzzle mechanics introduced.");
-    } else if (level === 4) {
-        // Boss fight
-        console.log("Level 4: Boss fight!");
-        // Boss mechanics here (add a boss character)
-    }
-}
-
-startLevel(level);
-draw();
+startGame();
