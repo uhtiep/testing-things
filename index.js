@@ -3,116 +3,93 @@ const ctx = canvas.getContext("2d");
 canvas.width = 800;
 canvas.height = 500;
 
-let glasses = [];
-let selectedBall = null;
+document.addEventListener("keydown", moveBall);
 
-class Glass {
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
-        this.width = 60;
-        this.height = 150;
-        this.balls = [];
-    }
-    draw() {
-        ctx.strokeStyle = "black";
-        ctx.strokeRect(this.x, this.y, this.width, this.height);
-        this.balls.forEach((ball, index) => {
-            ball.x = this.x + this.width / 2;
-            ball.y = this.y + this.height - (index + 1) * 40;
-            ball.draw();
-        });
-    }
-    canAddBall(ball) {
-        return this.balls.length < 4 && (this.balls.length === 0 || this.balls[this.balls.length - 1].color === ball.color);
-    }
-    addBall(ball) {
-        if (this.canAddBall(ball)) {
-            this.balls.push(ball);
-            return true;
-        }
-        return false;
-    }
-    removeBall() {
-        return this.balls.pop();
-    }
-    isSorted() {
-        return this.balls.length === 4 && this.balls.every(ball => ball.color === this.balls[0].color);
-    }
+let ball = {
+    x: 100,
+    y: 400,
+    radius: 15,
+    color: "blue",
+    dx: 0,
+    dy: 0,
+    speed: 2,
+    onGround: false,
+};
+
+let platforms = [
+    { x: 50, y: 450, width: 200, height: 10 },
+    { x: 300, y: 400, width: 200, height: 10 },
+    { x: 550, y: 350, width: 200, height: 10 },
+    { x: 200, y: 250, width: 150, height: 10 },
+    { x: 450, y: 200, width: 150, height: 10 },
+];
+
+function drawBall() {
+    ctx.beginPath();
+    ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+    ctx.fillStyle = ball.color;
+    ctx.fill();
+    ctx.closePath();
 }
 
-class Ball {
-    constructor(color) {
-        this.color = color;
-        this.radius = 20;
-        this.x = 0;
-        this.y = 0;
-    }
-    draw() {
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = this.color;
-        ctx.fill();
-        ctx.closePath();
-    }
-}
-
-function setupGame() {
-    glasses = [new Glass(100, 200), new Glass(200, 200), new Glass(300, 200), new Glass(400, 200)];
-    let colors = ["red", "blue", "green", "yellow"];
-    let allBalls = [];
-    colors.forEach(color => {
-        for (let i = 0; i < 4; i++) {
-            allBalls.push(new Ball(color));
-        }
-    });
-    allBalls.sort(() => Math.random() - 0.5);
-    
-    let index = 0;
-    glasses.forEach(glass => {
-        while (glass.balls.length < 4 && index < allBalls.length) {
-            glass.addBall(allBalls[index]);
-            index++;
-        }
+function drawPlatforms() {
+    ctx.fillStyle = "black";
+    platforms.forEach(platform => {
+        ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
     });
 }
 
-canvas.addEventListener("click", (e) => {
-    let rect = canvas.getBoundingClientRect();
-    let mouseX = e.clientX - rect.left;
-    let mouseY = e.clientY - rect.top;
-    
-    let clickedGlass = glasses.find(glass => mouseX > glass.x && mouseX < glass.x + glass.width && mouseY > glass.y && mouseY < glass.y + glass.height);
-    
-    if (clickedGlass) {
-        if (selectedBall) {
-            if (clickedGlass.addBall(selectedBall)) {
-                selectedBall = null;
-            }
-        } else {
-            selectedBall = clickedGlass.removeBall();
-        }
+function moveBall(event) {
+    if (event.key === "ArrowRight") {
+        ball.dx = ball.speed;
+    } else if (event.key === "ArrowLeft") {
+        ball.dx = -ball.speed;
+    } else if (event.key === "ArrowUp" && ball.onGround) {
+        ball.dy = -5;
+        ball.onGround = false;
     }
-    checkWin();
+}
+
+document.addEventListener("keyup", () => {
+    ball.dx = 0;
 });
 
-function checkWin() {
-    if (glasses.every(glass => glass.isSorted() || glass.balls.length === 0)) {
-        alert("You win!");
-        setupGame();
+function applyPhysics() {
+    ball.dy += 0.2; // Gravity
+    ball.x += ball.dx;
+    ball.y += ball.dy;
+    
+    ball.onGround = false;
+    platforms.forEach(platform => {
+        if (
+            ball.x + ball.radius > platform.x &&
+            ball.x - ball.radius < platform.x + platform.width &&
+            ball.y + ball.radius > platform.y &&
+            ball.y + ball.radius < platform.y + platform.height
+        ) {
+            ball.y = platform.y - ball.radius;
+            ball.dy = 0;
+            ball.onGround = true;
+        }
+    });
+    
+    if (ball.y + ball.radius > canvas.height) {
+        ball.y = canvas.height - ball.radius;
+        ball.dy = 0;
+        ball.onGround = true;
     }
 }
 
-function drawObjects() {
+function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    glasses.forEach(glass => glass.draw());
-    if (selectedBall) selectedBall.draw();
+    drawPlatforms();
+    drawBall();
 }
 
-function animate() {
-    requestAnimationFrame(animate);
-    drawObjects();
+function update() {
+    applyPhysics();
+    draw();
+    requestAnimationFrame(update);
 }
 
-setupGame();
-animate();
+update();
