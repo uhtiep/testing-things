@@ -42,7 +42,19 @@ const sendChatButton = document.getElementById('send-chat');
 const banButton = document.getElementById('ban-button');
 const deleteAccountButton = document.getElementById('delete-account-button');
 
-// Helper functions for saving and loading user data
+// Store the chat messages in localStorage (for global chat simulation)
+let chatMessages = JSON.parse(localStorage.getItem('chatMessages')) || [];
+
+function updateChatDisplay() {
+    chatBox.innerHTML = '';
+    chatMessages.forEach(message => {
+        const chatMessageElement = document.createElement('div');
+        chatMessageElement.textContent = message;
+        chatBox.appendChild(chatMessageElement);
+    });
+}
+
+// Save user data to localStorage
 function saveUserData() {
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
     localStorage.setItem('currency', currency);
@@ -95,6 +107,17 @@ authButton.addEventListener('click', () => {
         }
     } else {
         authMessage.textContent = 'Please enter a valid username and password.';
+    }
+});
+
+// Handle Global Chat
+sendChatButton.addEventListener('click', () => {
+    const chatMessage = chatInput.value;
+    if (chatMessage) {
+        chatMessages.push(`${currentUser.username}: ${chatMessage}`);
+        localStorage.setItem('chatMessages', JSON.stringify(chatMessages));
+        updateChatDisplay();
+        chatInput.value = '';
     }
 });
 
@@ -164,39 +187,13 @@ workButton.addEventListener('click', () => {
     }
 });
 
-// Handle Gamble Button (Cooldown optimized)
-gambleButton.addEventListener('click', () => {
-    const currentTime = Date.now();
-    const gambleCooldown = 5000; // 5-second cooldown for gambling
-
-    if (currentTime - lastGambleTime >= gambleCooldown) {
-        if (currency > 0) {
-            const gambleResult = Math.random() < 0.5 ? 'lost' : 'won';
-            const gambleAmount = Math.floor(Math.random() * currency) + 1;
-
-            if (gambleResult === 'won') {
-                currency += gambleAmount;
-                gambleMessage.textContent = `You gambled and won ${gambleAmount} coins!`;
-            } else {
-                currency -= gambleAmount;
-                gambleMessage.textContent = `You gambled and lost ${gambleAmount} coins.`;
-            }
-
-            currencyDisplay.textContent = currency;
-            saveUserData();
-        } else {
-            gambleMessage.textContent = 'You need at least 1 coin to gamble!';
-        }
-    } else {
-        const timeLeft = Math.ceil((gambleCooldown - (currentTime - lastGambleTime)) / 1000);
-        gambleMessage.textContent = `Gambling is on cooldown! Try again in ${timeLeft} seconds.`;
-    }
-});
-
-// Handle Admin Commands
+// Handle Admin Commands (Ban, Delete Account)
 banButton.addEventListener('click', () => {
     if (admin) {
-        // Ban logic (example: remove user)
+        // Announce in chat
+        chatMessages.push(`${currentUser.username} has banned a user!`);
+        localStorage.setItem('chatMessages', JSON.stringify(chatMessages));
+        updateChatDisplay();
         alert('User banned!');
     } else {
         alert('You are not an admin!');
@@ -205,10 +202,12 @@ banButton.addEventListener('click', () => {
 
 deleteAccountButton.addEventListener('click', () => {
     if (admin) {
-        // Delete account logic
+        // Announce in chat
+        chatMessages.push(`${currentUser.username} has deleted an account!`);
+        localStorage.setItem('chatMessages', JSON.stringify(chatMessages));
+        updateChatDisplay();
         alert('Account deleted!');
     } else {
         alert('You are not an admin!');
     }
 });
-
