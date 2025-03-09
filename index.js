@@ -107,7 +107,8 @@ const games = [
     { name: "Bloxburg", gameId: "185655149" },
     { name: "Flee the Facility", gameId: "184191456" },
     { name: "Rogue Lineage", gameId: "3233176128" },
-    { name: "Piggy", gameId: "4623386862" }
+    { name: "Piggy", gameId: "4623386862" }, 
+    { name: "Identity Fraud", gameId: "338521019" }
     // Add more games up to 400 here
 ];
 
