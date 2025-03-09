@@ -3,53 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Uhtime - Dank Memer Web Game</title>
+    <title>Play with Balls & Glass</title>
     <link rel="stylesheet" href="fye.css">
 </head>
 <body>
-    <div id="auth-section">
-        <h2>Login to Uhtime</h2>
-        <input type="text" id="username" placeholder="Username">
-        <input type="password" id="password" placeholder="Password">
-        <button id="auth-button">Login</button>
-        <p id="auth-message"></p>
+    <h1>Play with Balls & Glass</h1>
+    <button id="addBall">Add Ball</button>
+    <button id="addGlass">Add Glass</button>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
     </div>
-
-    <div id="game-section" style="display: none;">
-        <h1>Welcome to Uhtime!</h1>
-        <p>Coins: <span id="currency">0</span></p>
-        <div>
-            <input type="text" id="command-input" placeholder="Enter command">
-            <button id="command-button">Execute</button>
-        </div>
-        <p id="command-output"></p>
-        <div>
-            <button id="grind-button">Grind</button>
-            <button id="lootbox-button">Open Lootbox</button>
-            <button id="apply-job-button">Apply for Job</button>
-            <button id="work-button">Work</button>
-        </div>
-        <p id="work-message"></p>
-        <p id="shifts-left">Shifts Left: <span id="shifts-left-count">0</span></p>
-        <p id="work-cooldown-message"></p>
-        <p id="cooldown-message"></p>
-        <div>
-            <button id="gamble-button">Gamble</button>
-            <button id="steal-button">Steal</button>
-            <button id="search-button">Search</button>
-            <button id="beg-button">Beg</button>
-            <button id="rob-button">Rob</button>
-        </div>
-        <p id="activity-message"></p>
-
-        <div id="chat-section">
-            <h3>Global Chat</h3>
-            <div id="chat-box"></div>
-            <input type="text" id="chat-input" placeholder="Type a message">
-            <button id="send-chat">Send</button>
-        </div>
-    </div>
-
     <script src="index.js"></script>
 </body>
 </html>
