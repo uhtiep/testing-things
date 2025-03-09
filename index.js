@@ -1,41 +1,24 @@
-// Spotify track URIs
-const songs = [
-    "https://open.spotify.com/embed/track/0BZ1lKlzvIthcq1BJHgmpn", // I Must Apologize
-    "https://open.spotify.com/embed/track/4A84P5U5dTgIF0lqhbjK3P", // Identity
-    "https://open.spotify.com/embed/track/5yH6D2E6s8IhgdGtzmcUE2", // Queen
-    "https://open.spotify.com/embed/track/2eOBvYd0xLyPAtYTu6UnJz", // Hito Mania
-    "https://open.spotify.com/embed/track/3LrVEvF8fqO6X4hW9kg6Sc", // Medicine
-    "https://open.spotify.com/embed/track/1KtyTCIhGswNsHffBOxFVY", // Crime and Punishment Reloaded
-    "https://open.spotify.com/embed/track/5D8ZqL3E85EtUmul7ViTfI", // Neverland
-    "https://open.spotify.com/embed/track/6eENJ7g2plJ5OuIoYhX79Q"  // Non-Breath Oblige
+// List of Roblox games with their names and links
+const games = [
+    { name: "Adopt Me!", url: "https://www.roblox.com/games/920587237/Adopt-Me" },
+    { name: "Brookhaven", url: "https://www.roblox.com/games/4924922222/Brookhaven-RP" },
+    { name: "Arsenal", url: "https://www.roblox.com/games/194275227/Arsenal" },
+    { name: "Bloxburg", url: "https://www.roblox.com/games/185655149/Bloxburg" },
+    { name: "Murder Mystery 2", url: "https://www.roblox.com/games/142823291/Murder-Mystery-2" },
+    { name: "Tower of Hell", url: "https://www.roblox.com/games/1962086868/Tower-of-Hell" },
+    { name: "Shindo Life", url: "https://www.roblox.com/games/6120752138/Shindo-Life" },
+    { name: "Piggy", url: "https://www.roblox.com/games/4623386862/Piggy" }
 ];
 
-// Shuffle songs each time the page loads
-let shuffledSongs = songs.sort(() => Math.random() - 0.5);
-let currentIndex = 0;
-const spotifyFrame = document.getElementById("spotify-frame");
+document.getElementById('pickGameBtn').addEventListener('click', function() {
+    // Pick a random game from the list
+    const randomGame = games[Math.floor(Math.random() * games.length)];
 
-// Load first song
-function loadSong(index) {
-    spotifyFrame.src = shuffledSongs[index];
-}
+    // Display the game name and link
+    const gameLinkContainer = document.getElementById('gameLinkContainer');
+    const gameLink = document.getElementById('gameLink');
 
-// Play next song
-document.getElementById("next").addEventListener("click", () => {
-    currentIndex = (currentIndex + 1) % shuffledSongs.length;
-    loadSong(currentIndex);
+    gameLink.textContent = `Play ${randomGame.name}`;
+    gameLink.href = randomGame.url;
+    gameLink.target = "_blank";
 });
-
-// Play previous song
-document.getElementById("prev").addEventListener("click", () => {
-    currentIndex = (currentIndex - 1 + shuffledSongs.length) % shuffledSongs.length;
-    loadSong(currentIndex);
-});
-
-// Play/Pause (Spotify embed doesn't support full control, but reloads the song)
-document.getElementById("play").addEventListener("click", () => {
-    spotifyFrame.src = shuffledSongs[currentIndex];
-});
-
-// Load the first song on page load
-loadSong(currentIndex);
