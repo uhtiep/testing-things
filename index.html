@@ -4,10 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Random Game Picker</title>
+    <link rel="stylesheet" href="fye.css">
 </head>
 <body>
-    <button id="pickGameBtn">Pick a Random Game</button>
-    <div id="gameEmbed"></div>
+    <div class="container">
+        <header>
+            <h1>Game Picker</h1>
+            <p>Click below to find a random game to play.</p>
+        </header>
+
+        <main>
+            <button id="pickGameBtn">Pick a Random Game</button>
+
+            <div id="gameEmbed" class="game-container"></div>
+        </main>
+    </div>
 
     <script src="index.js"></script>
 </body>
