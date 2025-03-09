@@ -1,30 +1,29 @@
-// List of Roblox games with their names, links, and YouTube embed links
-const games = [
-    { name: "Adopt Me!", url: "https://www.roblox.com/games/920587237/Adopt-Me", embed: "https://www.youtube.com/embed/Ur91pfgwdv0" },
-    { name: "Brookhaven", url: "https://www.roblox.com/games/4924922222/Brookhaven-RP", embed: "https://www.youtube.com/embed/gXrIATp-KXM" },
-    { name: "Arsenal", url: "https://www.roblox.com/games/194275227/Arsenal", embed: "https://www.youtube.com/embed/6shJl2rQfgw" },
-    { name: "Bloxburg", url: "https://www.roblox.com/games/185655149/Bloxburg", embed: "https://www.youtube.com/embed/9-KpkTux7Og" },
-    { name: "Murder Mystery 2", url: "https://www.roblox.com/games/142823291/Murder-Mystery-2", embed: "https://www.youtube.com/embed/K7bFu_W4V0M" },
-    { name: "Tower of Hell", url: "https://www.roblox.com/games/1962086868/Tower-of-Hell", embed: "https://www.youtube.com/embed/C7IQ44E9iy0" },
-    { name: "Shindo Life", url: "https://www.roblox.com/games/6120752138/Shindo-Life", embed: "https://www.youtube.com/embed/j-p4Dlf2zXs" },
-    { name: "Piggy", url: "https://www.roblox.com/games/4623386862/Piggy", embed: "https://www.youtube.com/embed/PlpkTqfv9sY" },
-    { name: "Flee the Facility", url: "https://www.roblox.com/games/184165349/Flee-the-Facility", embed: "https://www.youtube.com/embed/mKyyNjm5uU4" },
-    { name: "Bee Swarm Simulator", url: "https://www.roblox.com/games/1537690964/Bee-Swarm-Simulator", embed: "https://www.youtube.com/embed/jD60Km9b8jY" },
-    { name: "Vehicle Simulator", url: "https://www.roblox.com/games/233965426/Vehicle-Simulator", embed: "https://www.youtube.com/embed/ZGnqeF4o6pY" }
+// List of anime with their names, links, and YouTube embed links (for trailers)
+const animeList = [
+    { name: "Naruto", url: "https://www.crunchyroll.com/naruto", embed: "https://www.youtube.com/embed/3u3bpFjsV2A" },
+    { name: "Attack on Titan", url: "https://www.crunchyroll.com/attack-on-titan", embed: "https://www.youtube.com/embed/65q8yB-MGA4" },
+    { name: "One Piece", url: "https://www.crunchyroll.com/one-piece", embed: "https://www.youtube.com/embed/hKcmz6vquIk" },
+    { name: "My Hero Academia", url: "https://www.crunchyroll.com/my-hero-academia", embed: "https://www.youtube.com/embed/iw6y5GrJ18Q" },
+    { name: "Demon Slayer", url: "https://www.crunchyroll.com/demon-slayer", embed: "https://www.youtube.com/embed/CWg63uGe_HI" },
+    { name: "Dragon Ball Z", url: "https://www.crunchyroll.com/dragon-ball-z", embed: "https://www.youtube.com/embed/3UuXH7AiZ3w" },
+    { name: "Fullmetal Alchemist: Brotherhood", url: "https://www.crunchyroll.com/fullmetal-alchemist-brotherhood", embed: "https://www.youtube.com/embed/d5uLZzj5_vA" },
+    { name: "One Punch Man", url: "https://www.crunchyroll.com/one-punch-man", embed: "https://www.youtube.com/embed/7mK-wfGF9Vw" },
+    { name: "Sword Art Online", url: "https://www.crunchyroll.com/sword-art-online", embed: "https://www.youtube.com/embed/Q-hXXB_hP5k" },
+    { name: "Tokyo Ghoul", url: "https://www.crunchyroll.com/tokyo-ghoul", embed: "https://www.youtube.com/embed/2vXlGJ4O2SY" }
 ];
 
-document.getElementById('pickGameBtn').addEventListener('click', function() {
-    // Pick a random game
-    const randomGame = games[Math.floor(Math.random() * games.length)];
-    
-    // Display the selected game
-    const gameEmbedHTML = `
-        <h3>Play: <a href="${randomGame.url}" target="_blank">${randomGame.name}</a></h3>
-        <iframe src="${randomGame.embed}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+document.getElementById('pickAnimeBtn').addEventListener('click', function() {
+    // Pick a random anime
+    const randomAnime = animeList[Math.floor(Math.random() * animeList.length)];
+
+    // Display the selected anime
+    const animeEmbedHTML = `
+        <h3>Watch: <a href="${randomAnime.url}" target="_blank">${randomAnime.name}</a></h3>
+        <iframe src="${randomAnime.embed}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     `;
     
-    // Show the game container and populate with content
-    const gameContainer = document.getElementById('gameEmbed');
-    gameContainer.style.display = 'block';
-    gameContainer.innerHTML = gameEmbedHTML;
+    // Show the anime container and populate with content
+    const animeContainer = document.getElementById('animeEmbed');
+    animeContainer.style.display = 'block';
+    animeContainer.innerHTML = animeEmbedHTML;
 });

@@ -3,22 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Random Game Picker</title>
+    <title>Anime Stream</title>
     <link rel="stylesheet" href="fye.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Game Picker</h1>
-            <p>Click below to find a random game to play.</p>
-        </header>
+    <header>
+        <div class="logo">
+            <h1>Anime Stream</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Browse</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
 
-        <main>
-            <button id="pickGameBtn">Pick a Random Game</button>
+    <main>
+        <section class="hero-banner">
+            <h2>Find Your Next Anime</h2>
+            <p>Click below to discover an anime to watch!</p>
+            <button id="pickAnimeBtn">Pick a Random Anime</button>
+        </section>
 
-            <div id="gameEmbed" class="game-container"></div>
-        </main>
-    </div>
+        <section id="animeEmbed" class="anime-container"></section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Anime Stream - All Rights Reserved</p>
+    </footer>
 
     <script src="index.js"></script>
 </body>
