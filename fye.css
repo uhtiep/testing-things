@@ -38,7 +38,7 @@ header {
     margin-bottom: 30px;
 }
 
-#auth-button, #grind-button, #lootbox-button {
+#auth-button, #grind-button, #lootbox-button, #apply-job-button, #work-button, #gamble-button {
     padding: 10px 20px;
     background-color: #4CAF50;
     color: white;
@@ -48,7 +48,7 @@ header {
     font-size: 16px;
 }
 
-#auth-button:hover, #grind-button:hover, #lootbox-button:hover {
+#auth-button:hover, #grind-button:hover, #lootbox-button:hover, #apply-job-button:hover, #work-button:hover, #gamble-button:hover {
     background-color: #45a049;
 }
 

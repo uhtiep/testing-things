@@ -9,7 +9,7 @@
 <body>
     <header>
         <h1>Dank Memer Mimic</h1>
-        <p>Welcome to the Dank Memer-inspired experience! Earn currency, chat, and play mini-games!</p>
+        <p>Earn currency, get a job, gamble, and have fun!</p>
     </header>
 
     <div id="game-container">
@@ -29,6 +29,23 @@
             <p id="cooldown-message" style="color: red; display: none;">You need to wait before grinding again!</p>
             <button id="lootbox-button">Open Lootbox</button>
             <p id="lootbox-message"></p>
+            <br>
+
+            <!-- Job section -->
+            <section id="job-section">
+                <h3>Current Job: <span id="job-name">None</span></h3>
+                <button id="apply-job-button">Apply for a Job</button>
+                <button id="work-button" style="display:none;">Work</button>
+                <p id="work-message"></p>
+                <p id="shifts-left" style="display:none;"></p>
+            </section>
+
+            <!-- Gamble section -->
+            <section id="gamble-section">
+                <h3>Gamble</h3>
+                <button id="gamble-button">Gamble</button>
+                <p id="gamble-message"></p>
+            </section>
         </section>
 
         <!-- Live chat section -->
