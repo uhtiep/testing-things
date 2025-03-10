@@ -1,54 +1,73 @@
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-let money = 0;
-let enemies = [];
-let bosses = [];
-let bullets = [];
-let canShoot = true;
-let ballCount = 0;
-let shopOpen = false;
-
-let upgrades = {
-    extraProjectiles: 0,
-    homing: false,
-    beam: false,
-    shootCooldown: 1000,
-    bulletSize: 5,
-    shieldActive: false,
-    slowMotionActive: false,
-    doubleMoneyActive: false,
-    doubleMoneyCount: 10
-};
-
 const shopItems = [
     { name: "Skip to Boss", cost: 30, effect: () => spawnBoss() },
     { name: "+1 Projectile", cost: 20, effect: () => upgrades.extraProjectiles++ },
     { name: "Homing Shot", cost: 40, effect: () => upgrades.homing = true },
-    { name: "Beam Shot", cost: 50, effect: () => upgrades.beam = true },
+    { name: "Beam Skill (Press O)", cost: 50, effect: () => upgrades.beamUnlocked = true },
     { name: "Faster Shooting", cost: 25, effect: () => upgrades.shootCooldown = Math.max(200, upgrades.shootCooldown - 200) },
     { name: "Bigger Bullets", cost: 30, effect: () => upgrades.bulletSize += 5 },
-    { name: "Shield (5s)", cost: 50, effect: activateShield },
-    { name: "Slow Motion (5s)", cost: 35, effect: activateSlowMotion },
-    { name: "Double Money (10 kills)", cost: 40, effect: activateDoubleMoney }
+    { name: "Shield Skill (Press I)", cost: 50, effect: () => upgrades.shieldUnlocked = true },
+    { name: "Slow Motion Skill (Press P)", cost: 35, effect: () => upgrades.slowMoUnlocked = true },
+    { name: "Double Money (10 kills)", cost: 40, effect: activateDoubleMoney },
+    { name: "Piercing Bullets", cost: 45, effect: () => upgrades.piercing = true },
+    { name: "Explosive Shots", cost: 60, effect: () => upgrades.explosive = true },
+    { name: "Extra Life", cost: 80, effect: () => upgrades.extraLife++ },
+    { name: "Faster Enemies", cost: 25, effect: () => upgrades.enemySpeed *= 1.2 },
+    { name: "Auto-Fire", cost: 50, effect: () => upgrades.autoFire = true }
 ];
 
-const player = { x: canvas.width / 2, y: canvas.height / 2, size: 10 };
-
-canvas.addEventListener("mousemove", (e) => {
-    player.x = e.clientX;
-    player.y = e.clientY;
-});
+let upgrades = {
+    extraProjectiles: 0,
+    homing: false,
+    beamUnlocked: false,
+    shieldUnlocked: false,
+    slowMoUnlocked: false,
+    shootCooldown: 1000,
+    bulletSize: 5,
+    shieldActive: false,
+    slowMoActive: false,
+    doubleMoneyActive: false,
+    doubleMoneyCount: 10,
+    piercing: false,
+    explosive: false,
+    extraLife: 0,
+    enemySpeed: 1,
+    autoFire: false
+};
 
 document.addEventListener("keydown", (e) => {
     if (shopOpen && e.key !== "j") return;
-    
-    if (e.key === "w" || e.key === "a" || e.key === "s" || e.key === "d") shoot(e.key);
+
+    if (["w", "a", "s", "d"].includes(e.key)) {
+        shoot(e.key);
+        if (upgrades.autoFire) setInterval(() => shoot(e.key), upgrades.shootCooldown);
+    }
     if (e.key === "k") openShop();
     if (e.key === "j") closeShop();
+    if (e.key === "p") activateSlowMotion();
+    if (e.key === "i") activateShield();
+    if (e.key === "o") activateBeam();
 });
+
+function activateSlowMotion() {
+    if (!upgrades.slowMoUnlocked || upgrades.slowMoActive) return;
+    upgrades.slowMoActive = true;
+    upgrades.shootCooldown *= 2;
+    setTimeout(() => {
+        upgrades.slowMoActive = false;
+        upgrades.shootCooldown /= 2;
+    }, 5000);
+}
+
+function activateShield() {
+    if (!upgrades.shieldUnlocked || upgrades.shieldActive) return;
+    upgrades.shieldActive = true;
+    setTimeout(() => upgrades.shieldActive = false, 5000);
+}
+
+function activateBeam() {
+    if (!upgrades.beamUnlocked) return;
+    bullets.push({ x: player.x, y: player.y, vx: 0, vy: -15, size: 50, beam: true });
+}
 
 function shoot(direction) {
     if (!canShoot) return;
@@ -63,21 +82,11 @@ function shoot(direction) {
     if (direction === "a") vx = -speed;
     if (direction === "d") vx = speed;
 
-    bullets.push({ x: player.x, y: player.y, vx, vy, size: bulletSize });
+    bullets.push({ x: player.x, y: player.y, vx, vy, size: bulletSize, piercing: upgrades.piercing, explosive: upgrades.explosive });
 
     for (let i = 0; i < upgrades.extraProjectiles; i++) {
-        bullets.push({ x: player.x, y: player.y, vx: vx * 1.2, vy: vy * 1.2, size: bulletSize });
+        bullets.push({ x: player.x, y: player.y, vx: vx * 1.2, vy: vy * 1.2, size: bulletSize, piercing: upgrades.piercing, explosive: upgrades.explosive });
     }
-}
-
-function spawnEnemy() {
-    enemies.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: 15 });
-    ballCount++;
-    if (ballCount % 50 === 0) spawnBoss();
-}
-
-function spawnBoss() {
-    bosses.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: 30, type: Math.floor(Math.random() * 3), cooldown: 0 });
 }
 
 function update() {
@@ -92,6 +101,17 @@ function update() {
     bullets.forEach((bullet, bi) => {
         enemies.forEach((enemy, ei) => {
             if (collision(bullet, enemy)) {
+                if (bullet.explosive) {
+                    enemies.splice(ei, 1);
+                    bullets.splice(bi, 1);
+                    updateMoney();
+                    return;
+                }
+                if (bullet.piercing) {
+                    enemies.splice(ei, 1);
+                    updateMoney();
+                    return;
+                }
                 enemies.splice(ei, 1);
                 bullets.splice(bi, 1);
                 updateMoney();
@@ -110,91 +130,30 @@ function update() {
             boss.cooldown = 100;
         } else if (boss.type === 2) {
             let angle = Math.atan2(player.y - boss.y, player.x - boss.x);
-            boss.x += Math.cos(angle) * 2;
-            boss.y += Math.sin(angle) * 2;
+            boss.x += Math.cos(angle) * 2 * upgrades.enemySpeed;
+            boss.y += Math.sin(angle) * 2 * upgrades.enemySpeed;
         }
         boss.cooldown--;
     });
 
+    enemies.forEach((enemy) => {
+        enemy.x += (Math.random() - 0.5) * upgrades.enemySpeed;
+        enemy.y += (Math.random() - 0.5) * upgrades.enemySpeed;
+    });
+
     [...enemies, ...bosses].forEach((enemy) => {
-        if (collision(player, enemy) && !upgrades.shieldActive) {
+        if (collision(player, enemy)) {
+            if (upgrades.shieldActive) return;
+            if (upgrades.extraLife > 0) {
+                upgrades.extraLife--;
+                return;
+            }
             alert("Game Over! Refresh to restart.");
             location.reload();
         }
     });
 
     if (Math.random() < 0.02) spawnEnemy();
-}
-
-function collision(a, b) {
-    return Math.hypot(a.x - b.x, a.y - b.y) < a.size + b.size;
-}
-
-function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "white";
-    ctx.beginPath();
-    ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2);
-    ctx.fill();
-
-    bullets.forEach(b => { ctx.fillStyle = "yellow"; ctx.fillRect(b.x, b.y, b.size, b.size); });
-    enemies.forEach(e => { ctx.fillStyle = "red"; ctx.beginPath(); ctx.arc(e.x, e.y, e.size, 0, Math.PI * 2); ctx.fill(); });
-}
-
-function updateMoney(amount = 1) {
-    if (upgrades.doubleMoneyActive) {
-        amount = 2;
-        upgrades.doubleMoneyCount--;
-        if (upgrades.doubleMoneyCount <= 0) upgrades.doubleMoneyActive = false;
-    }
-    money += amount;
-    document.getElementById("money").innerText = `Money: $${money}`;
-}
-
-function openShop() {
-    document.getElementById("shop").style.display = "block";
-    shopOpen = true;
-    updateShop();
-}
-
-function closeShop() {
-    document.getElementById("shop").style.display = "none";
-    shopOpen = false;
-}
-
-function updateShop() {
-    let item1 = shopItems[Math.floor(Math.random() * shopItems.length)];
-    let item2 = shopItems[Math.floor(Math.random() * shopItems.length)];
-
-    document.getElementById("item1").innerText = `${item1.name} - $${item1.cost}`;
-    document.getElementById("item1").onclick = function() { buyItem(item1); };
-
-    document.getElementById("item2").innerText = `${item2.name} - $${item2.cost}`;
-    document.getElementById("item2").onclick = function() { buyItem(item2); };
-}
-
-function buyItem(item) {
-    if (money >= item.cost) {
-        money -= item.cost;
-        item.effect();
-        updateMoney();
-        updateShop();
-    }
-}
-
-function activateShield() {
-    upgrades.shieldActive = true;
-    setTimeout(() => upgrades.shieldActive = false, 5000);
-}
-
-function activateSlowMotion() {
-    upgrades.slowMotionActive = true;
-    setTimeout(() => upgrades.slowMotionActive = false, 5000);
-}
-
-function activateDoubleMoney() {
-    upgrades.doubleMoneyActive = true;
-    upgrades.doubleMoneyCount = 10;
 }
 
 function gameLoop() {
