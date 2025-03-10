@@ -1,38 +1,8 @@
-const shopItems = [
-    { name: "Skip to Boss", cost: 30, effect: () => spawnBoss() },
-    { name: "+1 Projectile", cost: 20, effect: () => upgrades.extraProjectiles++ },
-    { name: "Homing Shot", cost: 40, effect: () => upgrades.homing = true },
-    { name: "Beam Skill (Press O)", cost: 50, effect: () => upgrades.beamUnlocked = true },
-    { name: "Faster Shooting", cost: 25, effect: () => upgrades.shootCooldown = Math.max(200, upgrades.shootCooldown - 200) },
-    { name: "Bigger Bullets", cost: 30, effect: () => upgrades.bulletSize += 5 },
-    { name: "Shield Skill (Press I)", cost: 50, effect: () => upgrades.shieldUnlocked = true },
-    { name: "Slow Motion Skill (Press P)", cost: 35, effect: () => upgrades.slowMoUnlocked = true },
-    { name: "Double Money (10 kills)", cost: 40, effect: activateDoubleMoney },
-    { name: "Piercing Bullets", cost: 45, effect: () => upgrades.piercing = true },
-    { name: "Explosive Shots", cost: 60, effect: () => upgrades.explosive = true },
-    { name: "Extra Life", cost: 80, effect: () => upgrades.extraLife++ },
-    { name: "Faster Enemies", cost: 25, effect: () => upgrades.enemySpeed *= 1.2 },
-    { name: "Auto-Fire", cost: 50, effect: () => upgrades.autoFire = true }
-];
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
 
-let upgrades = {
-    extraProjectiles: 0,
-    homing: false,
-    beamUnlocked: false,
-    shieldUnlocked: false,
-    slowMoUnlocked: false,
-    shootCooldown: 1000,
-    bulletSize: 5,
-    shieldActive: false,
-    slowMoActive: false,
-    doubleMoneyActive: false,
-    doubleMoneyCount: 10,
-    piercing: false,
-    explosive: false,
-    extraLife: 0,
-    enemySpeed: 1,
-    autoFire: false
-};
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
 let player = { x: canvas.width / 2, y: canvas.height / 2, size: 10 };  // Player as a ball
 let bullets = [];
@@ -40,6 +10,17 @@ let enemies = [];
 let money = 0;
 let shopOpen = false;
 let canShoot = true;
+let upgrades = {
+    extraProjectiles: 0,
+    homing: false,
+    shootCooldown: 1000,
+    bulletSize: 5,
+    extraLife: 0,
+    enemySpeed: 1,
+    autoFire: false,
+    piercing: false,
+    explosive: false
+};
 
 document.addEventListener("mousemove", (e) => {
     player.x = e.clientX;
@@ -121,11 +102,6 @@ function update() {
 
     enemies.forEach((enemy, i) => {
         if (collision(player, enemy)) {
-            if (upgrades.shieldActive) return;
-            if (upgrades.extraLife > 0) {
-                upgrades.extraLife--;
-                return;
-            }
             alert("Game Over! Refresh to restart.");
             location.reload();
         }
@@ -154,6 +130,28 @@ function shoot(direction) {
     }
 }
 
+function collision(obj1, obj2) {
+    let dx = obj1.x - obj2.x;
+    let dy = obj1.y - obj2.y;
+    let distance = Math.sqrt(dx * dx + dy * dy);
+    return distance < (obj1.size + obj2.size) / 2;
+}
+
+function updateMoney() {
+    document.getElementById("money").innerText = `$${money}`;
+}
+
+function openShop() {
+    shopOpen = true;
+    updateShop();
+    document.getElementById("shop").style.display = "block";
+}
+
+function closeShop() {
+    shopOpen = false;
+    document.getElementById("shop").style.display = "none";
+}
+
 function updateShop() {
     let item1 = shopItems[Math.floor(Math.random() * shopItems.length)];
     let item2 = shopItems[Math.floor(Math.random() * shopItems.length)];
@@ -174,14 +172,36 @@ function buyItem(item) {
     }
 }
 
-function updateMoney() {
-    document.getElementById("money").innerText = `$${money}`;
-}
-
 function gameLoop() {
     update();
     draw();
     requestAnimationFrame(gameLoop);
+}
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw Player (Ball)
+    ctx.beginPath();
+    ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2);
+    ctx.fillStyle = "#00FF00";
+    ctx.fill();
+
+    // Draw Bullets
+    bullets.forEach(bullet => {
+        ctx.beginPath();
+        ctx.arc(bullet.x, bullet.y, bullet.size, 0, Math.PI * 2);
+        ctx.fillStyle = "#FF0000";
+        ctx.fill();
+    });
+
+    // Draw Enemies
+    enemies.forEach(enemy => {
+        ctx.beginPath();
+        ctx.arc(enemy.x, enemy.y, enemy.size, 0, Math.PI * 2);
+        ctx.fillStyle = "#0000FF";
+        ctx.fill();
+    });
 }
 
 gameLoop();

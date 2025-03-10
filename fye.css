@@ -22,6 +22,8 @@ body, html {
 canvas {
     background-color: #1e1e1e;
     display: block;
+    position: absolute;
+    z-index: 1;
 }
 
 .shop {
@@ -34,6 +36,7 @@ canvas {
     color: white;
     font-size: 18px;
     text-align: center;
+    z-index: 2;
 }
 
 .shop-item {
