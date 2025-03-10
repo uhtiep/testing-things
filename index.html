@@ -13,9 +13,15 @@
         <button onclick="showGameSection('mazeRunner')">Maze Runner</button>
         <button onclick="showGameSection('numberGuessing')">Number Guessing</button>
         <button onclick="showGameSection('clickerGame')">Clicker Game</button>
-        <button onclick="resetAllGames()">Reset All</button>
+        <button onclick="showGameSection('breakout')">Breakout</button>
+        <button onclick="showGameSection('newGame1')">Asteroids</button>
+        <button onclick="showGameSection('newGame2')">Memory Game</button>
+        <button onclick="showGameSection('newGame3')">Reaction Game</button>
+        <button onclick="showGameSection('newGame4')">Pong</button>
+        <button onclick="showGameSection('newGame5')">Space Invaders</button>
     </div>
 
+    <!-- Game Sections -->
     <div id="catchBall" class="game-section">
         <h2>Catch the Ball</h2>
         <canvas id="catchCanvas"></canvas>
@@ -53,7 +59,41 @@
         <button onclick="buyPassiveUpgrade()">Upgrade Passive Income (Cost: 100 points)</button>
     </div>
 
-    <div id="gameTimer" style="margin-top: 20px;">Time Left: 30s</div>
+    <!-- New Games -->
+    <div id="breakout" class="game-section" style="display: none;">
+        <h2>Breakout</h2>
+        <canvas id="breakoutCanvas"></canvas>
+        <button onclick="startBreakoutGame()">Start Game</button>
+    </div>
+
+    <div id="newGame1" class="game-section" style="display: none;">
+        <h2>Asteroids</h2>
+        <canvas id="asteroidsCanvas"></canvas>
+        <button onclick="startAsteroidsGame()">Start Game</button>
+    </div>
+
+    <div id="newGame2" class="game-section" style="display: none;">
+        <h2>Memory Game</h2>
+        <p>Match pairs of cards to win the game!</p>
+        <button onclick="startMemoryGame()">Start Game</button>
+    </div>
+
+    <div id="newGame3" class="game-section" style="display: none;">
+        <h2>Reaction Game</h2>
+        <button onclick="startReactionGame()">Start Game</button>
+    </div>
+
+    <div id="newGame4" class="game-section" style="display: none;">
+        <h2>Pong</h2>
+        <canvas id="pongCanvas"></canvas>
+        <button onclick="startPongGame()">Start Game</button>
+    </div>
+
+    <div id="newGame5" class="game-section" style="display: none;">
+        <h2>Space Invaders</h2>
+        <canvas id="spaceInvadersCanvas"></canvas>
+        <button onclick="startSpaceInvadersGame()">Start Game</button>
+    </div>
 
     <script src="index.js"></script>
 </body>
