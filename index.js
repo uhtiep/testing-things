@@ -34,12 +34,17 @@ let upgrades = {
     autoFire: false
 };
 
-let player = { x: canvas.width / 2, y: canvas.height / 2, size: 10 };
+let player = { x: canvas.width / 2, y: canvas.height / 2, size: 10 };  // Player as a ball
 let bullets = [];
 let enemies = [];
 let money = 0;
 let shopOpen = false;
 let canShoot = true;
+
+document.addEventListener("mousemove", (e) => {
+    player.x = e.clientX;
+    player.y = e.clientY;
+});
 
 document.addEventListener("keydown", (e) => {
     if (shopOpen && e.key !== "j") return;
