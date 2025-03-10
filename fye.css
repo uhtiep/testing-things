@@ -7,3 +7,28 @@ body {
 canvas {
     display: block;
 }
+
+.hidden {
+    display: none;
+}
+
+#shop {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+#shop button {
+    display: block;
+    margin: 10px auto;
+    padding: 10px;
+    background: white;
+    border: none;
+    cursor: pointer;
+}

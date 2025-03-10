@@ -3,11 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cursor Shooter</title>
+    <title>Cursor Shooter with Shop</title>
     <link rel="stylesheet" href="fye.css">
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
+    <div id="shop" class="hidden">
+        <h2>Shop</h2>
+        <p>Money: $<span id="money">0</span></p>
+        <button id="item1"></button>
+        <button id="item2"></button>
+        <button onclick="closeShop()">Close</button>
+    </div>
     <script src="index.js"></script>
 </body>
 </html>

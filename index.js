@@ -1,21 +1,42 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
+const shop = document.getElementById("shop");
+const moneyDisplay = document.getElementById("money");
+const item1Btn = document.getElementById("item1");
+const item2Btn = document.getElementById("item2");
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+let money = 0;
+let ballCount = 0;
+let gameOver = false;
+let shopOpen = false;
+let upgrades = {
+    extraProjectiles: 0,
+    extraColumns: 0,
+    homingShots: false,
+    beamShots: false
+};
+
 const bullets = [];
 const enemies = [];
 const bosses = [];
-let ballCount = 0;
-let gameOver = false;
+
+const shopItems = [
+    { name: "Skip to Boss", cost: 30, effect: () => spawnBoss() },
+    { name: "+1 Projectile", cost: 20, effect: () => upgrades.extraProjectiles++ },
+    { name: "+1 Column", cost: 25, effect: () => upgrades.extraColumns++ },
+    { name: "Homing Shot", cost: 40, effect: () => upgrades.homingShots = true },
+    { name: "Beam Shot", cost: 50, effect: () => upgrades.beamShots = true }
+];
 
 // Player (Cursor)
 const player = {
     x: canvas.width / 2,
     y: canvas.height / 2,
     size: 10,
-    color: "white",
+    color: "white"
 };
 
 // Track cursor movement
@@ -24,43 +45,67 @@ canvas.addEventListener("mousemove", (e) => {
     player.y = e.clientY;
 });
 
-// Handle shooting with WASD
+// Shooting handler
 document.addEventListener("keydown", (e) => {
-    if (gameOver) return;
-    const speed = 5;
-    let vx = 0, vy = 0;
+    if (gameOver || shopOpen) return;
+    let vx = 0, vy = 0, speed = 5;
 
     if (e.key === "w") vy = -speed;
     if (e.key === "s") vy = speed;
     if (e.key === "a") vx = -speed;
     if (e.key === "d") vx = speed;
 
-    if (vx !== 0 || vy !== 0) {
-        bullets.push({ x: player.x, y: player.y, vx, vy, size: 5, color: "yellow" });
-    }
+    if (vx !== 0 || vy !== 0) shoot(vx, vy);
 });
 
-// Spawn enemies randomly
+// Shop controls
+document.addEventListener("keydown", (e) => {
+    if (e.key === "k") openShop();
+    if (e.key === "j") closeShop();
+});
+
+function shoot(vx, vy) {
+    let projectiles = 1 + upgrades.extraProjectiles;
+
+    for (let i = 0; i < projectiles; i++) {
+        bullets.push({ x: player.x, y: player.y, vx, vy, size: 5, color: "yellow" });
+    }
+
+    for (let i = 0; i < upgrades.extraColumns; i++) {
+        bullets.push({ x: player.x, y: player.y, vx: vy, vy: -vx, size: 5, color: "yellow" });
+    }
+}
+
+// Enemy spawning
 function spawnEnemy() {
-    const x = Math.random() * canvas.width;
-    const y = Math.random() * canvas.height;
-    enemies.push({ x, y, size: 15, color: "red" });
+    enemies.push({ 
+        x: Math.random() * canvas.width, 
+        y: Math.random() * canvas.height, 
+        size: 15, 
+        color: "red" 
+    });
     ballCount++;
 
     if (ballCount % 50 === 0) spawnBoss();
 }
 
-// Spawn bosses every 50 enemies
+// Boss spawning
 function spawnBoss() {
-    const bossType = Math.floor(Math.random() * 3); // 0, 1, or 2
-    bosses.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: 30, type: bossType, cooldown: 0 });
+    let type = Math.floor(Math.random() * 3);
+    bosses.push({ 
+        x: Math.random() * canvas.width, 
+        y: Math.random() * canvas.height, 
+        size: 30, 
+        type, 
+        cooldown: 0 
+    });
 }
 
-// Update game state
+// Update game logic
 function update() {
     if (gameOver) return;
 
-    // Update bullets
+    // Move bullets
     bullets.forEach((bullet, index) => {
         bullet.x += bullet.vx;
         bullet.y += bullet.vy;
@@ -73,13 +118,11 @@ function update() {
     // Check bullet collisions with enemies
     bullets.forEach((bullet, bulletIndex) => {
         enemies.forEach((enemy, enemyIndex) => {
-            const dx = bullet.x - enemy.x;
-            const dy = bullet.y - enemy.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-
-            if (distance < bullet.size + enemy.size) {
+            if (collision(bullet, enemy)) {
                 enemies.splice(enemyIndex, 1);
                 bullets.splice(bulletIndex, 1);
+                money++;
+                updateMoney();
             }
         });
     });
@@ -90,8 +133,9 @@ function update() {
             // Boss that shoots at cursor
             if (boss.cooldown <= 0) {
                 let angle = Math.atan2(player.y - boss.y, player.x - boss.x);
-                bosses.push({
-                    x: boss.x, y: boss.y, size: 10, type: 3, vx: Math.cos(angle) * 5, vy: Math.sin(angle) * 5,
+                bosses.push({ 
+                    x: boss.x, y: boss.y, size: 10, type: 3, 
+                    vx: Math.cos(angle) * 5, vy: Math.sin(angle) * 5 
                 });
                 boss.cooldown = 60;
             } else {
@@ -116,37 +160,37 @@ function update() {
 
     // Check if player is hit
     [...enemies, ...bosses].forEach((enemy) => {
-        const dx = player.x - enemy.x;
-        const dy = player.y - enemy.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (distance < player.size + enemy.size) {
+        if (collision(player, enemy)) {
             gameOver = true;
             alert("Game Over! Refresh to play again.");
         }
     });
 
-    // Spawn new enemies
     if (Math.random() < 0.02) spawnEnemy();
+}
+
+// Check collision
+function collision(a, b) {
+    let dx = a.x - b.x;
+    let dy = a.y - b.y;
+    let distance = Math.sqrt(dx * dx + dy * dy);
+    return distance < a.size + b.size;
 }
 
 // Draw everything
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw player
     ctx.fillStyle = player.color;
     ctx.beginPath();
     ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2);
     ctx.fill();
 
-    // Draw bullets
     bullets.forEach((bullet) => {
         ctx.fillStyle = bullet.color;
         ctx.fillRect(bullet.x, bullet.y, bullet.size, bullet.size);
     });
 
-    // Draw enemies
     enemies.forEach((enemy) => {
         ctx.fillStyle = enemy.color;
         ctx.beginPath();
@@ -154,13 +198,41 @@ function draw() {
         ctx.fill();
     });
 
-    // Draw bosses
     bosses.forEach((boss) => {
         ctx.fillStyle = boss.type === 0 ? "blue" : boss.type === 1 ? "purple" : "orange";
         ctx.beginPath();
         ctx.arc(boss.x, boss.y, boss.size, 0, Math.PI * 2);
         ctx.fill();
     });
+}
+
+// Shop system
+function openShop() {
+    shop.classList.remove("hidden");
+    shopOpen = true;
+    let items = shopItems.sort(() => Math.random() - 0.5).slice(0, 2);
+    item1Btn.innerText = `${items[0].name} ($${items[0].cost})`;
+    item1Btn.onclick = () => buyItem(items[0]);
+    item2Btn.innerText = `${items[1].name} ($${items[1].cost})`;
+    item2Btn.onclick = () => buyItem(items[1]);
+}
+
+function closeShop() {
+    shop.classList.add("hidden");
+    shopOpen = false;
+}
+
+function buyItem(item) {
+    if (money >= item.cost) {
+        money -= item.cost;
+        updateMoney();
+        item.effect();
+        openShop();
+    }
+}
+
+function updateMoney() {
+    moneyDisplay.innerText = money;
 }
 
 // Game loop
@@ -170,5 +242,4 @@ function gameLoop() {
     if (!gameOver) requestAnimationFrame(gameLoop);
 }
 
-// Start the game
 gameLoop();
