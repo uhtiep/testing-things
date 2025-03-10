@@ -3,28 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Playground</title>
+    <title>Games Collection</title>
     <link rel="stylesheet" href="fye.css">
 </head>
 <body>
 
-    <div id="countdownTimers">
-        <!-- Your countdown timers section -->
-        <p>Countdown Timers Section</p>
+    <div class="game-container" id="ballBounce">
+        <h2>Ball Bounce</h2>
+        <canvas id="bounceCanvas"></canvas>
+        <button onclick="startBallBounce()">Start Ball Bounce</button>
     </div>
 
-    <button id="spawnBallBtn">Go to Physics Playground</button>
-
-    <!-- Physics Playground Section -->
-    <div id="physicsPlayground">
-        <h2>Physics Playground</h2>
-        <button id="spawnBall">Spawn Ball</button>
-        <canvas id="worldCanvas"></canvas>
+    <div class="game-container" id="clickerGame">
+        <h2>Clicker Game</h2>
+        <p>Points: <span id="clickerPoints">0</span></p>
+        <button onclick="incrementPoints()">Click Me!</button>
     </div>
-    <button id="backToTop">Back to Top</button>
 
-    <!-- Link to the physics playground JS file -->
+    <div class="game-container" id="numberGuessing">
+        <h2>Number Guessing</h2>
+        <input type="number" id="guess" placeholder="Enter a number (1-10)">
+        <button onclick="guessNumber()">Guess!</button>
+        <p id="guessResult"></p>
+    </div>
+
+    <div class="game-container" id="catchTheBall">
+        <h2>Catch the Ball</h2>
+        <canvas id="catchCanvas"></canvas>
+        <button onclick="startCatchGame()">Start Catch the Ball</button>
+    </div>
+
+    <div class="game-container" id="mazeRunner">
+        <h2>Maze Runner</h2>
+        <canvas id="mazeCanvas"></canvas>
+        <button onclick="startMazeGame()">Start Maze Runner</button>
+    </div>
+
     <script src="index.js"></script>
-
 </body>
 </html>
