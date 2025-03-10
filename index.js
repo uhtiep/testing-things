@@ -33,6 +33,9 @@ let upgrades = {
     healthRegen: false
 };
 
+// UI visibility for controls
+let showControls = false;
+
 // Keep track of mouse movement
 document.addEventListener("mousemove", (e) => {
     player.x = e.clientX;
@@ -47,6 +50,7 @@ document.addEventListener("keydown", (e) => {
     if (e.key === "p") activateSlowMotion();
     if (e.key === "i") activateShield();
     if (e.key === "o") activateBeam();
+    if (e.key === "n") toggleControls();
 
     if (["w", "a", "s", "d"].includes(e.key)) {
         if (canShoot && Date.now() - lastShotTime > upgrades.shootCooldown) {
@@ -56,13 +60,25 @@ document.addEventListener("keydown", (e) => {
     }
 });
 
-// Spawn enemies randomly
+// Function to spawn enemy with RNG logic
 function spawnEnemy() {
-    let type = Math.floor(Math.random() * 3);
+    let randomNumber = Math.random() * 100; // Random number between 0 and 100
+
+    let enemyType;
+
+    // Determine the type of enemy based on the RNG
+    if (randomNumber < 30) {
+        enemyType = 2;  // Circle enemy
+    } else if (randomNumber < 50) {
+        enemyType = 0;  // Triangle enemy
+    } else {
+        enemyType = 1;  // Square enemy
+    }
+
     let x = Math.random() * canvas.width;
     let y = Math.random() * canvas.height;
     let size = 20 + Math.random() * 20;
-    enemies.push({ x, y, size, type, vx: 0, vy: 0 });
+    enemies.push({ x, y, size, type: enemyType, vx: 0, vy: 0 });
 }
 
 // Spawn boss after 25 kills
@@ -96,6 +112,7 @@ function update() {
         });
     });
 
+    // Handle enemy movement and behavior
     enemies.forEach((enemy, i) => {
         if (enemy.type === 0) {
             // Triangle Enemies: Shoot projectiles towards the player
@@ -162,6 +179,51 @@ function shoot(direction) {
     for (let i = 0; i < upgrades.extraProjectiles; i++) {
         bullets.push({ x: player.x, y: player.y, vx: vx * 1.2, vy: vy * 1.2, size: bulletSize });
     }
+
+    // Apply homing behavior
+    if (upgrades.homing) {
+        bullets.forEach((bullet) => {
+            let nearestEnemy = findNearestEnemy(bullet);
+            if (nearestEnemy) {
+                let angle = Math.atan2(nearestEnemy.y - bullet.y, nearestEnemy.x - bullet.x);
+                bullet.vx = Math.cos(angle) * 10;
+                bullet.vy = Math.sin(angle) * 10;
+            }
+        });
+    }
+}
+
+// Find the nearest enemy for homing shots
+function findNearestEnemy(bullet) {
+    let nearestEnemy = null;
+    let minDist = Infinity;
+    enemies.forEach((enemy) => {
+        let dx = bullet.x - enemy.x;
+        let dy = bullet.y - enemy.y;
+        let dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < minDist) {
+            minDist = dist;
+            nearestEnemy = enemy;
+        }
+    });
+    return nearestEnemy;
+}
+
+// Beam function for shooting
+function activateBeam() {
+    if (upgrades.beam) {
+        let beamLength = 500;
+        let angle = Math.atan2(player.y - player.y, player.x - player.x);
+        ctx.beginPath();
+        ctx.moveTo(player.x, player.y);
+        ctx.lineTo(player.x + Math.cos(angle) * beamLength, player.y + Math.sin(angle) * beamLength);
+        ctx.strokeStyle = 'cyan';
+        ctx.lineWidth = 5;
+        ctx.stroke();
+        setTimeout(() => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }, 100);
+    }
 }
 
 // Update money display
@@ -182,79 +244,10 @@ function closeShop() {
     document.getElementById("shop").style.display = "none";
 }
 
-// Update shop items
-function updateShop() {
-    let item1 = { name: "Extra Projectile", cost: 10, effect: () => { upgrades.extraProjectiles++; } };
-    let item2 = { name: "Faster Bullets", cost: 20, effect: () => { upgrades.shootCooldown = Math.max(500, upgrades.shootCooldown - 200); } };
-    let item3 = { name: "Homing Shots", cost: 30, effect: () => { upgrades.homing = true; } };
-    let item4 = { name: "Speed Boost", cost: 15, effect: () => { upgrades.enemySpeed += 0.5; } };
-    let item5 = { name: "Shield", cost: 25, effect: () => { upgrades.shield = true; } };
-    let item6 = { name: "Double Speed", cost: 50, effect: () => { upgrades.doubleSpeed = true; } };
-    let item7 = { name: "Double Damage", cost: 60, effect: () => { upgrades.doubleDamage = true; } };
-    let item8 = { name: "Bullet Size Increase", cost: 40, effect: () => { upgrades.bulletSizeIncrease += 5; } };
-    let item9 = { name: "Fast Reload", cost: 35, effect: () => { upgrades.shootCooldown = Math.max(300, upgrades.shootCooldown - 100); } };
-    let item10 = { name: "Enemy Health Decrease", cost: 45, effect: () => { upgrades.enemyHealthDecrease = true; } };
-    let item11 = { name: "Auto-shoot", cost: 70, effect: () => { upgrades.autoShoot = true; } };
-    let item12 = { name: "Invincibility", cost: 80, effect: () => { upgrades.invincibility = true; } };
-    let item13 = { name: "Damage Reflection", cost: 90, effect: () => { upgrades.damageReflection = true; } };
-    let item14 = { name: "Projectile Bouncing", cost: 100, effect: () => { upgrades.projectileBouncing = true; } };
-    let item15 = { name: "Health Regeneration", cost: 120, effect: () => { upgrades.healthRegen = true; } };
-
-    // Update the shop UI with new items
-    let items = [item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15];
-    let randomItems = getRandomItems(items);
-    document.getElementById("item1").innerText = `${randomItems[0].name} - $${randomItems[0].cost}`;
-    document.getElementById("item2").innerText = `${randomItems[1].name} - $${randomItems[1].cost}`;
-
-    document.getElementById("item1").onclick = function() { buyItem(randomItems[0]); };
-    document.getElementById("item2").onclick = function() { buyItem(randomItems[1]); };
-}
-
-// Get random items for the shop
-function getRandomItems(items) {
-    let shuffled = items.sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, 2);
-}
-
-// Handle item purchase
-function buyItem(item) {
-    if (money >= item.cost) {
-        money -= item.cost;
-        item.effect();
-        updateMoney();
-        updateShop(); // Reset shop after purchase
-    }
-}
-
-// Activate slow motion ability
-function activateSlowMotion() {
-    upgrades.slowMotion = true;
-    setTimeout(() => {
-        upgrades.slowMotion = false;
-    }, 5000);
-}
-
-// Activate shield ability
-function activateShield() {
-    upgrades.shield = true;
-    setTimeout(() => {
-        upgrades.shield = false;
-    }, 5000);
-}
-
-// Activate beam ability
-function activateBeam() {
-    upgrades.beam = true;
-    setTimeout(() => {
-        upgrades.beam = false;
-    }, 5000);
-}
-
-// Main game loop
-function gameLoop() {
-    update();
-    draw();
-    requestAnimationFrame(gameLoop);
+// Toggle control UI visibility
+function toggleControls() {
+    showControls = !showControls;
+    document.getElementById("controls").style.display = showControls ? 'block' : 'none';
 }
 
 // Draw game elements on canvas
@@ -286,7 +279,24 @@ function draw() {
         }
         ctx.fill();
     });
+
+    // Draw Controls
+    if (showControls) {
+        ctx.fillStyle = "black";
+        ctx.font = "16px Arial";
+        ctx.fillText("Controls:", 10, canvas.height - 80);
+        ctx.fillText("W: Shoot Up", 10, canvas.height - 60);
+        ctx.fillText("A: Shoot Left", 10, canvas.height - 40);
+        ctx.fillText("S: Shoot Down", 10, canvas.height - 20);
+        ctx.fillText("D: Shoot Right", 10, canvas.height);
+    }
+}
+
+// Main game loop
+function gameLoop() {
+    update();
+    draw();
+    requestAnimationFrame(gameLoop);
 }
 
 gameLoop();
- 
