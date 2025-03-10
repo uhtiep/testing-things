@@ -2,26 +2,31 @@ function updateTimers() {
     const now = new Date();
 
     // Chainsaw Man Chapter (Every Wednesday)
-    let chainsawDate = new Date();
-    chainsawDate.setDate(chainsawDate.getDate() + ((3 - chainsawDate.getDay() + 7) % 7 || 7)); // Next Wednesday
-    chainsawDate.setHours(0, 0, 0, 0);
+    let chainsawDate = getNextOccurrence(now, 3); // 3 represents Wednesday
     document.getElementById("chainsawTimer").textContent = getTimeRemaining(chainsawDate);
 
     // Christmas Countdown (December 25)
     const christmas = new Date(now.getFullYear(), 11, 25);
+    if (now.getMonth() === 11 && now.getDate() > 25) {
+        christmas.setFullYear(christmas.getFullYear() + 1);
+    }
     document.getElementById("christmasTimer").textContent = getTimeRemaining(christmas);
 
     // Re:Zero Episode (Every Wednesday)
-    let rezeroDate = new Date();
-    rezeroDate.setDate(rezeroDate.getDate() + ((3 - rezeroDate.getDay() + 7) % 7 || 7)); // Next Wednesday
-    rezeroDate.setHours(0, 0, 0, 0);
+    let rezeroDate = getNextOccurrence(now, 3); // 3 represents Wednesday
     document.getElementById("rezeroTimer").textContent = getTimeRemaining(rezeroDate);
 
     // Solo Leveling Episode (Every Saturday)
-    let soloLevelingDate = new Date();
-    soloLevelingDate.setDate(soloLevelingDate.getDate() + ((6 - soloLevelingDate.getDay() + 7) % 7 || 7)); // Next Saturday
-    soloLevelingDate.setHours(0, 0, 0, 0);
+    let soloLevelingDate = getNextOccurrence(now, 6); // 6 represents Saturday
     document.getElementById("sololevelingTimer").textContent = getTimeRemaining(soloLevelingDate);
+}
+
+// Function to get the next occurrence of a specific day of the week
+function getNextOccurrence(currentDate, dayOfWeek) {
+    const resultDate = new Date(currentDate);
+    resultDate.setDate(resultDate.getDate() + ((dayOfWeek - currentDate.getDay() + 7) % 7 || 7));
+    resultDate.setHours(0, 0, 0, 0);
+    return resultDate;
 }
 
 // Function to get time remaining in Days, Hours, Minutes, Seconds
@@ -39,6 +44,6 @@ function getTimeRemaining(targetDate) {
     return `${days}d ${hours}h ${minutes}m ${seconds}s`;
 }
 
-// Update every second
+// Update timers every second
 setInterval(updateTimers, 1000);
 updateTimers();
