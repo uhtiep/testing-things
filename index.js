@@ -34,9 +34,15 @@ let upgrades = {
     autoFire: false
 };
 
+let player = { x: canvas.width / 2, y: canvas.height / 2, size: 10 };
+let bullets = [];
+let enemies = [];
+let money = 0;
+let shopOpen = false;
+let canShoot = true;
+
 document.addEventListener("keydown", (e) => {
     if (shopOpen && e.key !== "j") return;
-
     if (["w", "a", "s", "d"].includes(e.key)) {
         shoot(e.key);
         if (upgrades.autoFire) setInterval(() => shoot(e.key), upgrades.shootCooldown);
@@ -48,45 +54,12 @@ document.addEventListener("keydown", (e) => {
     if (e.key === "o") activateBeam();
 });
 
-function activateSlowMotion() {
-    if (!upgrades.slowMoUnlocked || upgrades.slowMoActive) return;
-    upgrades.slowMoActive = true;
-    upgrades.shootCooldown *= 2;
-    setTimeout(() => {
-        upgrades.slowMoActive = false;
-        upgrades.shootCooldown /= 2;
-    }, 5000);
-}
-
-function activateShield() {
-    if (!upgrades.shieldUnlocked || upgrades.shieldActive) return;
-    upgrades.shieldActive = true;
-    setTimeout(() => upgrades.shieldActive = false, 5000);
-}
-
-function activateBeam() {
-    if (!upgrades.beamUnlocked) return;
-    bullets.push({ x: player.x, y: player.y, vx: 0, vy: -15, size: 50, beam: true });
-}
-
-function shoot(direction) {
-    if (!canShoot) return;
-    canShoot = false;
-    setTimeout(() => canShoot = true, upgrades.shootCooldown);
-
-    let speed = 10, vx = 0, vy = 0;
-    let bulletSize = upgrades.bulletSize;
-
-    if (direction === "w") vy = -speed;
-    if (direction === "s") vy = speed;
-    if (direction === "a") vx = -speed;
-    if (direction === "d") vx = speed;
-
-    bullets.push({ x: player.x, y: player.y, vx, vy, size: bulletSize, piercing: upgrades.piercing, explosive: upgrades.explosive });
-
-    for (let i = 0; i < upgrades.extraProjectiles; i++) {
-        bullets.push({ x: player.x, y: player.y, vx: vx * 1.2, vy: vy * 1.2, size: bulletSize, piercing: upgrades.piercing, explosive: upgrades.explosive });
-    }
+function spawnEnemy() {
+    let type = Math.floor(Math.random() * 3);
+    let x = Math.random() * canvas.width;
+    let y = Math.random() * canvas.height;
+    let size = 20 + Math.random() * 20;
+    enemies.push({ x, y, size, type, vx: 0, vy: 0, lastDash: 0 });
 }
 
 function update() {
@@ -119,29 +92,29 @@ function update() {
         });
     });
 
-    bosses.forEach((boss) => {
-        if (boss.type === 0 && boss.cooldown <= 0) {
-            let angle = Math.atan2(player.y - boss.y, player.x - boss.x);
-            bullets.push({ x: boss.x, y: boss.y, vx: Math.cos(angle) * 5, vy: Math.sin(angle) * 5, size: 10 });
-            boss.cooldown = 60;
-        } else if (boss.type === 1 && boss.cooldown <= 0) {
-            let angle = Math.atan2(player.y - boss.y, player.x - boss.x);
-            bullets.push({ x: boss.x, y: boss.y, vx: Math.cos(angle) * 8, vy: Math.sin(angle) * 8, size: 10 });
-            boss.cooldown = 100;
-        } else if (boss.type === 2) {
-            let angle = Math.atan2(player.y - boss.y, player.x - boss.x);
-            boss.x += Math.cos(angle) * 2 * upgrades.enemySpeed;
-            boss.y += Math.sin(angle) * 2 * upgrades.enemySpeed;
+    enemies.forEach((enemy, i) => {
+        if (enemy.type === 0) {
+            let angle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
+            if (Math.random() < 0.02) {
+                bullets.push({ x: enemy.x, y: enemy.y, vx: Math.cos(angle) * 5, vy: Math.sin(angle) * 5, size: 10 });
+            }
+        } else if (enemy.type === 1) {
+            let angle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
+            enemy.x += Math.cos(angle) * upgrades.enemySpeed;
+            enemy.y += Math.sin(angle) * upgrades.enemySpeed;
+            if (Date.now() - enemy.lastDash > 3000) {
+                enemy.lastDash = Date.now();
+                enemy.vx = Math.cos(angle) * 15;
+                enemy.vy = Math.sin(angle) * 15;
+            }
+        } else if (enemy.type === 2) {
+            let angle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
+            enemy.x += Math.cos(angle) * upgrades.enemySpeed;
+            enemy.y += Math.sin(angle) * upgrades.enemySpeed;
         }
-        boss.cooldown--;
     });
 
-    enemies.forEach((enemy) => {
-        enemy.x += (Math.random() - 0.5) * upgrades.enemySpeed;
-        enemy.y += (Math.random() - 0.5) * upgrades.enemySpeed;
-    });
-
-    [...enemies, ...bosses].forEach((enemy) => {
+    enemies.forEach((enemy, i) => {
         if (collision(player, enemy)) {
             if (upgrades.shieldActive) return;
             if (upgrades.extraLife > 0) {
@@ -153,7 +126,51 @@ function update() {
         }
     });
 
-    if (Math.random() < 0.02) spawnEnemy();
+    if (Math.random() < 0.05) spawnEnemy();
+}
+
+function shoot(direction) {
+    if (!canShoot) return;
+    canShoot = false;
+    setTimeout(() => canShoot = true, upgrades.shootCooldown);
+
+    let speed = 10, vx = 0, vy = 0;
+    let bulletSize = upgrades.bulletSize;
+
+    if (direction === "w") vy = -speed;
+    if (direction === "s") vy = speed;
+    if (direction === "a") vx = -speed;
+    if (direction === "d") vx = speed;
+
+    bullets.push({ x: player.x, y: player.y, vx, vy, size: bulletSize, piercing: upgrades.piercing, explosive: upgrades.explosive });
+
+    for (let i = 0; i < upgrades.extraProjectiles; i++) {
+        bullets.push({ x: player.x, y: player.y, vx: vx * 1.2, vy: vy * 1.2, size: bulletSize, piercing: upgrades.piercing, explosive: upgrades.explosive });
+    }
+}
+
+function updateShop() {
+    let item1 = shopItems[Math.floor(Math.random() * shopItems.length)];
+    let item2 = shopItems[Math.floor(Math.random() * shopItems.length)];
+
+    document.getElementById("item1").innerText = `${item1.name} - $${item1.cost}`;
+    document.getElementById("item1").onclick = function() { buyItem(item1); };
+
+    document.getElementById("item2").innerText = `${item2.name} - $${item2.cost}`;
+    document.getElementById("item2").onclick = function() { buyItem(item2); };
+}
+
+function buyItem(item) {
+    if (money >= item.cost) {
+        money -= item.cost;
+        item.effect();
+        updateMoney();
+        updateShop();
+    }
+}
+
+function updateMoney() {
+    document.getElementById("money").innerText = `$${money}`;
 }
 
 function gameLoop() {
