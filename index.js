@@ -16,7 +16,10 @@ let upgrades = {
     homing: false,
     shootCooldown: 1000,
     bulletSize: 5,
-    enemySpeed: 1
+    enemySpeed: 1,
+    slowMotion: false,
+    shield: false,
+    beam: false
 };
 
 // Keep track of mouse movement
@@ -25,7 +28,7 @@ document.addEventListener("mousemove", (e) => {
     player.y = e.clientY;
 });
 
-// Control keys for shooting
+// Control keys for shooting and abilities
 document.addEventListener("keydown", (e) => {
     if (shopOpen && e.key !== "j") return;
     if (e.key === "k") openShop();
@@ -150,7 +153,6 @@ function closeShop() {
 
 // Update shop items
 function updateShop() {
-    // Example items
     let item1 = { name: "Extra Projectile", cost: 10, effect: () => { upgrades.extraProjectiles++; } };
     let item2 = { name: "Faster Bullets", cost: 20, effect: () => { upgrades.shootCooldown = Math.max(500, upgrades.shootCooldown - 200); } };
 
@@ -169,6 +171,30 @@ function buyItem(item) {
         updateMoney();
         updateShop();
     }
+}
+
+// Activate slow motion ability
+function activateSlowMotion() {
+    upgrades.slowMotion = true;
+    setTimeout(() => {
+        upgrades.slowMotion = false;
+    }, 5000);
+}
+
+// Activate shield ability
+function activateShield() {
+    upgrades.shield = true;
+    setTimeout(() => {
+        upgrades.shield = false;
+    }, 5000);
+}
+
+// Activate beam ability
+function activateBeam() {
+    upgrades.beam = true;
+    setTimeout(() => {
+        upgrades.beam = false;
+    }, 5000);
 }
 
 // Main game loop
