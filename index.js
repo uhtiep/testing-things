@@ -36,6 +36,9 @@ let upgrades = {
 // UI visibility for controls
 let showControls = false;
 
+// Last enemy spawn time (for 2-second cooldown)
+let lastEnemySpawnTime = 0;
+
 // Keep track of mouse movement
 document.addEventListener("mousemove", (e) => {
     player.x = e.clientX;
@@ -68,11 +71,11 @@ function spawnEnemy() {
 
     // Determine the type of enemy based on the RNG
     if (randomNumber < 30) {
-        enemyType = 2;  // Circle enemy
+        enemyType = 2;  // Circle enemy (30% chance)
     } else if (randomNumber < 50) {
-        enemyType = 0;  // Triangle enemy
+        enemyType = 0;  // Triangle enemy (20% chance)
     } else {
-        enemyType = 1;  // Square enemy
+        enemyType = 1;  // Square enemy (50% chance)
     }
 
     let x = Math.random() * canvas.width;
@@ -152,7 +155,10 @@ function update() {
         }
     });
 
-    if (Math.random() < 0.05) spawnEnemy(); // Regular enemy spawn
+    if (Date.now() - lastEnemySpawnTime > 2000) {
+        spawnEnemy(); // Spawn an enemy every 2 seconds
+        lastEnemySpawnTime = Date.now();
+    }
 }
 
 // Handle collision detection
