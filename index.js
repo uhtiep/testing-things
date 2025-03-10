@@ -11,7 +11,8 @@ let canShoot = true;
 let ballCount = 0;
 let shopOpen = false;
 let upgrades = { extraProjectiles: 0, homing: false, beam: false };
-let shopItems = [
+
+const shopItems = [
     { name: "Skip to Boss", cost: 30, effect: () => spawnBoss() },
     { name: "+1 Projectile", cost: 20, effect: () => upgrades.extraProjectiles++ },
     { name: "Homing Shot", cost: 40, effect: () => upgrades.homing = true },
@@ -155,6 +156,37 @@ function draw() {
 
 function updateMoney() {
     document.getElementById("money").innerText = `Money: $${money}`;
+}
+
+function openShop() {
+    document.getElementById("shop").style.display = "block";
+    shopOpen = true;
+    updateShop();
+}
+
+function closeShop() {
+    document.getElementById("shop").style.display = "none";
+    shopOpen = false;
+}
+
+function updateShop() {
+    let item1 = shopItems[Math.floor(Math.random() * shopItems.length)];
+    let item2 = shopItems[Math.floor(Math.random() * shopItems.length)];
+
+    document.getElementById("item1").innerText = `${item1.name} - $${item1.cost}`;
+    document.getElementById("item1").onclick = function() { buyItem(item1); };
+
+    document.getElementById("item2").innerText = `${item2.name} - $${item2.cost}`;
+    document.getElementById("item2").onclick = function() { buyItem(item2); };
+}
+
+function buyItem(item) {
+    if (money >= item.cost) {
+        money -= item.cost;
+        item.effect();
+        updateMoney();
+        updateShop();
+    }
 }
 
 function gameLoop() {
