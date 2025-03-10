@@ -1,122 +1,165 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-canvas.width = 800;
-canvas.height = 600;
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
-// Player object
+const bullets = [];
+const enemies = [];
+const bosses = [];
+let ballCount = 0;
+let gameOver = false;
+
+// Player (Cursor)
 const player = {
-    x: 100,
-    y: 500,
-    width: 30,
-    height: 30,
-    color: "red",
-    speed: 3,
-    jumpPower: -10,
-    velocityX: 0,
-    velocityY: 0,
-    gravity: 0.5,
-    isOnGround: false,
-    isDashing: false,
-    canDash: true,
-    dashSpeed: 10,
-    dashTime: 0,
-    dashDuration: 10,
+    x: canvas.width / 2,
+    y: canvas.height / 2,
+    size: 10,
+    color: "white",
 };
 
-// Input keys
-const keys = {
-    left: false,
-    right: false,
-    up: false,
-    dash: false,
-};
+// Track cursor movement
+canvas.addEventListener("mousemove", (e) => {
+    player.x = e.clientX;
+    player.y = e.clientY;
+});
 
-// Platforms
-const platforms = [
-    { x: 50, y: 550, width: 200, height: 20 },
-    { x: 300, y: 450, width: 200, height: 20 },
-    { x: 550, y: 350, width: 200, height: 20 },
-];
-
-// Event listeners for input
+// Handle shooting with WASD
 document.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowLeft") keys.left = true;
-    if (e.key === "ArrowRight") keys.right = true;
-    if (e.key === "ArrowUp") {
-        if (player.isOnGround) {
-            player.velocityY = player.jumpPower;
-            player.isOnGround = false;
-        }
-    }
-    if (e.key === "Shift" && player.canDash) {
-        player.isDashing = true;
-        player.canDash = false;
-        player.dashTime = player.dashDuration;
+    if (gameOver) return;
+    const speed = 5;
+    let vx = 0, vy = 0;
+
+    if (e.key === "w") vy = -speed;
+    if (e.key === "s") vy = speed;
+    if (e.key === "a") vx = -speed;
+    if (e.key === "d") vx = speed;
+
+    if (vx !== 0 || vy !== 0) {
+        bullets.push({ x: player.x, y: player.y, vx, vy, size: 5, color: "yellow" });
     }
 });
 
-document.addEventListener("keyup", (e) => {
-    if (e.key === "ArrowLeft") keys.left = false;
-    if (e.key === "ArrowRight") keys.right = false;
-});
+// Spawn enemies randomly
+function spawnEnemy() {
+    const x = Math.random() * canvas.width;
+    const y = Math.random() * canvas.height;
+    enemies.push({ x, y, size: 15, color: "red" });
+    ballCount++;
 
-// Update function
+    if (ballCount % 50 === 0) spawnBoss();
+}
+
+// Spawn bosses every 50 enemies
+function spawnBoss() {
+    const bossType = Math.floor(Math.random() * 3); // 0, 1, or 2
+    bosses.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: 30, type: bossType, cooldown: 0 });
+}
+
+// Update game state
 function update() {
-    if (player.isDashing) {
-        if (player.dashTime > 0) {
-            player.velocityX = keys.left ? -player.dashSpeed : keys.right ? player.dashSpeed : 0;
-            player.dashTime--;
-        } else {
-            player.isDashing = false;
-        }
-    } else {
-        player.velocityX = 0;
-        if (keys.left) player.velocityX = -player.speed;
-        if (keys.right) player.velocityX = player.speed;
-        player.velocityY += player.gravity;
-    }
+    if (gameOver) return;
 
-    // Movement and collision
-    player.x += player.velocityX;
-    player.y += player.velocityY;
+    // Update bullets
+    bullets.forEach((bullet, index) => {
+        bullet.x += bullet.vx;
+        bullet.y += bullet.vy;
 
-    // Platform collision
-    player.isOnGround = false;
-    platforms.forEach((platform) => {
-        if (
-            player.x < platform.x + platform.width &&
-            player.x + player.width > platform.x &&
-            player.y + player.height > platform.y &&
-            player.y + player.height - player.velocityY < platform.y
-        ) {
-            player.y = platform.y - player.height;
-            player.velocityY = 0;
-            player.isOnGround = true;
-            player.canDash = true;
+        if (bullet.x < 0 || bullet.x > canvas.width || bullet.y < 0 || bullet.y > canvas.height) {
+            bullets.splice(index, 1);
         }
     });
 
-    // Prevent falling off the screen
-    if (player.y > canvas.height) {
-        player.y = 500;
-        player.velocityY = 0;
-        player.canDash = true;
-    }
+    // Check bullet collisions with enemies
+    bullets.forEach((bullet, bulletIndex) => {
+        enemies.forEach((enemy, enemyIndex) => {
+            const dx = bullet.x - enemy.x;
+            const dy = bullet.y - enemy.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < bullet.size + enemy.size) {
+                enemies.splice(enemyIndex, 1);
+                bullets.splice(bulletIndex, 1);
+            }
+        });
+    });
+
+    // Boss behavior
+    bosses.forEach((boss) => {
+        if (boss.type === 0) {
+            // Boss that shoots at cursor
+            if (boss.cooldown <= 0) {
+                let angle = Math.atan2(player.y - boss.y, player.x - boss.x);
+                bosses.push({
+                    x: boss.x, y: boss.y, size: 10, type: 3, vx: Math.cos(angle) * 5, vy: Math.sin(angle) * 5,
+                });
+                boss.cooldown = 60;
+            } else {
+                boss.cooldown--;
+            }
+        } else if (boss.type === 1) {
+            // Boss that fires beams
+            if (boss.cooldown <= 0) {
+                let angle = Math.atan2(player.y - boss.y, player.x - boss.x);
+                bosses.push({ x: boss.x, y: boss.y, size: 10, type: 4, vx: Math.cos(angle) * 8, vy: Math.sin(angle) * 8 });
+                boss.cooldown = 100;
+            } else {
+                boss.cooldown--;
+            }
+        } else if (boss.type === 2) {
+            // Boss that chases the cursor
+            let angle = Math.atan2(player.y - boss.y, player.x - boss.x);
+            boss.x += Math.cos(angle) * 2;
+            boss.y += Math.sin(angle) * 2;
+        }
+    });
+
+    // Check if player is hit
+    [...enemies, ...bosses].forEach((enemy) => {
+        const dx = player.x - enemy.x;
+        const dy = player.y - enemy.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < player.size + enemy.size) {
+            gameOver = true;
+            alert("Game Over! Refresh to play again.");
+        }
+    });
+
+    // Spawn new enemies
+    if (Math.random() < 0.02) spawnEnemy();
 }
 
-// Draw function
+// Draw everything
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw player
     ctx.fillStyle = player.color;
-    ctx.fillRect(player.x, player.y, player.width, player.height);
+    ctx.beginPath();
+    ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2);
+    ctx.fill();
 
-    // Draw platforms
-    ctx.fillStyle = "brown";
-    platforms.forEach((platform) => {
-        ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+    // Draw bullets
+    bullets.forEach((bullet) => {
+        ctx.fillStyle = bullet.color;
+        ctx.fillRect(bullet.x, bullet.y, bullet.size, bullet.size);
+    });
+
+    // Draw enemies
+    enemies.forEach((enemy) => {
+        ctx.fillStyle = enemy.color;
+        ctx.beginPath();
+        ctx.arc(enemy.x, enemy.y, enemy.size, 0, Math.PI * 2);
+        ctx.fill();
+    });
+
+    // Draw bosses
+    bosses.forEach((boss) => {
+        ctx.fillStyle = boss.type === 0 ? "blue" : boss.type === 1 ? "purple" : "orange";
+        ctx.beginPath();
+        ctx.arc(boss.x, boss.y, boss.size, 0, Math.PI * 2);
+        ctx.fill();
     });
 }
 
@@ -124,8 +167,8 @@ function draw() {
 function gameLoop() {
     update();
     draw();
-    requestAnimationFrame(gameLoop);
+    if (!gameOver) requestAnimationFrame(gameLoop);
 }
 
-// Start the game loop
+// Start the game
 gameLoop();
