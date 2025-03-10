@@ -7,27 +7,23 @@
     <link rel="stylesheet" href="fye.css">
 </head>
 <body>
-
-<canvas id="gameCanvas"></canvas>
-<div id="shop">
-    <h3>Shop</h3>
-    <div id="shopItems"></div>
-    <button onclick="closeShop()">Close Shop</button>
-</div>
-<div id="controls">
-    <h3>Controls</h3>
-    <p>W: Shoot Up</p>
-    <p>A: Shoot Left</p>
-    <p>S: Shoot Down</p>
-    <p>D: Shoot Right</p>
-    <p>P: Slow Motion</p>
-    <p>I: Shield</p>
-    <p>O: Beam</p>
-    <p>K: Open Shop</p>
-    <p>J: Close Shop</p>
-    <p>N: Toggle Controls</p>
-</div>
-
-<script src="index.js"></script>
+    <canvas id="gameCanvas"></canvas>
+    <div id="shop" class="shop">
+        <h2>Shop</h2>
+        <div id="item1"></div>
+        <div id="item2"></div>
+        <button id="closeShop">Close Shop</button>
+    </div>
+    <div id="controls" class="controls">
+        <p>Controls:</p>
+        <p>W: Shoot Up</p>
+        <p>A: Shoot Left</p>
+        <p>S: Shoot Down</p>
+        <p>D: Shoot Right</p>
+        <p>P: Slow Motion</p>
+        <p>I: Shield</p>
+        <p>O: Beam</p>
+    </div>
+    <script src="index.js"></script>
 </body>
 </html>
