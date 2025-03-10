@@ -3,18 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cursor Shooter with Shop</title>
-    <link rel="stylesheet" href="fye.css">
+    <title>Windowkill Web</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: black; color: white; font-family: Arial, sans-serif; }
+        canvas { display: block; }
+        #shop { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9); padding: 20px; border: 2px solid white; display: none;
+        }
+        button { display: block; margin: 10px; padding: 10px; font-size: 16px; }
+        #money { position: absolute; top: 10px; left: 10px; font-size: 20px; }
+    </style>
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
-    <div id="shop" class="hidden">
+    <div id="money">Money: $0</div>
+
+    <div id="shop">
         <h2>Shop</h2>
-        <p>Money: $<span id="money">0</span></p>
-        <button id="item1"></button>
-        <button id="item2"></button>
-        <button onclick="closeShop()">Close</button>
+        <button id="item1">Item 1</button>
+        <button id="item2">Item 2</button>
+        <p>Press 'J' to close</p>
     </div>
-    <script src="index.js"></script>
+
+    <script src="game.js"></script>
 </body>
 </html>
