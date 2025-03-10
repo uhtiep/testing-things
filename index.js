@@ -1,198 +1,226 @@
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
+// index.js
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+canvas.width = 600;
+canvas.height = 400;
 
-let player = { x: canvas.width / 2, y: canvas.height / 2, size: 20, speed: 5 };
-let bullets = [];
-let enemies = [];
-let money = 0;
-let kills = 0;
-let shopOpen = false;
-let lastShotTime = 0;
-let lastEnemySpawnTime = 0;
-let upgrades = { extraProjectiles: 0, homing: false, shootCooldown: 500, bulletSize: 5, enemySpeed: 1 };
-let showControls = false;
+let player = { x: 100, y: 200, size: 20, health: 100, color: '#00FF00', speed: 5 };
+let enemy = { x: 500, y: 200, size: 20, health: 100, color: '#FF0000', speed: 5 };
+let turn = 1;
+let isBlocking = false;
+let inAir = false;
 
-document.addEventListener("mousemove", (e) => {
-    player.x = e.clientX;
-    player.y = e.clientY;
-});
-
-document.addEventListener("keydown", (e) => {
-    if (shopOpen && e.key !== "j") return;
-    if (e.key === "k") openShop();
-    if (e.key === "j") closeShop();
-    if (e.key === "p") activateSlowMotion();
-    if (e.key === "i") activateShield();
-    if (e.key === "o") activateBeam();
-    if (e.key === "n") toggleControls();
-
-    if (["w", "a", "s", "d"].includes(e.key)) {
-        if (Date.now() - lastShotTime > upgrades.shootCooldown) {
-            shoot(e.key);
-            lastShotTime = Date.now();
-        }
+document.getElementById('attackButton').addEventListener('click', () => {
+    if (turn % 2 !== 0) {
+        playerAttack();
     }
 });
 
-function spawnEnemy() {
-    let randomNumber = Math.random() * 100;
-    let enemyType = randomNumber < 30 ? 2 : (randomNumber < 50 ? 0 : 1);
-    let x = Math.random() * canvas.width;
-    let y = Math.random() * canvas.height;
-    let size = 20 + Math.random() * 20;
-    enemies.push({ x, y, size, type: enemyType, vx: 0, vy: 0 });
-}
+document.getElementById('dashButton').addEventListener('click', () => {
+    if (turn % 2 !== 0) {
+        playerDash();
+    }
+});
 
-function update() {
-    if (shopOpen) return;
+document.getElementById('uppercutButton').addEventListener('click', () => {
+    if (turn % 2 !== 0) {
+        playerUppercut();
+    }
+});
 
-    bullets.forEach((bullet, bi) => {
-        enemies.forEach((enemy, ei) => {
-            if (collision(bullet, enemy)) {
-                enemies.splice(ei, 1);
-                bullets.splice(bi, 1);
-                kills++;
-                money += 1;
-                updateMoney();
-                if (kills % 25 === 0) spawnBoss();
-            }
-        });
-    });
+document.getElementById('jumpButton').addEventListener('click', () => {
+    if (turn % 2 !== 0) {
+        playerJump();
+    }
+});
 
-    enemies.forEach((enemy, i) => {
-        if (enemy.type === 0) {
-            let angle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
-            if (Math.random() < 0.02) {
-                bullets.push({ x: enemy.x, y: enemy.y, vx: Math.cos(angle) * 5, vy: Math.sin(angle) * 5, size: 10 });
-            }
-        } else if (enemy.type === 1) {
-            let angle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
-            enemy.x += Math.cos(angle) * upgrades.enemySpeed;
-            enemy.y += Math.sin(angle) * upgrades.enemySpeed;
-            if (Math.random() < 0.03) {
-                enemy.vx = Math.cos(angle) * 15;
-                enemy.vy = Math.sin(angle) * 15;
-            }
-        } else if (enemy.type === 2) {
-            let angle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
-            enemy.x += Math.cos(angle) * upgrades.enemySpeed;
-            enemy.y += Math.sin(angle) * upgrades.enemySpeed;
+document.getElementById('upperSliceButton').addEventListener('click', () => {
+    if (turn % 2 !== 0) {
+        playerUpperSlice();
+    }
+});
+
+// Player attack
+function playerAttack() {
+    if (enemy.health > 0) {
+        let damage = 10;
+        if (enemy.blocking) {
+            damage /= 2; // Block reduces damage
         }
-    });
-
-    if (Date.now() - lastEnemySpawnTime > 2000) {
-        spawnEnemy();
-        lastEnemySpawnTime = Date.now();
+        enemy.health -= damage;
+        updateHealth();
+        nextTurn();
     }
 }
 
-function collision(obj1, obj2) {
-    let dx = obj1.x - obj2.x;
-    let dy = obj1.y - obj2.y;
-    let distance = Math.sqrt(dx * dx + dy * dy);
-    return distance < (obj1.size + obj2.size) / 2;
+// Player Dash (move quickly to a new position)
+function playerDash() {
+    player.x += player.speed * 20;
+    if (player.x > canvas.width) player.x = canvas.width;
+    nextTurn();
 }
 
-function shoot(direction) {
-    let speed = 10;
-    let vx = 0, vy = 0;
-    let bulletSize = upgrades.bulletSize;
-
-    if (direction === "w") vy = -speed;
-    if (direction === "s") vy = speed;
-    if (direction === "a") vx = -speed;
-    if (direction === "d") vx = speed;
-
-    bullets.push({ x: player.x, y: player.y, vx, vy, size: bulletSize });
-
-    for (let i = 0; i < upgrades.extraProjectiles; i++) {
-        bullets.push({ x: player.x, y: player.y, vx: vx * 1.2, vy: vy * 1.2, size: bulletSize });
+// Player Uppercut (knocks the enemy back)
+function playerUppercut() {
+    if (Math.abs(player.x - enemy.x) < 30) {
+        enemy.y -= 30;
+        enemy.health -= 15;
+        updateHealth();
     }
+    nextTurn();
+}
 
-    if (upgrades.homing) {
-        bullets.forEach((bullet) => {
-            let nearestEnemy = findNearestEnemy(bullet);
-            if (nearestEnemy) {
-                let angle = Math.atan2(nearestEnemy.y - bullet.y, nearestEnemy.x - bullet.x);
-                bullet.vx = Math.cos(angle) * 10;
-                bullet.vy = Math.sin(angle) * 10;
-            }
-        });
+// Player Jump (move upwards)
+function playerJump() {
+    if (!inAir) {
+        inAir = true;
+        player.y -= 50;
+        setTimeout(() => {
+            player.y += 50;
+            inAir = false;
+        }, 500); // Simulate jumping for 500ms
+    }
+    nextTurn();
+}
+
+// Player Upper Slice (powerful slash with a cooldown)
+function playerUpperSlice() {
+    if (Math.abs(player.x - enemy.x) < 40) {
+        enemy.health -= 25;
+        updateHealth();
+    }
+    nextTurn();
+}
+
+// Enemy attack (randomized actions)
+function enemyAttack() {
+    const move = Math.random();
+    if (move < 0.2) {
+        enemyBasicAttack();
+    } else if (move < 0.4) {
+        enemyDash();
+    } else if (move < 0.6) {
+        enemyUppercut();
+    } else if (move < 0.8) {
+        enemyJump();
+    } else {
+        enemyUpperSlice();
     }
 }
 
-function findNearestEnemy(bullet) {
-    let nearestEnemy = null;
-    let minDist = Infinity;
-    enemies.forEach((enemy) => {
-        let dx = bullet.x - enemy.x;
-        let dy = bullet.y - enemy.y;
-        let dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < minDist) {
-            minDist = dist;
-            nearestEnemy = enemy;
-        }
-    });
-    return nearestEnemy;
+// Enemy Basic Attack (simple attack)
+function enemyBasicAttack() {
+    let damage = 10;
+    if (isBlocking) damage /= 2; // Block reduces damage
+    player.health -= damage;
+    updateHealth();
 }
 
-function updateMoney() {
-    document.getElementById("money").innerText = `Money: $${money}`;
+// Enemy Dash (move quickly)
+function enemyDash() {
+    enemy.x -= enemy.speed * 20;
+    if (enemy.x < 0) enemy.x = 0;
 }
 
-function openShop() {
-    shopOpen = true;
-    document.getElementById("shop").style.display = "block";
+// Enemy Uppercut (knocks player back)
+function enemyUppercut() {
+    if (Math.abs(player.x - enemy.x) < 30) {
+        player.y -= 30;
+        player.health -= 15;
+        updateHealth();
+    }
 }
 
-function closeShop() {
-    shopOpen = false;
-    document.getElementById("shop").style.display = "none";
+// Enemy Jump (move upwards)
+function enemyJump() {
+    enemy.y -= 50;
+    setTimeout(() => {
+        enemy.y += 50;
+    }, 500); // Simulate jump for 500ms
 }
 
-function toggleControls() {
-    showControls = !showControls;
-    document.getElementById("controls").style.display = showControls ? 'block' : 'none';
+// Enemy Upper Slice (powerful slash)
+function enemyUpperSlice() {
+    if (Math.abs(player.x - enemy.x) < 40) {
+        player.health -= 25;
+        updateHealth();
+    }
 }
 
-function draw() {
+// Block player action
+function playerBlock() {
+    isBlocking = true;
+    nextTurn();
+}
+
+// Update the health display
+function updateHealth() {
+    document.getElementById('playerHealth').textContent = player.health;
+    document.getElementById('enemyHealth').textContent = enemy.health;
+}
+
+// Next turn logic
+function nextTurn() {
+    turn++;
+    isBlocking = false;
+    document.getElementById('turn').textContent = turn;
+    if (player.health <= 0 || enemy.health <= 0) {
+        gameOver();
+    } else {
+        setTimeout(enemyTurn, 1000);
+    }
+}
+
+// Enemy's turn: perform a randomized action
+function enemyTurn() {
+    if (turn % 2 === 0) {
+        enemyAttack();
+        nextTurn();
+    }
+}
+
+// Game over condition
+function gameOver() {
+    if (player.health <= 0) {
+        alert('Game Over! You lost!');
+    } else if (enemy.health <= 0) {
+        alert('You won!');
+    }
+    resetGame();
+}
+
+// Reset the game state
+function resetGame() {
+    player.health = 100;
+    enemy.health = 100;
+    player.x = 100;
+    enemy.x = 500;
+    turn = 1;
+    updateHealth();
+    document.getElementById('turn').textContent = turn;
+}
+
+// Draw the game on the canvas
+function drawGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw player
     ctx.beginPath();
     ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2);
-    ctx.fillStyle = "#00FF00";
+    ctx.fillStyle = player.color;
     ctx.fill();
 
-    bullets.forEach(bullet => {
-        ctx.beginPath();
-        ctx.arc(bullet.x, bullet.y, bullet.size, 0, Math.PI * 2);
-        ctx.fillStyle = "#FF0000";
-        ctx.fill();
-    });
-
-    enemies.forEach(enemy => {
-        ctx.beginPath();
-        ctx.arc(enemy.x, enemy.y, enemy.size, 0, Math.PI * 2);
-        ctx.fillStyle = enemy.type === 3 ? "#FFD700" : "#0000FF";
-        ctx.fill();
-    });
-
-    if (showControls) {
-        ctx.fillStyle = "black";
-        ctx.font = "16px Arial";
-        ctx.fillText("Controls:", 10, canvas.height - 80);
-        ctx.fillText("W: Shoot Up", 10, canvas.height - 60);
-        ctx.fillText("A: Shoot Left", 10, canvas.height - 40);
-        ctx.fillText("S: Shoot Down", 10, canvas.height - 20);
-        ctx.fillText("D: Shoot Right", 10, canvas.height);
-    }
+    // Draw enemy
+    ctx.beginPath();
+    ctx.arc(enemy.x, enemy.y, enemy.size, 0, Math.PI * 2);
+    ctx.fillStyle = enemy.color;
+    ctx.fill();
 }
 
+// Game loop to update drawing
 function gameLoop() {
-    update();
-    draw();
+    drawGame();
     requestAnimationFrame(gameLoop);
 }
 
