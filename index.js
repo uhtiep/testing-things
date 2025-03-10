@@ -1,14 +1,22 @@
-// Ball Bounce Game
+// Ball Bounce Game (No Flickering, Smooth Movement)
+let balls = [];
+
 function startBallBounce() {
     const canvas = document.getElementById('bounceCanvas');
     const ctx = canvas.getContext('2d');
     canvas.width = 400;
     canvas.height = 300;
 
-    let ball = { x: 200, y: 150, radius: 20, dx: 2, dy: 2, color: 'blue' };
+    function Ball(x, y, dx, dy, color) {
+        this.x = x;
+        this.y = y;
+        this.radius = 20;
+        this.dx = dx;
+        this.dy = dy;
+        this.color = color;
+    }
 
-    function drawBall() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    function drawBall(ball) {
         ctx.beginPath();
         ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
         ctx.fillStyle = ball.color;
@@ -17,41 +25,32 @@ function startBallBounce() {
     }
 
     function updateBallPosition() {
-        if (ball.x + ball.dx > canvas.width - ball.radius || ball.x + ball.dx < ball.radius) ball.dx = -ball.dx;
-        if (ball.y + ball.dy > canvas.height - ball.radius || ball.y + ball.dy < ball.radius) ball.dy = -ball.dy;
-        ball.x += ball.dx;
-        ball.y += ball.dy;
-        drawBall();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        balls.forEach(ball => {
+            if (ball.x + ball.dx > canvas.width - ball.radius || ball.x + ball.dx < ball.radius) ball.dx = -ball.dx;
+            if (ball.y + ball.dy > canvas.height - ball.radius || ball.y + ball.dy < ball.radius) ball.dy = -ball.dy;
+            ball.x += ball.dx;
+            ball.y += ball.dy;
+            drawBall(ball);
+        });
     }
+
+    // Spawn multiple balls
+    balls.push(new Ball(Math.random() * canvas.width, Math.random() * canvas.height, Math.random() * 4 + 1, Math.random() * 4 + 1, 'blue'));
 
     setInterval(updateBallPosition, 10);
 }
 
-// Clicker Game
-let points = 0;
-function incrementPoints() {
-    points++;
-    document.getElementById('clickerPoints').textContent = points;
-}
+// Catch the Ball Game (No Endless Trail, just score)
+let catchScore = 0;
 
-// Number Guessing Game
-let targetNumber = Math.floor(Math.random() * 10) + 1;
-function guessNumber() {
-    const userGuess = parseInt(document.getElementById('guess').value);
-    const result = document.getElementById('guessResult');
-    if (userGuess === targetNumber) {
-        result.textContent = 'Correct! You guessed the right number.';
-    } else {
-        result.textContent = 'Try again!';
-    }
-}
-
-// Catch the Ball Game
 function startCatchGame() {
     const canvas = document.getElementById('catchCanvas');
     const ctx = canvas.getContext('2d');
     canvas.width = 400;
     canvas.height = 300;
+    
     let ball = { x: Math.random() * canvas.width, y: 0, radius: 20, dy: 2, color: 'red' };
     let basket = { x: canvas.width / 2 - 50, y: canvas.height - 30, width: 100, height: 20, color: 'green' };
 
@@ -72,11 +71,21 @@ function startCatchGame() {
     }
 
     function updateBallPosition() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         ball.y += ball.dy;
         if (ball.y + ball.radius > canvas.height) {
             ball.y = 0;
             ball.x = Math.random() * canvas.width;
         }
+
+        // Check if the ball is caught by the basket
+        if (ball.y + ball.radius >= basket.y && ball.x >= basket.x && ball.x <= basket.x + basket.width) {
+            catchScore++;
+            document.getElementById('catchScore').textContent = 'Score: ' + catchScore;
+            ball.y = 0;
+            ball.x = Math.random() * canvas.width;
+        }
+
         drawBall();
         drawBasket();
     }
@@ -88,7 +97,26 @@ function startCatchGame() {
     });
 }
 
-// Maze Runner Game
+// Number Guessing Game (Fixed Input Handling)
+let targetNumber = Math.floor(Math.random() * 10) + 1;
+function guessNumber() {
+    const userGuess = parseInt(document.getElementById('guess').value);
+    const result = document.getElementById('guessResult');
+    if (userGuess === targetNumber) {
+        result.textContent = 'Correct! You guessed the right number.';
+    } else {
+        result.textContent = 'Try again!';
+    }
+}
+
+// Clicker Game (Fixed Button)
+let points = 0;
+function incrementPoints() {
+    points++;
+    document.getElementById('clickerPoints').textContent = points;
+}
+
+// Maze Runner Game (Control with Mouse)
 function startMazeGame() {
     const canvas = document.getElementById('mazeCanvas');
     const ctx = canvas.getContext('2d');
@@ -126,11 +154,9 @@ function startMazeGame() {
         drawMaze();
     }
 
-    window.addEventListener('keydown', function(e) {
-        if (e.key === 'ArrowUp') player.y -= 5;
-        if (e.key === 'ArrowDown') player.y += 5;
-        if (e.key === 'ArrowLeft') player.x -= 5;
-        if (e.key === 'ArrowRight') player.x += 5;
+    window.addEventListener('mousemove', function(event) {
+        player.x = event.clientX - canvas.offsetLeft - player.width / 2;
+        player.y = event.clientY - canvas.offsetTop - player.height / 2;
     });
 
     setInterval(updatePlayerPosition, 10);
