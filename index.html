@@ -3,23 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yomi Hustle - Browser Edition</title>
-    <link rel="stylesheet" href="fye.css">
+    <title>Countdown Timers</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <canvas id="gameCanvas"></canvas>
-    <div id="hud">
-        <span>Player Health: <span id="playerHealth">100</span></span> |
-        <span>Enemy Health: <span id="enemyHealth">100</span></span> |
-        <span>Turn: <span id="turn">1</span></span>
+    <div class="timer-container">
+        <h2>Countdown Timers</h2>
+        <div class="timer">
+            <h3>Chainsaw Man New Chapter</h3>
+            <p id="chainsawTimer"></p>
+        </div>
+        <div class="timer">
+            <h3>Days Until Christmas</h3>
+            <p id="christmasTimer"></p>
+        </div>
+        <div class="timer">
+            <h3>New Re:Zero Episode</h3>
+            <p id="rezeroTimer"></p>
+        </div>
+        <div class="timer">
+            <h3>New Solo Leveling Episode</h3>
+            <p id="sololevelingTimer"></p>
+        </div>
     </div>
-    <div id="actionButtons">
-        <button id="attackButton">Attack</button>
-        <button id="dashButton">Dash</button>
-        <button id="uppercutButton">Uppercut</button>
-        <button id="jumpButton">Jump</button>
-        <button id="upperSliceButton">Upper Slice</button>
-    </div>
-    <script src="index.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>

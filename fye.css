@@ -1,45 +1,25 @@
-/* fye.css */
 body {
-    margin: 0;
-    padding: 0;
-    background-color: #282828;
-    font-family: 'Arial', sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
-  
-  #gameCanvas {
-    border: 2px solid #f0f0f0;
-    background-color: #222;
-  }
-  
-  #hud {
-    position: absolute;
-    top: 10px;
-    left: 20px;
-    color: #f0f0f0;
-    font-size: 18px;
-  }
-  
-  #actionButtons {
-    position: absolute;
-    bottom: 10px;
-    left: 20px;
-    color: #f0f0f0;
-  }
-  
-  button {
-    background-color: #444;
-    color: white;
-    border: none;
-    padding: 10px;
-    margin-right: 10px;
-    cursor: pointer;
-  }
-  
-  button:hover {
-    background-color: #666;
-  }
-  
+  font-family: Arial, sans-serif;
+  text-align: center;
+  background-color: #222;
+  color: white;
+  margin: 0;
+  padding: 20px;
+}
+
+.timer-container {
+  max-width: 400px;
+  margin: auto;
+  background-color: #333;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.2);
+}
+
+.timer {
+  margin-bottom: 20px;
+}
+
+h2 {
+  color: #ffcc00;
+}
