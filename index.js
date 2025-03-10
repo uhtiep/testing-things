@@ -84,19 +84,12 @@ function spawnEnemy() {
 function update() {
     if (shopOpen) return;
 
-    bullets.forEach((bullet, i) => {
-        bullet.x += bullet.vx;
-        bullet.y += bullet.vy;
-        if (bullet.x < 0 || bullet.x > canvas.width || bullet.y < 0 || bullet.y > canvas.height) {
-            bullets.splice(i, 1);
-        }
-    });
-
+    // Check bullet collisions with enemies
     bullets.forEach((bullet, bi) => {
         enemies.forEach((enemy, ei) => {
             if (collision(bullet, enemy)) {
-                enemies.splice(ei, 1);
-                bullets.splice(bi, 1);
+                enemies.splice(ei, 1); // Remove enemy
+                bullets.splice(bi, 1); // Remove bullet
                 kills++;
                 money += 1;
                 updateMoney();
