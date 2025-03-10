@@ -1,34 +1,55 @@
-body {
+* {
     margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body, html {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #333;
     overflow: hidden;
-    background-color: black;
+    font-family: 'Arial', sans-serif;
+}
+
+.game-container {
+    position: relative;
 }
 
 canvas {
+    background-color: #1e1e1e;
     display: block;
 }
 
-.hidden {
-    display: none;
-}
-
-#shop {
+.shop {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 20px;
+    top: 20px;
+    right: 20px;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 15px;
     border-radius: 10px;
+    color: white;
+    font-size: 18px;
     text-align: center;
 }
 
-#shop button {
-    display: block;
-    margin: 10px auto;
-    padding: 10px;
-    background: white;
-    border: none;
+.shop-item {
+    margin: 10px;
     cursor: pointer;
+}
+
+.shop-item:hover {
+    color: lightgreen;
+}
+
+#money {
+    font-weight: bold;
+}
+
+h2 {
+    margin-bottom: 10px;
+    font-size: 22px;
 }
