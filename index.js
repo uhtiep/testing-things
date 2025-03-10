@@ -4,7 +4,7 @@ const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-let player = { x: canvas.width / 2, y: canvas.height / 2, size: 20 };
+let player = { x: canvas.width / 2, y: canvas.height / 2, size: 20, speed: 5 };
 let bullets = [];
 let enemies = [];
 let money = 0;
@@ -12,7 +12,7 @@ let kills = 0;
 let shopOpen = false;
 let lastShotTime = 0;
 let lastEnemySpawnTime = 0;
-let upgrades = { extraProjectiles: 0, homing: false, shootCooldown: 1000, bulletSize: 5, enemySpeed: 1 };
+let upgrades = { extraProjectiles: 0, homing: false, shootCooldown: 500, bulletSize: 5, enemySpeed: 1 };
 let showControls = false;
 
 document.addEventListener("mousemove", (e) => {
