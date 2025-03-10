@@ -1,26 +1,10 @@
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
-    color: #333;
-    text-align: center;
-    padding-top: 50px;
+    margin: 0;
+    overflow: hidden;
+    background-color: black;
 }
 
-h2 {
-    color: #4CAF50;
-}
-
-button {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-    padding: 10px 20px;
-    margin-top: 20px;
-    border-radius: 5px;
-}
-
-button:hover {
-    background-color: #45a049;
+canvas {
+    display: block;
+    background-color: lightblue;
 }
