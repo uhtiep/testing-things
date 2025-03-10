@@ -8,6 +8,7 @@ let player = { x: canvas.width / 2, y: canvas.height / 2, size: 20 };  // Player
 let bullets = [];
 let enemies = [];
 let money = 0;
+let kills = 0;
 let shopOpen = false;
 let canShoot = true;
 let lastShotTime = 0; // to handle cooldown
@@ -19,7 +20,17 @@ let upgrades = {
     enemySpeed: 1,
     slowMotion: false,
     shield: false,
-    beam: false
+    beam: false,
+    doubleSpeed: false,
+    doubleDamage: false,
+    bulletSizeIncrease: 0,
+    fastReload: false,
+    enemyHealthDecrease: false,
+    autoShoot: false,
+    invincibility: false,
+    damageReflection: false,
+    projectileBouncing: false,
+    healthRegen: false
 };
 
 // Keep track of mouse movement
@@ -54,6 +65,12 @@ function spawnEnemy() {
     enemies.push({ x, y, size, type, vx: 0, vy: 0 });
 }
 
+// Spawn boss after 25 kills
+function spawnBoss() {
+    let boss = { x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: 40, type: 3, vx: 0, vy: 0, behavior: 'shoot' };
+    enemies.push(boss);
+}
+
 // Main game update loop
 function update() {
     if (shopOpen) return;
@@ -71,19 +88,23 @@ function update() {
             if (collision(bullet, enemy)) {
                 enemies.splice(ei, 1);
                 bullets.splice(bi, 1);
+                kills++;
                 money += 1;
                 updateMoney();
+                if (kills % 25 === 0) spawnBoss(); // Spawn boss every 25 kills
             }
         });
     });
 
     enemies.forEach((enemy, i) => {
         if (enemy.type === 0) {
+            // Triangle Enemies: Shoot projectiles towards the player
             let angle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
             if (Math.random() < 0.02) {
                 bullets.push({ x: enemy.x, y: enemy.y, vx: Math.cos(angle) * 5, vy: Math.sin(angle) * 5, size: 10 });
             }
         } else if (enemy.type === 1) {
+            // Square Enemies: Dash toward the player every 3 seconds
             let angle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
             enemy.x += Math.cos(angle) * upgrades.enemySpeed;
             enemy.y += Math.sin(angle) * upgrades.enemySpeed;
@@ -92,9 +113,18 @@ function update() {
                 enemy.vy = Math.sin(angle) * 15;
             }
         } else if (enemy.type === 2) {
+            // Circle Enemies: Move constantly towards the player
             let angle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
             enemy.x += Math.cos(angle) * upgrades.enemySpeed;
             enemy.y += Math.sin(angle) * upgrades.enemySpeed;
+        } else if (enemy.type === 3) {
+            // Boss behavior: Shoot at the player
+            if (enemy.behavior === 'shoot') {
+                let angle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
+                if (Math.random() < 0.05) {
+                    bullets.push({ x: enemy.x, y: enemy.y, vx: Math.cos(angle) * 10, vy: Math.sin(angle) * 10, size: 15 });
+                }
+            }
         }
     });
 
@@ -105,7 +135,7 @@ function update() {
         }
     });
 
-    if (Math.random() < 0.05) spawnEnemy();
+    if (Math.random() < 0.05) spawnEnemy(); // Regular enemy spawn
 }
 
 // Handle collision detection
@@ -118,8 +148,9 @@ function collision(obj1, obj2) {
 
 // Shoot bullets in a direction
 function shoot(direction) {
-    let speed = 10, vx = 0, vy = 0;
-    let bulletSize = upgrades.bulletSize;
+    let speed = upgrades.doubleDamage ? 20 : 10;
+    let vx = 0, vy = 0;
+    let bulletSize = upgrades.bulletSize + upgrades.bulletSizeIncrease;
 
     if (direction === "w") vy = -speed;
     if (direction === "s") vy = speed;
@@ -155,12 +186,34 @@ function closeShop() {
 function updateShop() {
     let item1 = { name: "Extra Projectile", cost: 10, effect: () => { upgrades.extraProjectiles++; } };
     let item2 = { name: "Faster Bullets", cost: 20, effect: () => { upgrades.shootCooldown = Math.max(500, upgrades.shootCooldown - 200); } };
+    let item3 = { name: "Homing Shots", cost: 30, effect: () => { upgrades.homing = true; } };
+    let item4 = { name: "Speed Boost", cost: 15, effect: () => { upgrades.enemySpeed += 0.5; } };
+    let item5 = { name: "Shield", cost: 25, effect: () => { upgrades.shield = true; } };
+    let item6 = { name: "Double Speed", cost: 50, effect: () => { upgrades.doubleSpeed = true; } };
+    let item7 = { name: "Double Damage", cost: 60, effect: () => { upgrades.doubleDamage = true; } };
+    let item8 = { name: "Bullet Size Increase", cost: 40, effect: () => { upgrades.bulletSizeIncrease += 5; } };
+    let item9 = { name: "Fast Reload", cost: 35, effect: () => { upgrades.shootCooldown = Math.max(300, upgrades.shootCooldown - 100); } };
+    let item10 = { name: "Enemy Health Decrease", cost: 45, effect: () => { upgrades.enemyHealthDecrease = true; } };
+    let item11 = { name: "Auto-shoot", cost: 70, effect: () => { upgrades.autoShoot = true; } };
+    let item12 = { name: "Invincibility", cost: 80, effect: () => { upgrades.invincibility = true; } };
+    let item13 = { name: "Damage Reflection", cost: 90, effect: () => { upgrades.damageReflection = true; } };
+    let item14 = { name: "Projectile Bouncing", cost: 100, effect: () => { upgrades.projectileBouncing = true; } };
+    let item15 = { name: "Health Regeneration", cost: 120, effect: () => { upgrades.healthRegen = true; } };
 
-    document.getElementById("item1").innerText = `${item1.name} - $${item1.cost}`;
-    document.getElementById("item1").onclick = function() { buyItem(item1); };
+    // Update the shop UI with new items
+    let items = [item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15];
+    let randomItems = getRandomItems(items);
+    document.getElementById("item1").innerText = `${randomItems[0].name} - $${randomItems[0].cost}`;
+    document.getElementById("item2").innerText = `${randomItems[1].name} - $${randomItems[1].cost}`;
 
-    document.getElementById("item2").innerText = `${item2.name} - $${item2.cost}`;
-    document.getElementById("item2").onclick = function() { buyItem(item2); };
+    document.getElementById("item1").onclick = function() { buyItem(randomItems[0]); };
+    document.getElementById("item2").onclick = function() { buyItem(randomItems[1]); };
+}
+
+// Get random items for the shop
+function getRandomItems(items) {
+    let shuffled = items.sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 2);
 }
 
 // Handle item purchase
@@ -169,7 +222,7 @@ function buyItem(item) {
         money -= item.cost;
         item.effect();
         updateMoney();
-        updateShop();
+        updateShop(); // Reset shop after purchase
     }
 }
 
@@ -226,9 +279,14 @@ function draw() {
     enemies.forEach(enemy => {
         ctx.beginPath();
         ctx.arc(enemy.x, enemy.y, enemy.size, 0, Math.PI * 2);
-        ctx.fillStyle = "#0000FF";
+        if (enemy.type === 3) {
+            ctx.fillStyle = "#FFD700"; // Boss is yellow
+        } else {
+            ctx.fillStyle = "#0000FF"; // Regular enemies are blue
+        }
         ctx.fill();
     });
 }
 
 gameLoop();
+ 
