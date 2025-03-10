@@ -1,25 +1,41 @@
 body {
   font-family: Arial, sans-serif;
-  text-align: center;
-  background-color: #222;
-  color: white;
   margin: 0;
+  padding: 0;
+}
+
+#countdownTimers {
   padding: 20px;
+  background-color: #f0f0f0;
 }
 
-.timer-container {
-  max-width: 400px;
-  margin: auto;
-  background-color: #333;
+#physicsPlayground {
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.2);
+  height: 500px;
+  background-color: #f0f0f0;
+  border-top: 2px solid #ccc;
 }
 
-.timer {
-  margin-bottom: 20px;
+#spawnBallBtn {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 1;
+  padding: 10px;
+  font-size: 16px;
 }
 
-h2 {
-  color: #ffcc00;
+canvas {
+  display: block;
+  background-color: #eaeaea;
+  margin: 0 auto;
+}
+
+#backToTop {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  z-index: 1;
+  padding: 10px;
+  font-size: 16px;
 }

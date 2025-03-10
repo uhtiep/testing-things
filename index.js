@@ -1,49 +1,52 @@
-function updateTimers() {
-    const now = new Date();
+const { Engine, Render, World, Bodies, Mouse, MouseConstraint } = Matter;
 
-    // Chainsaw Man Chapter (Every Wednesday)
-    let chainsawDate = getNextOccurrence(now, 3); // 3 represents Wednesday
-    document.getElementById("chainsawTimer").textContent = getTimeRemaining(chainsawDate);
+// Create engine and world
+const engine = Engine.create();
+const world = engine.world;
 
-    // Christmas Countdown (December 25)
-    const christmas = new Date(now.getFullYear(), 11, 25);
-    if (now.getMonth() === 11 && now.getDate() > 25) {
-        christmas.setFullYear(christmas.getFullYear() + 1);
-    }
-    document.getElementById("christmasTimer").textContent = getTimeRemaining(christmas);
+// Create renderer
+const render = Render.create({
+    element: document.getElementById('physicsPlayground'),
+    canvas: document.getElementById('worldCanvas'),
+    engine: engine
+});
+Render.run(render);
 
-    // Re:Zero Episode (Every Wednesday)
-    let rezeroDate = getNextOccurrence(now, 3); // 3 represents Wednesday
-    document.getElementById("rezeroTimer").textContent = getTimeRemaining(rezeroDate);
+// Create mouse constraint
+const mouse = Mouse.create(render.canvas);
+const mouseConstraint = MouseConstraint.create(engine, { mouse });
+World.add(world, mouseConstraint);
 
-    // Solo Leveling Episode (Every Saturday)
-    let soloLevelingDate = getNextOccurrence(now, 6); // 6 represents Saturday
-    document.getElementById("sololevelingTimer").textContent = getTimeRemaining(soloLevelingDate);
+// Make the canvas fill the section
+render.canvas.width = window.innerWidth;
+render.canvas.height = 400; // Set a specific height for the canvas
+
+// Spawn Ball function
+function spawnBall() {
+    const ball = Bodies.circle(Math.random() * window.innerWidth, 50, 30, {
+        restitution: 0.8,
+        friction: 0.05,
+        render: { fillStyle: 'blue' }
+    });
+    World.add(world, ball);
 }
 
-// Function to get the next occurrence of a specific day of the week
-function getNextOccurrence(currentDate, dayOfWeek) {
-    const resultDate = new Date(currentDate);
-    resultDate.setDate(resultDate.getDate() + ((dayOfWeek - currentDate.getDay() + 7) % 7 || 7));
-    resultDate.setHours(0, 0, 0, 0);
-    return resultDate;
-}
+// Add ground
+const ground = Bodies.rectangle(window.innerWidth / 2, 390, window.innerWidth, 20, { isStatic: true });
+World.add(world, ground);
 
-// Function to get time remaining in Days, Hours, Minutes, Seconds
-function getTimeRemaining(targetDate) {
-    const now = new Date();
-    const diff = targetDate - now;
+// Button to spawn balls
+document.getElementById('spawnBall').addEventListener('click', spawnBall);
 
-    if (diff <= 0) return "Already Released!";
+// Button to scroll to Physics Playground
+document.getElementById('spawnBallBtn').addEventListener('click', () => {
+    document.getElementById('physicsPlayground').scrollIntoView({ behavior: 'smooth' });
+});
 
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-    const minutes = Math.floor((diff / (1000 * 60)) % 60);
-    const seconds = Math.floor((diff / 1000) % 60);
+// Back to top functionality
+document.getElementById('backToTop').addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+});
 
-    return `${days}d ${hours}h ${minutes}m ${seconds}s`;
-}
-
-// Update timers every second
-setInterval(updateTimers, 1000);
-updateTimers();
+// Run the engine
+Engine.run(engine);
