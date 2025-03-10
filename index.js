@@ -10,8 +10,8 @@ let enemies = [];
 let money = 0;
 let kills = 0;
 let shopOpen = false;
-let canShoot = true;
 let lastShotTime = 0; // to handle cooldown
+let lastEnemySpawnTime = 0; // for 2-second cooldown
 let upgrades = {
     extraProjectiles: 0,
     homing: false,
@@ -33,11 +33,7 @@ let upgrades = {
     healthRegen: false
 };
 
-// UI visibility for controls
-let showControls = false;
-
-// Last enemy spawn time (for 2-second cooldown)
-let lastEnemySpawnTime = 0;
+let showControls = false; // Controls UI visibility
 
 // Keep track of mouse movement
 document.addEventListener("mousemove", (e) => {
@@ -56,7 +52,7 @@ document.addEventListener("keydown", (e) => {
     if (e.key === "n") toggleControls();
 
     if (["w", "a", "s", "d"].includes(e.key)) {
-        if (canShoot && Date.now() - lastShotTime > upgrades.shootCooldown) {
+        if (Date.now() - lastShotTime > upgrades.shootCooldown) {
             shoot(e.key);
             lastShotTime = Date.now();
         }
@@ -82,12 +78,6 @@ function spawnEnemy() {
     let y = Math.random() * canvas.height;
     let size = 20 + Math.random() * 20;
     enemies.push({ x, y, size, type: enemyType, vx: 0, vy: 0 });
-}
-
-// Spawn boss after 25 kills
-function spawnBoss() {
-    let boss = { x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: 40, type: 3, vx: 0, vy: 0, behavior: 'shoot' };
-    enemies.push(boss);
 }
 
 // Main game update loop
@@ -137,21 +127,6 @@ function update() {
             let angle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
             enemy.x += Math.cos(angle) * upgrades.enemySpeed;
             enemy.y += Math.sin(angle) * upgrades.enemySpeed;
-        } else if (enemy.type === 3) {
-            // Boss behavior: Shoot at the player
-            if (enemy.behavior === 'shoot') {
-                let angle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
-                if (Math.random() < 0.05) {
-                    bullets.push({ x: enemy.x, y: enemy.y, vx: Math.cos(angle) * 10, vy: Math.sin(angle) * 10, size: 15 });
-                }
-            }
-        }
-    });
-
-    enemies.forEach((enemy, i) => {
-        if (collision(player, enemy)) {
-            alert("Game Over! Refresh to restart.");
-            location.reload();
         }
     });
 
@@ -171,9 +146,9 @@ function collision(obj1, obj2) {
 
 // Shoot bullets in a direction
 function shoot(direction) {
-    let speed = upgrades.doubleDamage ? 20 : 10;
+    let speed = 10;
     let vx = 0, vy = 0;
-    let bulletSize = upgrades.bulletSize + upgrades.bulletSizeIncrease;
+    let bulletSize = upgrades.bulletSize;
 
     if (direction === "w") vy = -speed;
     if (direction === "s") vy = speed;
@@ -215,23 +190,6 @@ function findNearestEnemy(bullet) {
     return nearestEnemy;
 }
 
-// Beam function for shooting
-function activateBeam() {
-    if (upgrades.beam) {
-        let beamLength = 500;
-        let angle = Math.atan2(player.y - player.y, player.x - player.x);
-        ctx.beginPath();
-        ctx.moveTo(player.x, player.y);
-        ctx.lineTo(player.x + Math.cos(angle) * beamLength, player.y + Math.sin(angle) * beamLength);
-        ctx.strokeStyle = 'cyan';
-        ctx.lineWidth = 5;
-        ctx.stroke();
-        setTimeout(() => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }, 100);
-    }
-}
-
 // Update money display
 function updateMoney() {
     document.getElementById("money").innerText = `Money: $${money}`;
@@ -240,7 +198,6 @@ function updateMoney() {
 // Open shop interface
 function openShop() {
     shopOpen = true;
-    updateShop();
     document.getElementById("shop").style.display = "block";
 }
 
