@@ -17,4 +17,15 @@ button {
 
 canvas {
   border: 1px solid #000;
+  margin-bottom: 20px;
+}
+
+#gameTimer {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+#clickerPoints, #clickerMultiplier, #passiveIncome {
+  font-size: 20px;
+  margin-top: 20px;
 }
