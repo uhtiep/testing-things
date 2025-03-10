@@ -4,75 +4,71 @@ const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-let player = { x: canvas.width / 2, y: canvas.height / 2, size: 10 };  // Player as a ball
+let player = { x: canvas.width / 2, y: canvas.height / 2, size: 20 };  // Player as a ball
 let bullets = [];
 let enemies = [];
 let money = 0;
 let shopOpen = false;
 let canShoot = true;
+let lastShotTime = 0; // to handle cooldown
 let upgrades = {
     extraProjectiles: 0,
     homing: false,
     shootCooldown: 1000,
     bulletSize: 5,
-    extraLife: 0,
-    enemySpeed: 1,
-    autoFire: false,
-    piercing: false,
-    explosive: false
+    enemySpeed: 1
 };
 
+// Keep track of mouse movement
 document.addEventListener("mousemove", (e) => {
     player.x = e.clientX;
     player.y = e.clientY;
 });
 
+// Control keys for shooting
 document.addEventListener("keydown", (e) => {
     if (shopOpen && e.key !== "j") return;
-    if (["w", "a", "s", "d"].includes(e.key)) {
-        shoot(e.key);
-        if (upgrades.autoFire) setInterval(() => shoot(e.key), upgrades.shootCooldown);
-    }
     if (e.key === "k") openShop();
     if (e.key === "j") closeShop();
     if (e.key === "p") activateSlowMotion();
     if (e.key === "i") activateShield();
     if (e.key === "o") activateBeam();
+
+    if (["w", "a", "s", "d"].includes(e.key)) {
+        if (canShoot && Date.now() - lastShotTime > upgrades.shootCooldown) {
+            shoot(e.key);
+            lastShotTime = Date.now();
+        }
+    }
 });
 
+// Spawn enemies randomly
 function spawnEnemy() {
     let type = Math.floor(Math.random() * 3);
     let x = Math.random() * canvas.width;
     let y = Math.random() * canvas.height;
     let size = 20 + Math.random() * 20;
-    enemies.push({ x, y, size, type, vx: 0, vy: 0, lastDash: 0 });
+    enemies.push({ x, y, size, type, vx: 0, vy: 0 });
 }
 
+// Main game update loop
 function update() {
     if (shopOpen) return;
 
     bullets.forEach((bullet, i) => {
         bullet.x += bullet.vx;
         bullet.y += bullet.vy;
-        if (bullet.x < 0 || bullet.x > canvas.width || bullet.y < 0 || bullet.y > canvas.height) bullets.splice(i, 1);
+        if (bullet.x < 0 || bullet.x > canvas.width || bullet.y < 0 || bullet.y > canvas.height) {
+            bullets.splice(i, 1);
+        }
     });
 
     bullets.forEach((bullet, bi) => {
         enemies.forEach((enemy, ei) => {
             if (collision(bullet, enemy)) {
-                if (bullet.explosive) {
-                    enemies.splice(ei, 1);
-                    bullets.splice(bi, 1);
-                    updateMoney();
-                    return;
-                }
-                if (bullet.piercing) {
-                    enemies.splice(ei, 1);
-                    updateMoney();
-                    return;
-                }
                 enemies.splice(ei, 1);
                 bullets.splice(bi, 1);
+                money += 1;
                 updateMoney();
             }
         });
@@ -88,8 +84,7 @@ function update() {
             let angle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
             enemy.x += Math.cos(angle) * upgrades.enemySpeed;
             enemy.y += Math.sin(angle) * upgrades.enemySpeed;
-            if (Date.now() - enemy.lastDash > 3000) {
-                enemy.lastDash = Date.now();
+            if (Math.random() < 0.03) {
                 enemy.vx = Math.cos(angle) * 15;
                 enemy.vy = Math.sin(angle) * 15;
             }
@@ -110,11 +105,16 @@ function update() {
     if (Math.random() < 0.05) spawnEnemy();
 }
 
-function shoot(direction) {
-    if (!canShoot) return;
-    canShoot = false;
-    setTimeout(() => canShoot = true, upgrades.shootCooldown);
+// Handle collision detection
+function collision(obj1, obj2) {
+    let dx = obj1.x - obj2.x;
+    let dy = obj1.y - obj2.y;
+    let distance = Math.sqrt(dx * dx + dy * dy);
+    return distance < (obj1.size + obj2.size) / 2;
+}
 
+// Shoot bullets in a direction
+function shoot(direction) {
     let speed = 10, vx = 0, vy = 0;
     let bulletSize = upgrades.bulletSize;
 
@@ -123,38 +123,36 @@ function shoot(direction) {
     if (direction === "a") vx = -speed;
     if (direction === "d") vx = speed;
 
-    bullets.push({ x: player.x, y: player.y, vx, vy, size: bulletSize, piercing: upgrades.piercing, explosive: upgrades.explosive });
+    bullets.push({ x: player.x, y: player.y, vx, vy, size: bulletSize });
 
     for (let i = 0; i < upgrades.extraProjectiles; i++) {
-        bullets.push({ x: player.x, y: player.y, vx: vx * 1.2, vy: vy * 1.2, size: bulletSize, piercing: upgrades.piercing, explosive: upgrades.explosive });
+        bullets.push({ x: player.x, y: player.y, vx: vx * 1.2, vy: vy * 1.2, size: bulletSize });
     }
 }
 
-function collision(obj1, obj2) {
-    let dx = obj1.x - obj2.x;
-    let dy = obj1.y - obj2.y;
-    let distance = Math.sqrt(dx * dx + dy * dy);
-    return distance < (obj1.size + obj2.size) / 2;
-}
-
+// Update money display
 function updateMoney() {
-    document.getElementById("money").innerText = `$${money}`;
+    document.getElementById("money").innerText = `Money: $${money}`;
 }
 
+// Open shop interface
 function openShop() {
     shopOpen = true;
     updateShop();
     document.getElementById("shop").style.display = "block";
 }
 
+// Close shop interface
 function closeShop() {
     shopOpen = false;
     document.getElementById("shop").style.display = "none";
 }
 
+// Update shop items
 function updateShop() {
-    let item1 = shopItems[Math.floor(Math.random() * shopItems.length)];
-    let item2 = shopItems[Math.floor(Math.random() * shopItems.length)];
+    // Example items
+    let item1 = { name: "Extra Projectile", cost: 10, effect: () => { upgrades.extraProjectiles++; } };
+    let item2 = { name: "Faster Bullets", cost: 20, effect: () => { upgrades.shootCooldown = Math.max(500, upgrades.shootCooldown - 200); } };
 
     document.getElementById("item1").innerText = `${item1.name} - $${item1.cost}`;
     document.getElementById("item1").onclick = function() { buyItem(item1); };
@@ -163,6 +161,7 @@ function updateShop() {
     document.getElementById("item2").onclick = function() { buyItem(item2); };
 }
 
+// Handle item purchase
 function buyItem(item) {
     if (money >= item.cost) {
         money -= item.cost;
@@ -172,12 +171,14 @@ function buyItem(item) {
     }
 }
 
+// Main game loop
 function gameLoop() {
     update();
     draw();
     requestAnimationFrame(gameLoop);
 }
 
+// Draw game elements on canvas
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
