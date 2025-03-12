@@ -12,9 +12,8 @@ const cookieContainer = document.getElementById('cookie-container');
 startButton.addEventListener('click', startCountdown);
 
 function startCountdown() {
-  messageBox.innerHTML = `<h1>Turn Jeremiah gay? If not, your heart will stop in <span id="countdown">${countdown.toFixed(1)}</span> seconds!</h1>`;
-  countdownElement = document.getElementById('countdown');
-  
+  startButton.disabled = true; // Prevent multiple clicks
+
   countdownInterval = setInterval(() => {
     countdown -= 0.1;
     countdownElement.textContent = countdown.toFixed(1);
@@ -28,8 +27,8 @@ function startCountdown() {
 }
 
 function startGame() {
-  messageBox.classList.add('hidden');
-  cookieContainer.classList.remove('hidden');
+  messageBox.classList.add('hidden'); // Hide the initial message
+  cookieContainer.classList.remove('hidden'); // Show the cookie clicker
   cookieButton.addEventListener('click', incrementCookies);
 }
 
