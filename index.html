@@ -1,62 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Collection</title>
-    <link rel="stylesheet" href="fye.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>blud is sped</title>
+  <link rel="stylesheet" href="fye.css">
 </head>
 <body>
-    <h1>Game Collection</h1>
-
-    <!-- Game navigation buttons -->
-    <button onclick="showGame('catchBall')">Catch the Ball</button>
-    <button onclick="showGame('ballBounce')">Ball Bounce</button>
-    <button onclick="showGame('mazeRunner')">Maze Runner</button>
-    <button onclick="showGame('numberGuessing')">Number Guessing</button>
-    <button onclick="showGame('clickerGame')">Clicker Game</button>
-    <button onclick="showGame('breakout')">Breakout</button>
-
-    <!-- Game containers -->
-    <div id="catchBall" class="game-container" style="display:none;">
-        <h2>Catch the Ball</h2>
-        <p>Score: <span id="score">0</span></p>
-        <canvas id="catchCanvas"></canvas>
-        <button onclick="startCatchGame()">Start Game</button>
+  <div id="main-container">
+    <div id="message-box">
+      <h1 id="message-text">Turn Jeremiah gay? If not, your heart will stop in <span id="countdown">10.1</span> seconds!</h1>
+      <button id="start-button">Click to Start</button>
     </div>
-
-    <div id="ballBounce" class="game-container" style="display:none;">
-        <h2>Ball Bounce</h2>
-        <canvas id="bounceCanvas"></canvas>
-        <button onclick="spawnBall()">Spawn Ball</button>
+    <div id="cookie-container" class="hidden">
+      <h2 id="cookie-text">Welcome to "Uhtiep Bugger"!</h2>
+      <button id="cookie-button">Click me!</button>
+      <p id="cookie-count">Cookies: 0</p>
     </div>
+  </div>
 
-    <div id="mazeRunner" class="game-container" style="display:none;">
-        <h2>Maze Runner</h2>
-        <canvas id="mazeCanvas"></canvas>
-    </div>
-
-    <div id="numberGuessing" class="game-container" style="display:none;">
-        <h2>Number Guessing</h2>
-        <p>Guess a number between 1 and 100</p>
-        <input type="number" id="guess" />
-        <button onclick="checkGuess()">Submit Guess</button>
-        <p id="guessResult"></p>
-    </div>
-
-    <div id="clickerGame" class="game-container" style="display:none;">
-        <h2>Clicker Game</h2>
-        <p>Money: <span id="clickerMoney">0</span></p>
-        <button onclick="clickGame()">Click!</button>
-        <button onclick="buyUpgrade()">Buy Upgrade (+1)</button>
-        <p>Upgrades: <span id="clickerUpgrades">0</span></p>
-    </div>
-
-    <div id="breakout" class="game-container" style="display:none;">
-        <h2>Breakout</h2>
-        <canvas id="breakoutCanvas"></canvas>
-    </div>
-
-    <script src="index.js"></script>
+  <script src="index.js"></script>
 </body>
 </html>
