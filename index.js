@@ -1,252 +1,102 @@
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-const moneyDisplay = document.getElementById('money-value');
-const livesDisplay = document.getElementById('lives-value');
-const roundDisplay = document.getElementById('round-value');
-canvas.width = 800;
-canvas.height = 600;
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
 
-let money = 100;
-let lives = 20;
-let enemies = [];
-let towers = [];
-let projectiles = [];
-let currentRound = 0;
-let enemiesSpawned = 0;
-let roundEnemyCount = 5;
-let isInfiniteMoney = false;
-let isSpawningEnemies = false;
+const WIDTH = 800;
+const HEIGHT = 600;
+canvas.width = WIDTH;
+canvas.height = HEIGHT;
 
-// Path definition for enemies to follow
-const path = [
-    {x: 50, y: 300},
-    {x: 200, y: 300},
-    {x: 200, y: 150},
-    {x: 400, y: 150},
-    {x: 400, y: 400},
-    {x: 650, y: 400},
-    {x: 650, y: 550},
-    {x: 800, y: 550},
+// Player setup
+const player = {
+  x: WIDTH / 2,
+  y: HEIGHT / 2,
+  size: 20,
+  speed: 5,
+  color: "cyan",
+};
+
+// Glitch effects
+const glitchEffects = [
+  "screenTeardown", "memoryLeak", "errorInjection", "pixelCorruption"
 ];
 
-// Define a simple enemy class
-class Enemy {
-    constructor(x, y, health = 1) {
-        this.x = x;
-        this.y = y;
-        this.speed = 1;
-        this.radius = 15;
-        this.health = health;
-        this.pathIndex = 0;
-    }
+let glitches = [];
 
-    move() {
-        if (this.pathIndex < path.length - 1) {
-            let target = path[this.pathIndex + 1];
-            let dx = target.x - this.x;
-            let dy = target.y - this.y;
-            let distance = Math.sqrt(dx * dx + dy * dy);
-            let moveX = (dx / distance) * this.speed;
-            let moveY = (dy / distance) * this.speed;
+// Player movement
+let keys = {
+  left: false,
+  right: false,
+  up: false,
+  down: false,
+};
 
-            this.x += moveX;
-            this.y += moveY;
-
-            if (Math.abs(this.x - target.x) < 3 && Math.abs(this.y - target.y) < 3) {
-                this.pathIndex++;
-            }
-        } else {
-            // If enemy reaches the end, remove 1 life
-            lives--;
-            enemies = enemies.filter(enemy => enemy !== this);
-        }
-    }
-
-    draw() {
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = 'red';
-        ctx.fill();
-        ctx.closePath();
-    }
-}
-
-// Define a basic tower class
-class Tower {
-    constructor(x, y, type = 'basic') {
-        this.x = x;
-        this.y = y;
-        this.radius = 25;
-        this.type = type;
-        this.shootCooldown = 0;
-        this.range = 100;
-        this.cost = 50;
-        if (this.type === 'sniper') {
-            this.range = 200;
-            this.cost = 100;
-        }
-    }
-
-    draw() {
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = this.type === 'sniper' ? 'green' : 'blue';
-        ctx.fill();
-        ctx.closePath();
-    }
-
-    shoot() {
-        if (this.shootCooldown <= 0) {
-            let nearestEnemy = this.getNearestEnemy();
-            if (nearestEnemy) {
-                projectiles.push(new Projectile(this.x, this.y, nearestEnemy));
-                this.shootCooldown = 30; // Delay before shooting again
-            }
-        }
-    }
-
-    getNearestEnemy() {
-        let closestEnemy = null;
-        let minDistance = Infinity;
-        for (let enemy of enemies) {
-            let dx = enemy.x - this.x;
-            let dy = enemy.y - this.y;
-            let distance = Math.sqrt(dx * dx + dy * dy);
-            if (distance < this.range && distance < minDistance) {
-                closestEnemy = enemy;
-                minDistance = distance;
-            }
-        }
-        return closestEnemy;
-    }
-
-    update() {
-        if (this.shootCooldown > 0) this.shootCooldown--;
-    }
-}
-
-// Define a projectile class
-class Projectile {
-    constructor(x, y, target) {
-        this.x = x;
-        this.y = y;
-        this.target = target;
-        this.speed = 5;
-        this.radius = 5;
-    }
-
-    move() {
-        let dx = this.target.x - this.x;
-        let dy = this.target.y - this.y;
-        let distance = Math.sqrt(dx * dx + dy * dy);
-        let moveX = (dx / distance) * this.speed;
-        let moveY = (dy / distance) * this.speed;
-
-        this.x += moveX;
-        this.y += moveY;
-
-        // Check if projectile hits the target
-        if (Math.abs(this.x - this.target.x) < this.radius && Math.abs(this.y - this.target.y) < this.radius) {
-            this.target.health -= 1;
-            projectiles = projectiles.filter(p => p !== this);
-            if (this.target.health <= 0) {
-                enemies = enemies.filter(enemy => enemy !== this.target);
-            }
-        }
-    }
-
-    draw() {
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = 'green';
-        ctx.fill();
-        ctx.closePath();
-    }
-}
-
-// Handle keyboard input for infinite money and spawning enemies
-document.addEventListener('keydown', function (e) {
-    if (e.key === 'l') {
-        isInfiniteMoney = !isInfiniteMoney;
-    }
-    if (e.key === 'k') {
-        isSpawningEnemies = !isSpawningEnemies;
-    }
+document.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowLeft") keys.left = true;
+  if (e.key === "ArrowRight") keys.right = true;
+  if (e.key === "ArrowUp") keys.up = true;
+  if (e.key === "ArrowDown") keys.down = true;
 });
 
-// Handle mouse click for tower placement
-document.getElementById('basic-tower').addEventListener('click', () => {
-    if (money >= 50) {
-        money -= 50;
-        towers.push(new Tower(100, 100, 'basic'));
-    }
+document.addEventListener("keyup", (e) => {
+  if (e.key === "ArrowLeft") keys.left = false;
+  if (e.key === "ArrowRight") keys.right = false;
+  if (e.key === "ArrowUp") keys.up = false;
+  if (e.key === "ArrowDown") keys.down = false;
 });
 
-document.getElementById('sniper-tower').addEventListener('click', () => {
-    if (money >= 100) {
-        money -= 100;
-        towers.push(new Tower(200, 100, 'sniper'));
-    }
-});
+// Glitch Effects
+function triggerGlitch() {
+  const glitchType = glitchEffects[Math.floor(Math.random() * glitchEffects.length)];
+  glitches.push({ type: glitchType, intensity: Math.random() * 0.5 });
+}
 
-// Game loop
+function applyGlitchEffects() {
+  glitches.forEach((glitch, index) => {
+    if (glitch.type === "screenTeardown") {
+      ctx.fillStyle = "rgba(0, 0, 0, " + glitch.intensity + ")";
+      ctx.fillRect(0, 0, WIDTH, HEIGHT);
+    } else if (glitch.type === "memoryLeak") {
+      ctx.fillStyle = "rgba(255, 0, 0, " + glitch.intensity + ")";
+      ctx.fillRect(Math.random() * WIDTH, Math.random() * HEIGHT, 100, 100);
+    } else if (glitch.type === "errorInjection") {
+      ctx.fillStyle = "white";
+      ctx.font = "30px Arial";
+      ctx.fillText("ERROR", Math.random() * WIDTH, Math.random() * HEIGHT);
+    } else if (glitch.type === "pixelCorruption") {
+      ctx.clearRect(Math.random() * WIDTH, Math.random() * HEIGHT, 10, 10);
+    }
+
+    glitch.intensity -= 0.01;
+    if (glitch.intensity <= 0) glitches.splice(index, 1);
+  });
+}
+
+// Player Movement
+function movePlayer() {
+  if (keys.left) player.x -= player.speed;
+  if (keys.right) player.x += player.speed;
+  if (keys.up) player.y -= player.speed;
+  if (keys.down) player.y += player.speed;
+}
+
+// Game Loop
 function gameLoop() {
-    // Clear the canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, WIDTH, HEIGHT);
 
-    // Update money and display
-    if (isInfiniteMoney) {
-        money = Infinity;
-    }
-    moneyDisplay.textContent = money;
-    livesDisplay.textContent = lives;
-    roundDisplay.textContent = currentRound;
+  // Apply glitch effects
+  applyGlitchEffects();
 
-    // Spawn enemies if allowed
-    if (isSpawningEnemies && enemiesSpawned < roundEnemyCount) {
-        enemies.push(new Enemy(path[0].x, path[0].y));
-        enemiesSpawned++;
-    }
+  // Move the player
+  movePlayer();
 
-    // Update and draw enemies
-    enemies.forEach(enemy => {
-        enemy.move();
-        enemy.draw();
-    });
+  // Draw the player
+  ctx.fillStyle = player.color;
+  ctx.fillRect(player.x, player.y, player.size, player.size);
 
-    // Update and draw towers
-    towers.forEach(tower => {
-        tower.update();
-        tower.draw();
-        tower.shoot();
-    });
+  // Randomly trigger a glitch every 3 seconds
+  if (Math.random() < 0.01) triggerGlitch();
 
-    // Move and draw projectiles
-    projectiles.forEach(projectile => {
-        projectile.move();
-        projectile.draw();
-    });
-
-    // Check game over
-    if (lives <= 0) {
-        alert("Game Over!");
-        resetGame();
-    }
-
-    requestAnimationFrame(gameLoop);
+  requestAnimationFrame(gameLoop);
 }
 
-// Function to reset the game
-function resetGame() {
-    lives = 20;
-    enemies = [];
-    towers = [];
-    projectiles = [];
-    money = 100;
-    enemiesSpawned = 0;
-    currentRound = 0;
-    roundEnemyCount = 5;
-}
-
-// Start the game loop
 gameLoop();

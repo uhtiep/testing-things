@@ -1,50 +1,18 @@
-body {
-  font-family: Arial, sans-serif;
+* {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+}
+
+body {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #f0f0f0;
-  overflow: hidden;
+  background-color: #121212;
 }
 
-#game-ui {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  background-color: rgba(255, 255, 255, 0.7);
-  padding: 10px;
-  border-radius: 10px;
-  font-size: 16px;
-  color: #333;
-}
-
-#money, #lives, #round {
-  margin: 5px 0;
-}
-
-#tower-selection {
-  margin-top: 10px;
-}
-
-button {
-  padding: 5px 10px;
-  margin: 5px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #0056b3;
-}
-
-#gameCanvas {
-  border: 2px solid #333;
-  background-color: #e0e0e0;
-  margin-left: 220px;
+canvas {
+  border: 1px solid white;
+  background-color: #333;
 }
