@@ -24,11 +24,13 @@ const projectileSize = 5;
 
 // Enemies setup
 const enemies = [];
-const enemySpeedBase = 1.5;
-let enemySpeed = enemySpeedBase;
+const enemySpeed = 2; // Slower enemy speed
 const enemyHealthBase = 1;
-let enemyHealth = enemyHealthBase;
 let score = 0;
+
+// Obstacles setup (falling platforms)
+const obstacles = [];
+const obstacleSpeed = 3; // Speed at which platforms fall
 
 // Glitch effects
 const glitchEffects = [
@@ -105,11 +107,20 @@ function changePlayerColor() {
 
 // Enemy creation
 function createEnemy() {
+  let enemyX = Math.random() * WIDTH;
+  let enemyY = Math.random() * HEIGHT;
+
+  // Prevent enemies from spawning on top of the player
+  while (Math.abs(player.x - enemyX) < 50 && Math.abs(player.y - enemyY) < 50) {
+    enemyX = Math.random() * WIDTH;
+    enemyY = Math.random() * HEIGHT;
+  }
+
   const enemy = {
-    x: Math.random() * WIDTH,
-    y: Math.random() * HEIGHT,
+    x: enemyX,
+    y: enemyY,
     size: 20,
-    health: enemyHealth,
+    health: enemyHealthBase,
     color: "white",
   };
   enemies.push(enemy);
@@ -189,6 +200,41 @@ function moveProjectiles() {
   });
 }
 
+// Create obstacles (falling platforms)
+function createObstacle() {
+  const obstacle = {
+    x: Math.random() * WIDTH,
+    y: -50, // Start above the screen
+    width: 100 + Math.random() * 100, // Random width for variety
+    height: 20,
+    color: "red",
+  };
+  obstacles.push(obstacle);
+}
+
+// Move obstacles (falling)
+function moveObstacles() {
+  obstacles.forEach((obstacle, index) => {
+    obstacle.y += obstacleSpeed;
+
+    // Check for collisions with player
+    if (
+      obstacle.x < player.x + player.size &&
+      obstacle.x + obstacle.width > player.x &&
+      obstacle.y < player.y + player.size &&
+      obstacle.y + obstacle.height > player.y
+    ) {
+      alert("Game Over! You hit a falling platform.");
+      window.location.reload(); // Restart the game
+    }
+
+    // Remove obstacles when they go off-screen
+    if (obstacle.y > HEIGHT) {
+      obstacles.splice(index, 1);
+    }
+  });
+}
+
 // Draw everything
 function drawEntities() {
   // Draw player
@@ -205,6 +251,12 @@ function drawEntities() {
   projectiles.forEach((projectile) => {
     ctx.fillStyle = "white";
     ctx.fillRect(projectile.x, projectile.y, projectile.size, projectile.size);
+  });
+
+  // Draw obstacles (falling platforms)
+  obstacles.forEach((obstacle) => {
+    ctx.fillStyle = obstacle.color;
+    ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
   });
 
   // Draw score
@@ -239,17 +291,14 @@ function gameLoop() {
   // Move projectiles
   moveProjectiles();
 
+  // Create obstacles (falling platforms)
+  if (Math.random() < 0.02) createObstacle();
+
+  // Move obstacles
+  moveObstacles();
+
   // Randomly trigger a glitch every 3 seconds
   if (Math.random() < 0.01) triggerGlitch();
-
-  // Randomly create new enemies
-  if (Math.random() < 0.02) createEnemy();
-
-  // Increase difficulty over time
-  if (score % 100 === 0) {
-    enemySpeed += 0.2; // Increase enemy speed
-    enemyHealth += 0.2; // Increase enemy health
-  }
 
   // Draw everything
   drawEntities();
