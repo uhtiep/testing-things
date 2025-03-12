@@ -1,44 +1,41 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const moneyDisplay = document.getElementById('money-value');
+const livesDisplay = document.getElementById('lives-value');
+const roundDisplay = document.getElementById('round-value');
 canvas.width = 800;
 canvas.height = 600;
 
 let money = 100;
+let lives = 20;
 let enemies = [];
 let towers = [];
 let projectiles = [];
-let lives = 20;
-
-const enemySpeed = 1;
-const enemyRadius = 15;
-const towerCost = 50;
-const towerRadius = 25;
-const projectileSpeed = 5;
-const enemyHealth = 1;
-let isInfiniteMoney = false;
-let isSpawningEnemies = false;
-
-const path = [
-    {x: 0, y: 300},
-    {x: 200, y: 300},
-    {x: 200, y: 100},
-    {x: 600, y: 100},
-    {x: 600, y: 400},
-    {x: 800, y: 400},
-];
-
 let currentRound = 0;
 let enemiesSpawned = 0;
 let roundEnemyCount = 5;
+let isInfiniteMoney = false;
+let isSpawningEnemies = false;
+
+// Path definition for enemies to follow
+const path = [
+    {x: 50, y: 300},
+    {x: 200, y: 300},
+    {x: 200, y: 150},
+    {x: 400, y: 150},
+    {x: 400, y: 400},
+    {x: 650, y: 400},
+    {x: 650, y: 550},
+    {x: 800, y: 550},
+];
 
 // Define a simple enemy class
 class Enemy {
-    constructor(x, y, health = enemyHealth) {
+    constructor(x, y, health = 1) {
         this.x = x;
         this.y = y;
-        this.speed = enemySpeed;
-        this.radius = enemyRadius;
+        this.speed = 1;
+        this.radius = 15;
         this.health = health;
         this.pathIndex = 0;
     }
@@ -59,8 +56,8 @@ class Enemy {
                 this.pathIndex++;
             }
         } else {
-            // If enemy reaches the end of the path, it removes 1 life.
-            lives -= 1;
+            // If enemy reaches the end, remove 1 life
+            lives--;
             enemies = enemies.filter(enemy => enemy !== this);
         }
     }
@@ -74,19 +71,26 @@ class Enemy {
     }
 }
 
-// Define a simple tower class
+// Define a basic tower class
 class Tower {
-    constructor(x, y) {
+    constructor(x, y, type = 'basic') {
         this.x = x;
         this.y = y;
-        this.radius = towerRadius;
+        this.radius = 25;
+        this.type = type;
         this.shootCooldown = 0;
+        this.range = 100;
+        this.cost = 50;
+        if (this.type === 'sniper') {
+            this.range = 200;
+            this.cost = 100;
+        }
     }
 
     draw() {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = 'blue';
+        ctx.fillStyle = this.type === 'sniper' ? 'green' : 'blue';
         ctx.fill();
         ctx.closePath();
     }
@@ -108,7 +112,7 @@ class Tower {
             let dx = enemy.x - this.x;
             let dy = enemy.y - this.y;
             let distance = Math.sqrt(dx * dx + dy * dy);
-            if (distance < 100 && distance < minDistance) { // 100 is the shooting range
+            if (distance < this.range && distance < minDistance) {
                 closestEnemy = enemy;
                 minDistance = distance;
             }
@@ -121,13 +125,13 @@ class Tower {
     }
 }
 
-// Define a simple projectile class
+// Define a projectile class
 class Projectile {
     constructor(x, y, target) {
         this.x = x;
         this.y = y;
         this.target = target;
-        this.speed = projectileSpeed;
+        this.speed = 5;
         this.radius = 5;
     }
 
@@ -170,18 +174,33 @@ document.addEventListener('keydown', function (e) {
     }
 });
 
+// Handle mouse click for tower placement
+document.getElementById('basic-tower').addEventListener('click', () => {
+    if (money >= 50) {
+        money -= 50;
+        towers.push(new Tower(100, 100, 'basic'));
+    }
+});
+
+document.getElementById('sniper-tower').addEventListener('click', () => {
+    if (money >= 100) {
+        money -= 100;
+        towers.push(new Tower(200, 100, 'sniper'));
+    }
+});
+
 // Game loop
 function gameLoop() {
     // Clear the canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Update money
+    // Update money and display
     if (isInfiniteMoney) {
-        money = Infinity; // Set money to infinity when L is pressed
-    } else {
-        money = Math.max(money, 0); // Prevent negative money
+        money = Infinity;
     }
     moneyDisplay.textContent = money;
+    livesDisplay.textContent = lives;
+    roundDisplay.textContent = currentRound;
 
     // Spawn enemies if allowed
     if (isSpawningEnemies && enemiesSpawned < roundEnemyCount) {
@@ -190,28 +209,23 @@ function gameLoop() {
     }
 
     // Update and draw enemies
-    for (let i = 0; i < enemies.length; i++) {
-        enemies[i].move();
-        enemies[i].draw();
-    }
+    enemies.forEach(enemy => {
+        enemy.move();
+        enemy.draw();
+    });
 
-    // Draw and update towers
-    for (let i = 0; i < towers.length; i++) {
-        towers[i].update();
-        towers[i].draw();
-        towers[i].shoot();
-    }
+    // Update and draw towers
+    towers.forEach(tower => {
+        tower.update();
+        tower.draw();
+        tower.shoot();
+    });
 
     // Move and draw projectiles
-    for (let i = 0; i < projectiles.length; i++) {
-        projectiles[i].move();
-        projectiles[i].draw();
-    }
-
-    // Display lives
-    ctx.font = "20px Arial";
-    ctx.fillStyle = 'black';
-    ctx.fillText("Lives: " + lives, 10, 30);
+    projectiles.forEach(projectile => {
+        projectile.move();
+        projectile.draw();
+    });
 
     // Check game over
     if (lives <= 0) {
@@ -222,16 +236,6 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
-// Mouse click event to place towers
-canvas.addEventListener('click', (e) => {
-    if (money >= towerCost) {
-        const x = e.offsetX;
-        const y = e.offsetY;
-        towers.push(new Tower(x, y));
-        money -= towerCost;
-    }
-});
-
 // Function to reset the game
 function resetGame() {
     lives = 20;
@@ -240,6 +244,7 @@ function resetGame() {
     projectiles = [];
     money = 100;
     enemiesSpawned = 0;
+    currentRound = 0;
     roundEnemyCount = 5;
 }
 

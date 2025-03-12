@@ -7,10 +7,16 @@
     <link rel="stylesheet" href="fye.css">
 </head>
 <body>
-    <div id="game-container">
+    <div id="game-ui">
         <div id="money">Money: $<span id="money-value">100</span></div>
-        <canvas id="gameCanvas"></canvas>
+        <div id="lives">Lives: <span id="lives-value">20</span></div>
+        <div id="round">Round: <span id="round-value">1</span></div>
+        <div id="tower-selection">
+            <button id="basic-tower">Basic Tower ($50)</button>
+            <button id="sniper-tower">Sniper Tower ($100)</button>
+        </div>
     </div>
+    <canvas id="gameCanvas"></canvas>
     <script src="index.js"></script>
 </body>
 </html>
