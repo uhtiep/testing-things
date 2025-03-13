@@ -8,7 +8,7 @@ canvas.height = HEIGHT;
 
 const player = {
   x: WIDTH / 2,
-  y: HEIGHT / 2,
+  y: HEIGHT - 50,
   size: 20,
   speed: 5,
   color: "cyan",
@@ -30,6 +30,7 @@ let score = 0;
 let enemyCount = 0;
 let bossActive = false;
 let shopOpen = false;
+let bossMoveTimer = 0;
 
 let keys = { left: false, right: false, up: false, down: false, shoot: false, dash: false, shop: false };
 
@@ -69,6 +70,11 @@ function movePlayer() {
   if (keys.up) player.y -= speed;
   if (keys.down) player.y += speed;
 
+  if (player.x < 0) player.x = 0;
+  if (player.x > WIDTH - player.size) player.x = WIDTH - player.size;
+  if (player.y < 0) player.y = 0;
+  if (player.y > HEIGHT - player.size) player.y = HEIGHT - player.size;
+
   if (player.dashing) {
     player.dashing = false;
   }
@@ -98,6 +104,7 @@ function createEnemy() {
 
 function spawnBoss() {
   bossActive = true;
+  enemies.length = 0; // Remove all enemies
   const boss = { x: WIDTH / 2, y: 50, size: 50, health: 10 };
   bosses.push(boss);
 }
@@ -114,15 +121,6 @@ function moveEnemies() {
     const angle = Math.atan2(dy, dx);
     enemy.x += Math.cos(angle) * 2;
     enemy.y += Math.sin(angle) * 2;
-    if (
-      enemy.x < player.x + player.size &&
-      enemy.x + enemy.size > player.x &&
-      enemy.y < player.y + player.size &&
-      enemy.y + enemy.size > player.y
-    ) {
-      alert("Game Over! You were hit.");
-      window.location.reload();
-    }
   });
   if (enemies.length === 0) bossActive = false;
 }
@@ -156,24 +154,33 @@ function moveBullets() {
         player.bullets.splice(bulletIndex, 1);
       }
     });
-    bosses.forEach((boss, bossIndex) => {
-      if (
-        bullet.x > boss.x &&
-        bullet.x < boss.x + boss.size &&
-        bullet.y > boss.y &&
-        bullet.y < boss.y + boss.size
-      ) {
-        boss.health--;
-        if (boss.health <= 0) {
-          bosses.splice(bossIndex, 1);
-          bossActive = false;
-          player.money += 10;
-          score += 100;
-        }
-        player.bullets.splice(bulletIndex, 1);
-      }
-    });
   });
+}
+
+function moveBoss() {
+  if (bosses.length > 0) {
+    let boss = bosses[0];
+
+    if (Math.random() < 0.02) {
+      boss.x = Math.max(0, boss.x - 100);
+    }
+
+    if (bossMoveTimer % 120 === 0) {
+      for (let i = 0; i < 2; i++) {
+        let platform = {
+          x: Math.random() * WIDTH,
+          y: Math.random() * HEIGHT,
+          width: 60,
+          height: 10,
+          speedX: (Math.random() - 0.5) * 4,
+          speedY: (Math.random() - 0.5) * 4,
+        };
+        obstacles.push(platform);
+      }
+    }
+
+    bossMoveTimer++;
+  }
 }
 
 function draw() {
@@ -195,6 +202,11 @@ function draw() {
     ctx.fillRect(50, 20, (boss.health / 10) * 200, 10);
   });
 
+  obstacles.forEach((obstacle) => {
+    ctx.fillStyle = "gray";
+    ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+  });
+
   player.bullets.forEach((bullet) => {
     ctx.fillStyle = "yellow";
     ctx.fillRect(bullet.x, bullet.y, 5, 10);
@@ -204,17 +216,13 @@ function draw() {
   ctx.font = "20px Arial";
   ctx.fillText("Score: " + score, 10, 20);
   ctx.fillText("Money: $" + player.money, 10, 40);
-  if (shopOpen) {
-    ctx.fillText("Shop:", WIDTH / 2 - 30, 100);
-    ctx.fillText("1. +1 Shot ($5)", WIDTH / 2 - 60, 130);
-    ctx.fillText("2. Laser Shot ($10)", WIDTH / 2 - 60, 160);
-  }
 }
 
 function update() {
   movePlayer();
   moveEnemies();
   moveBullets();
+  moveBoss();
   if (keys.shoot) shootBullet();
   if (keys.dash) dash();
   draw();
