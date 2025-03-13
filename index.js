@@ -13,30 +13,32 @@ const player = {
   size: 20,
   speed: 5,
   color: "cyan",
-  shootingCooldown: 0,
-  beamActive: false,
   colorChangeTimer: 0,
+  shootingCooldown: 0,
+  dashing: false,
+  dashCooldown: 0,
+  beamActive: false,
 };
 
 // Enemy & obstacle setup
 const enemies = [];
 const obstacles = [];
+let score = 0;
+let enemyCount = 0;
 const enemySpeed = 2;
 const obstacleSpeed = 3;
-
-// Glitch effects
-const glitches = [];
-const glitchEffects = ["screenTeardown", "memoryLeak", "errorInjection", "pixelCorruption"];
+let bossActive = false;
 
 // Controls
-let keys = { left: false, right: false, up: false, down: false, shoot: false };
+let keys = { left: false, right: false, up: false, down: false, shoot: false, dash: false };
 
 document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowLeft") keys.left = true;
   if (e.key === "ArrowRight") keys.right = true;
   if (e.key === "ArrowUp") keys.up = true;
   if (e.key === "ArrowDown") keys.down = true;
-  if (e.key === " ") keys.shoot = true;
+  if (e.key === "x") keys.shoot = true;
+  if (e.key === "z") keys.dash = true;
 });
 
 document.addEventListener("keyup", (e) => {
@@ -44,50 +46,36 @@ document.addEventListener("keyup", (e) => {
   if (e.key === "ArrowRight") keys.right = false;
   if (e.key === "ArrowUp") keys.up = false;
   if (e.key === "ArrowDown") keys.down = false;
-  if (e.key === " ") keys.shoot = false;
+  if (e.key === "x") keys.shoot = false;
+  if (e.key === "z") keys.dash = false;
 });
 
-// Glitch Effects
-function triggerGlitch() {
-  const glitchType = glitchEffects[Math.floor(Math.random() * glitchEffects.length)];
-  glitches.push({ type: glitchType, intensity: Math.random() * 0.7, timer: 200 });
-}
-
-function applyGlitchEffects() {
-  glitches.forEach((glitch, index) => {
-    if (glitch.type === "screenTeardown") {
-      ctx.fillStyle = `rgba(0, 0, 0, ${glitch.intensity})`;
-      ctx.fillRect(0, 0, WIDTH, HEIGHT);
-    } else if (glitch.type === "memoryLeak") {
-      for (let i = 0; i < 5; i++) {
-        ctx.fillStyle = "rgba(255, 0, 0, 0.3)";
-        ctx.fillRect(Math.random() * WIDTH, Math.random() * HEIGHT, 80, 80);
-      }
-    } else if (glitch.type === "errorInjection") {
-      ctx.fillStyle = "white";
-      ctx.font = "20px Arial";
-      ctx.fillText("ERROR", Math.random() * WIDTH, Math.random() * HEIGHT);
-    } else if (glitch.type === "pixelCorruption") {
-      for (let i = 0; i < 10; i++) {
-        ctx.fillStyle = "black";
-        ctx.fillRect(Math.random() * WIDTH, Math.random() * HEIGHT, 5, 5);
-      }
-    }
-
-    glitch.timer--;
-    if (glitch.timer <= 0) glitches.splice(index, 1);
-  });
+// Dash ability
+function dash() {
+  if (player.dashCooldown === 0) {
+    player.dashing = true;
+    player.dashCooldown = 100;
+  }
 }
 
 // Player movement & color change
 function movePlayer() {
-  if (keys.left) player.x -= player.speed;
-  if (keys.right) player.x += player.speed;
-  if (keys.up) player.y -= player.speed;
-  if (keys.down) player.y += player.speed;
+  let speed = player.speed;
+  if (player.dashing) speed *= 3;
+
+  if (keys.left) player.x -= speed;
+  if (keys.right) player.x += speed;
+  if (keys.up) player.y -= speed;
+  if (keys.down) player.y += speed;
+
+  if (player.dashing) {
+    player.dashing = false;
+  }
+
+  if (player.dashCooldown > 0) player.dashCooldown--;
 
   player.colorChangeTimer++;
-  if (player.colorChangeTimer > 5) { 
+  if (player.colorChangeTimer > 5) {
     const colors = ["cyan", "magenta", "yellow", "green", "red", "blue", "white"];
     player.color = colors[Math.floor(Math.random() * colors.length)];
     player.colorChangeTimer = 0;
@@ -96,6 +84,8 @@ function movePlayer() {
 
 // Enemy spawning
 function createEnemy() {
+  if (bossActive) return;
+
   let enemyX = Math.random() * WIDTH;
   let enemyY = Math.random() * HEIGHT;
 
@@ -104,7 +94,29 @@ function createEnemy() {
     enemyY = Math.random() * HEIGHT;
   }
 
-  enemies.push({ x: enemyX, y: enemyY, size: 20, health: 1, color: "white", disintegrating: false });
+  enemies.push({ x: enemyX, y: enemyY, size: 20, health: 1, disintegrating: false });
+  enemyCount++;
+
+  if (enemyCount % 10 === 0) {
+    spawnBoss();
+  }
+}
+
+// Boss variations
+function spawnBoss() {
+  bossActive = true;
+  const bossType = Math.floor(Math.random() * 3);
+  let boss;
+
+  if (bossType === 0) {
+    boss = { x: WIDTH / 2, y: 50, size: 50, health: 5, type: "Shooter" };
+  } else if (bossType === 1) {
+    boss = { x: WIDTH / 2, y: 50, size: 50, health: 7, type: "Charger" };
+  } else {
+    boss = { x: WIDTH / 2, y: 50, size: 50, health: 10, type: "Splitter" };
+  }
+
+  enemies.push(boss);
 }
 
 // Enemy movement & destruction
@@ -132,32 +144,18 @@ function moveEnemies() {
       window.location.reload();
     }
   });
-}
 
-// Falling obstacles
-function createObstacle() {
-  obstacles.push({ x: Math.random() * WIDTH, y: 0, width: 50, height: 10, split: false });
-}
-
-function moveObstacles() {
-  obstacles.forEach((obstacle, index) => {
-    if (obstacle.split) {
-      obstacle.width /= 2;
-      if (obstacle.width < 5) obstacles.splice(index, 1);
-      return;
-    }
-    obstacle.y += obstacleSpeed;
-    if (obstacle.y > HEIGHT) obstacles.splice(index, 1);
-  });
+  if (enemies.length === 0) bossActive = false;
 }
 
 // Beam Shooting
 function shootBeam() {
   player.beamActive = true;
-  
+
   for (let i = 0; i < enemies.length; i++) {
     if (enemies[i].y < player.y) {
       enemies[i].disintegrating = true;
+      score += 10;
       player.beamActive = false;
       break;
     }
@@ -175,16 +173,16 @@ function shootBeam() {
 // Draw everything
 function draw() {
   ctx.clearRect(0, 0, WIDTH, HEIGHT);
-  
+
   ctx.fillStyle = player.color;
   ctx.fillRect(player.x, player.y, player.size, player.size);
-  
-  enemies.forEach(enemy => {
-    ctx.fillStyle = enemy.color;
+
+  enemies.forEach((enemy) => {
+    ctx.fillStyle = "white";
     ctx.fillRect(enemy.x, enemy.y, enemy.size, enemy.size);
   });
 
-  obstacles.forEach(obstacle => {
+  obstacles.forEach((obstacle) => {
     ctx.fillStyle = "gray";
     ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
   });
@@ -199,20 +197,21 @@ function draw() {
     player.beamActive = false;
   }
 
-  applyGlitchEffects();
+  ctx.fillStyle = "white";
+  ctx.font = "20px Arial";
+  ctx.fillText("Score: " + score, 10, 20);
 }
 
 // Game loop
 function update() {
   movePlayer();
   moveEnemies();
-  moveObstacles();
   if (keys.shoot) shootBeam();
+  if (keys.dash) dash();
   draw();
   requestAnimationFrame(update);
 }
 
 setInterval(createEnemy, 2000);
-setInterval(createObstacle, 3000);
-setInterval(triggerGlitch, 5000);
 update();
+j 
