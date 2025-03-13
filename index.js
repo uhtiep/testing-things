@@ -24,15 +24,14 @@ const player = {
 };
 
 const enemies = [];
-const obstacles = [];
-const bosses = [];
+let platforms = [];
+let bosses = [];
 let score = 0;
 let enemyCount = 0;
 let bossActive = false;
-let shopOpen = false;
 let bossMoveTimer = 0;
 
-let keys = { left: false, right: false, up: false, down: false, shoot: false, dash: false, shop: false };
+let keys = { left: false, right: false, up: false, down: false, shoot: false, dash: false };
 
 document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowLeft") keys.left = true;
@@ -41,8 +40,6 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowDown") keys.down = true;
   if (e.key === "x") keys.shoot = true;
   if (e.key === "z") keys.dash = true;
-  if (e.key === "k") shopOpen = true;
-  if (e.key === "j") shopOpen = false;
 });
 
 document.addEventListener("keyup", (e) => {
@@ -54,26 +51,22 @@ document.addEventListener("keyup", (e) => {
   if (e.key === "z") keys.dash = false;
 });
 
-function dash() {
-  if (player.dashCooldown === 0) {
-    player.dashing = true;
-    player.dashCooldown = 100;
-  }
-}
-
 function movePlayer() {
   let speed = player.speed;
   if (player.dashing) speed *= 3;
 
-  if (keys.left) player.x -= speed;
-  if (keys.right) player.x += speed;
-  if (keys.up) player.y -= speed;
-  if (keys.down) player.y += speed;
+  let nextX = player.x;
+  let nextY = player.y;
 
-  if (player.x < 0) player.x = 0;
-  if (player.x > WIDTH - player.size) player.x = WIDTH - player.size;
-  if (player.y < 0) player.y = 0;
-  if (player.y > HEIGHT - player.size) player.y = HEIGHT - player.size;
+  if (keys.left) nextX -= speed;
+  if (keys.right) nextX += speed;
+  if (keys.up) nextY -= speed;
+  if (keys.down) nextY += speed;
+
+  if (!checkCollision(nextX, nextY, player.size, player.size)) {
+    player.x = nextX;
+    player.y = nextY;
+  }
 
   if (player.dashing) {
     player.dashing = false;
@@ -107,75 +100,36 @@ function spawnBoss() {
   enemies.length = 0; // Remove all enemies
   const boss = { x: WIDTH / 2, y: 50, size: 50, health: 10 };
   bosses.push(boss);
+  spawnPlatforms();
 }
 
-function moveEnemies() {
-  enemies.forEach((enemy, index) => {
-    if (enemy.disintegrating) {
-      enemy.size -= 2;
-      if (enemy.size <= 0) enemies.splice(index, 1);
-      return;
-    }
-    const dx = player.x - enemy.x;
-    const dy = player.y - enemy.y;
-    const angle = Math.atan2(dy, dx);
-    enemy.x += Math.cos(angle) * 2;
-    enemy.y += Math.sin(angle) * 2;
-  });
-  if (enemies.length === 0) bossActive = false;
-}
-
-function shootBullet() {
-  const now = Date.now();
-  if (now - player.lastShotTime >= 1000) { // 1-second cooldown
-    player.lastShotTime = now;
-    for (let i = 0; i < player.shotsPerFire; i++) {
-      player.bullets.push({ x: player.x + player.size / 2, y: player.y, speed: -5, type: player.shotType });
-    }
-  }
-}
-
-function moveBullets() {
-  player.bullets.forEach((bullet, bulletIndex) => {
-    bullet.y += bullet.speed;
-    enemies.forEach((enemy, enemyIndex) => {
-      if (
-        bullet.x > enemy.x &&
-        bullet.x < enemy.x + enemy.size &&
-        bullet.y > enemy.y &&
-        bullet.y < enemy.y + enemy.size
-      ) {
-        enemy.health--;
-        if (enemy.health <= 0) {
-          enemy.disintegrating = true;
-          player.money++;
-          score += 10;
-        }
-        player.bullets.splice(bulletIndex, 1);
-      }
+function spawnPlatforms() {
+  platforms = [];
+  for (let i = 0; i < 5; i++) {
+    platforms.push({
+      x: Math.random() * (WIDTH - 60),
+      y: Math.random() * (HEIGHT - 100) + 50,
+      width: 60,
+      height: 10,
+      speedX: 0,
+      speedY: 0,
     });
-  });
+  }
 }
 
 function moveBoss() {
   if (bosses.length > 0) {
     let boss = bosses[0];
 
-    if (Math.random() < 0.02) {
+    if (Math.random() < 0.005) { // Small chance to teleport left
       boss.x = Math.max(0, boss.x - 100);
     }
 
     if (bossMoveTimer % 120 === 0) {
       for (let i = 0; i < 2; i++) {
-        let platform = {
-          x: Math.random() * WIDTH,
-          y: Math.random() * HEIGHT,
-          width: 60,
-          height: 10,
-          speedX: (Math.random() - 0.5) * 4,
-          speedY: (Math.random() - 0.5) * 4,
-        };
-        obstacles.push(platform);
+        let platform = platforms[Math.floor(Math.random() * platforms.length)];
+        platform.speedX = (Math.random() - 0.5) * 2;
+        platform.speedY = (Math.random() - 0.5) * 2;
       }
     }
 
@@ -183,8 +137,42 @@ function moveBoss() {
   }
 }
 
+function movePlatforms() {
+  platforms.forEach((platform) => {
+    platform.x += platform.speedX;
+    platform.y += platform.speedY;
+  });
+}
+
+function checkCollision(x, y, width, height) {
+  for (let platform of platforms) {
+    if (
+      x < platform.x + platform.width &&
+      x + width > platform.x &&
+      y < platform.y + platform.height &&
+      y + height > platform.y
+    ) {
+      return true;
+    }
+  }
+
+  for (let boss of bosses) {
+    if (
+      x < boss.x + boss.size &&
+      x + width > boss.x &&
+      y < boss.y + boss.size &&
+      y + height > boss.y
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 function draw() {
   ctx.clearRect(0, 0, WIDTH, HEIGHT);
+
   ctx.fillStyle = player.color;
   ctx.fillRect(player.x, player.y, player.size, player.size);
 
@@ -202,14 +190,9 @@ function draw() {
     ctx.fillRect(50, 20, (boss.health / 10) * 200, 10);
   });
 
-  obstacles.forEach((obstacle) => {
+  platforms.forEach((platform) => {
     ctx.fillStyle = "gray";
-    ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-  });
-
-  player.bullets.forEach((bullet) => {
-    ctx.fillStyle = "yellow";
-    ctx.fillRect(bullet.x, bullet.y, 5, 10);
+    ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
   });
 
   ctx.fillStyle = "white";
@@ -220,11 +203,8 @@ function draw() {
 
 function update() {
   movePlayer();
-  moveEnemies();
-  moveBullets();
   moveBoss();
-  if (keys.shoot) shootBullet();
-  if (keys.dash) dash();
+  movePlatforms();
   draw();
   requestAnimationFrame(update);
 }
