@@ -14,6 +14,7 @@ const player = {
   color: "cyan",
   colorChangeTimer: 0,
   shootingCooldown: 0,
+  lastShotTime: 0,
   dashing: false,
   dashCooldown: 0,
   bullets: [],
@@ -127,8 +128,12 @@ function moveEnemies() {
 }
 
 function shootBullet() {
-  for (let i = 0; i < player.shotsPerFire; i++) {
-    player.bullets.push({ x: player.x + player.size / 2, y: player.y, speed: -5, type: player.shotType });
+  const now = Date.now();
+  if (now - player.lastShotTime >= 1000) { // 1-second cooldown
+    player.lastShotTime = now;
+    for (let i = 0; i < player.shotsPerFire; i++) {
+      player.bullets.push({ x: player.x + player.size / 2, y: player.y, speed: -5, type: player.shotType });
+    }
   }
 }
 
