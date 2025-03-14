@@ -1,20 +1,15 @@
-// Setup basic WebGL context and canvas size
-const canvas = document.getElementById("webglCanvas");
-const gl = canvas.getContext("webgl");
-
-// Check for WebGL support
+// Set up the canvas and WebGL context
+const canvas = document.getElementById('webglCanvas');
+const gl = canvas.getContext('webgl');
 if (!gl) {
-    console.error("WebGL not supported");
-    alert("Your browser does not support WebGL.");
+  alert('Your browser does not support WebGL');
 }
 
+// Set canvas size to fullscreen
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// Set the WebGL viewport to match the canvas size
-gl.viewport(0, 0, canvas.width, canvas.height);
-
-// Define vertex shader and fragment shader sources
+// Define the vertex and fragment shader sources
 const vertexShaderSource = `
     attribute vec4 a_position;
     uniform mat4 u_modelViewMatrix;
@@ -31,18 +26,19 @@ const fragmentShaderSource = `
     }
 `;
 
-// Function to compile shaders
+// Function to compile a shader
 function compileShader(source, type) {
-    const shader = gl.createShader(type);
-    gl.shaderSource(shader, source);
-    gl.compileShader(shader);
-    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        console.error("ERROR compiling shader:", gl.getShaderInfoLog(shader));
-    }
-    return shader;
+  const shader = gl.createShader(type);
+  gl.shaderSource(shader, source);
+  gl.compileShader(shader);
+  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+    console.error("ERROR compiling shader:", gl.getShaderInfoLog(shader));
+    return null;
+  }
+  return shader;
 }
 
-// Create shader program
+// Create shaders and shader program
 const vertexShader = compileShader(vertexShaderSource, gl.VERTEX_SHADER);
 const fragmentShader = compileShader(fragmentShaderSource, gl.FRAGMENT_SHADER);
 const shaderProgram = gl.createProgram();
@@ -51,22 +47,51 @@ gl.attachShader(shaderProgram, fragmentShader);
 gl.linkProgram(shaderProgram);
 gl.useProgram(shaderProgram);
 
-// Define vertices for the player's cube (simple cube geometry)
+// Define cube vertices (6 faces, 2 triangles per face, 3 vertices per triangle)
 const vertices = new Float32Array([
-    -0.05, -0.05, -0.05,   0.05, -0.05, -0.05,   0.05,  0.05, -0.05,  // Front face
-    -0.05,  0.05, -0.05,   -0.05, -0.05, -0.05,  -0.05, -0.05,  0.05,  // Left face
-    0.05, -0.05,  0.05,   0.05,  0.05,  0.05,   0.05,  0.05, -0.05,   // Right face
-    0.05, -0.05, -0.05,   0.05, -0.05,  0.05,   -0.05, -0.05,  0.05,   // Bottom face
-    -0.05,  0.05,  0.05,  -0.05,  0.05, -0.05,   0.05,  0.05, -0.05,   // Top face
-    -0.05,  0.05,  0.05,   0.05, -0.05,  0.05,   -0.05, -0.05,  0.05   // Back face
+  // Front face
+  -0.5, -0.5,  0.5,
+   0.5, -0.5,  0.5,
+   0.5,  0.5,  0.5,
+  -0.5,  0.5,  0.5,
+  
+  // Back face
+  -0.5, -0.5, -0.5,
+   0.5, -0.5, -0.5,
+   0.5,  0.5, -0.5,
+  -0.5,  0.5, -0.5,
+  
+  // Top face
+  -0.5,  0.5, -0.5,
+   0.5,  0.5, -0.5,
+   0.5,  0.5,  0.5,
+  -0.5,  0.5,  0.5,
+  
+  // Bottom face
+  -0.5, -0.5, -0.5,
+   0.5, -0.5, -0.5,
+   0.5, -0.5,  0.5,
+  -0.5, -0.5,  0.5,
+  
+  // Right face
+   0.5, -0.5, -0.5,
+   0.5,  0.5, -0.5,
+   0.5,  0.5,  0.5,
+   0.5, -0.5,  0.5,
+  
+  // Left face
+  -0.5, -0.5, -0.5,
+  -0.5, -0.5,  0.5,
+  -0.5,  0.5,  0.5,
+  -0.5,  0.5, -0.5
 ]);
 
-// Create buffer to store vertices
+// Create a buffer to store vertices
 const vertexBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 
-// Get the attribute location and enable it
+// Get attribute location and enable it
 const positionLocation = gl.getAttribLocation(shaderProgram, "a_position");
 gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
 gl.enableVertexAttribArray(positionLocation);
@@ -75,47 +100,44 @@ gl.enableVertexAttribArray(positionLocation);
 const uModelViewMatrix = gl.getUniformLocation(shaderProgram, "u_modelViewMatrix");
 const uProjectionMatrix = gl.getUniformLocation(shaderProgram, "u_projectionMatrix");
 
-// Set up projection matrix (perspective)
+// Set up the projection matrix (perspective)
 const projectionMatrix = mat4.create();
 mat4.perspective(projectionMatrix, Math.PI / 4, canvas.width / canvas.height, 0.1, 100);
 
-// Set up modelView matrix (camera position)
+// Set up the model-view matrix (camera position)
 const modelViewMatrix = mat4.create();
-mat4.translate(modelViewMatrix, modelViewMatrix, [0, 0, -3]);
+mat4.translate(modelViewMatrix, modelViewMatrix, [0, 0, -5]);
 
-// Send projection and modelView matrices to shaders
+// Send the matrices to the shader
 gl.uniformMatrix4fv(uProjectionMatrix, false, projectionMatrix);
 gl.uniformMatrix4fv(uModelViewMatrix, false, modelViewMatrix);
 
-// Handle movement with WASD keys
-const player = { x: 0, y: 0, z: -3 };
+// Handle WASD controls
+const player = { x: 0, y: 0, z: -5 };
 const speed = 0.1;
 
 function handleKeyDown(event) {
-    if (event.key === "w") player.z += speed;
-    if (event.key === "s") player.z -= speed;
-    if (event.key === "a") player.x -= speed;
-    if (event.key === "d") player.x += speed;
+  if (event.key === "w") player.z += speed;
+  if (event.key === "s") player.z -= speed;
+  if (event.key === "a") player.x -= speed;
+  if (event.key === "d") player.x += speed;
 }
 
 document.addEventListener("keydown", handleKeyDown);
 
 // Animation loop
 function animate() {
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); // Clear the screen
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); // Clear the screen
 
-    // Update modelView matrix for movement
-    mat4.identity(modelViewMatrix);
-    mat4.translate(modelViewMatrix, modelViewMatrix, [player.x, player.y, player.z]);
-    
-    // Update the modelView matrix in the shader
-    gl.uniformMatrix4fv(uModelViewMatrix, false, modelViewMatrix);
+  // Update modelViewMatrix for movement
+  mat4.identity(modelViewMatrix);
+  mat4.translate(modelViewMatrix, modelViewMatrix, [player.x, player.y, player.z]);
+  gl.uniformMatrix4fv(uModelViewMatrix, false, modelViewMatrix);
 
-    // Draw the player (cube)
-    gl.drawArrays(gl.TRIANGLES, 0, vertices.length / 3);
+  // Draw the cube
+  gl.drawArrays(gl.TRIANGLES, 0, vertices.length / 3);
 
-    // Request next frame
-    requestAnimationFrame(animate);
+  requestAnimationFrame(animate); // Keep rendering
 }
 
 animate();
