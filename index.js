@@ -1,213 +1,107 @@
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
-
-const WIDTH = 800;
-const HEIGHT = 600;
-canvas.width = WIDTH;
-canvas.height = HEIGHT;
-
-const player = {
-  x: WIDTH / 2,
-  y: HEIGHT - 50,
-  size: 20,
-  speed: 5,
-  color: "cyan",
-  colorChangeTimer: 0,
-  shootingCooldown: 0,
-  lastShotTime: 0,
-  dashing: false,
-  dashCooldown: 0,
-  bullets: [],
-  money: 0,
-  shotsPerFire: 1,
-  shotType: "normal",
-};
-
-const enemies = [];
-let platforms = [];
-let bosses = [];
-let score = 0;
-let enemyCount = 0;
-let bossActive = false;
-let bossMoveTimer = 0;
-
-let keys = { left: false, right: false, up: false, down: false, shoot: false, dash: false };
-
-document.addEventListener("keydown", (e) => {
-  if (e.key === "ArrowLeft") keys.left = true;
-  if (e.key === "ArrowRight") keys.right = true;
-  if (e.key === "ArrowUp") keys.up = true;
-  if (e.key === "ArrowDown") keys.down = true;
-  if (e.key === "x") keys.shoot = true;
-  if (e.key === "z") keys.dash = true;
-});
-
-document.addEventListener("keyup", (e) => {
-  if (e.key === "ArrowLeft") keys.left = false;
-  if (e.key === "ArrowRight") keys.right = false;
-  if (e.key === "ArrowUp") keys.up = false;
-  if (e.key === "ArrowDown") keys.down = false;
-  if (e.key === "x") keys.shoot = false;
-  if (e.key === "z") keys.dash = false;
-});
-
-function movePlayer() {
-  let speed = player.speed;
-  if (player.dashing) speed *= 3;
-
-  let nextX = player.x;
-  let nextY = player.y;
-
-  if (keys.left) nextX -= speed;
-  if (keys.right) nextX += speed;
-  if (keys.up) nextY -= speed;
-  if (keys.down) nextY += speed;
-
-  if (!checkCollision(nextX, nextY, player.size, player.size)) {
-    player.x = nextX;
-    player.y = nextY;
-  }
-
-  if (player.dashing) {
-    player.dashing = false;
-  }
-
-  if (player.dashCooldown > 0) player.dashCooldown--;
-
-  player.colorChangeTimer++;
-  if (player.colorChangeTimer > 5) {
-    const colors = ["cyan", "magenta", "yellow", "green", "red", "blue", "white"];
-    player.color = colors[Math.floor(Math.random() * colors.length)];
-    player.colorChangeTimer = 0;
-  }
+// Setup basic WebGL context and canvas size
+const canvas = document.getElementById("webglCanvas");
+const gl = canvas.getContext("webgl");
+if (!gl) {
+    console.error("WebGL not supported, using experimental-webgl");
+    alert("Your browser does not support WebGL.");
 }
 
-function createEnemy() {
-  if (bossActive) return;
-  let enemyX = Math.random() * WIDTH;
-  let enemyY = Math.random() * HEIGHT;
-  while (Math.abs(player.x - enemyX) < 50 && Math.abs(player.y - enemyY) < 50) {
-    enemyX = Math.random() * WIDTH;
-    enemyY = Math.random() * HEIGHT;
-  }
-  enemies.push({ x: enemyX, y: enemyY, size: 20, health: 1, disintegrating: false });
-  enemyCount++;
-  if (enemyCount % 10 === 0) spawnBoss();
-}
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
-function spawnBoss() {
-  bossActive = true;
-  enemies.length = 0; // Remove all enemies
-  const boss = { x: WIDTH / 2, y: 50, size: 50, health: 10 };
-  bosses.push(boss);
-  spawnPlatforms();
-}
-
-function spawnPlatforms() {
-  platforms = [];
-  for (let i = 0; i < 5; i++) {
-    platforms.push({
-      x: Math.random() * (WIDTH - 60),
-      y: Math.random() * (HEIGHT - 100) + 50,
-      width: 60,
-      height: 10,
-      speedX: 0,
-      speedY: 0,
-    });
-  }
-}
-
-function moveBoss() {
-  if (bosses.length > 0) {
-    let boss = bosses[0];
-
-    if (Math.random() < 0.005) { // Small chance to teleport left
-      boss.x = Math.max(0, boss.x - 100);
+// Define a basic shader setup
+const vertexShaderSource = `
+    attribute vec4 a_position;
+    uniform mat4 u_modelViewMatrix;
+    uniform mat4 u_projectionMatrix;
+    void main() {
+        gl_Position = u_projectionMatrix * u_modelViewMatrix * a_position;
     }
+`;
 
-    if (bossMoveTimer % 120 === 0) {
-      for (let i = 0; i < 2; i++) {
-        let platform = platforms[Math.floor(Math.random() * platforms.length)];
-        platform.speedX = (Math.random() - 0.5) * 2;
-        platform.speedY = (Math.random() - 0.5) * 2;
-      }
+const fragmentShaderSource = `
+    precision mediump float;
+    void main() {
+        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);  // Red color
     }
+`;
 
-    bossMoveTimer++;
-  }
-}
-
-function movePlatforms() {
-  platforms.forEach((platform) => {
-    platform.x += platform.speedX;
-    platform.y += platform.speedY;
-  });
-}
-
-function checkCollision(x, y, width, height) {
-  for (let platform of platforms) {
-    if (
-      x < platform.x + platform.width &&
-      x + width > platform.x &&
-      y < platform.y + platform.height &&
-      y + height > platform.y
-    ) {
-      return true;
+// Shader compilation function
+function compileShader(source, type) {
+    const shader = gl.createShader(type);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        console.error("ERROR compiling shader:", gl.getShaderInfoLog(shader));
     }
-  }
-
-  for (let boss of bosses) {
-    if (
-      x < boss.x + boss.size &&
-      x + width > boss.x &&
-      y < boss.y + boss.size &&
-      y + height > boss.y
-    ) {
-      return true;
-    }
-  }
-
-  return false;
+    return shader;
 }
 
-function draw() {
-  ctx.clearRect(0, 0, WIDTH, HEIGHT);
+// Create the shader program
+const vertexShader = compileShader(vertexShaderSource, gl.VERTEX_SHADER);
+const fragmentShader = compileShader(fragmentShaderSource, gl.FRAGMENT_SHADER);
+const shaderProgram = gl.createProgram();
+gl.attachShader(shaderProgram, vertexShader);
+gl.attachShader(shaderProgram, fragmentShader);
+gl.linkProgram(shaderProgram);
+gl.useProgram(shaderProgram);
 
-  ctx.fillStyle = player.color;
-  ctx.fillRect(player.x, player.y, player.size, player.size);
+// Setup buffer and vertices for the cube (player)
+const vertices = new Float32Array([
+    -0.05, -0.05, -0.05,   0.05, -0.05, -0.05,   0.05,  0.05, -0.05,  // Front face
+    -0.05,  0.05, -0.05,   -0.05, -0.05, -0.05,  -0.05, -0.05,  0.05,  // Left face
+    0.05, -0.05,  0.05,   0.05,  0.05,  0.05,   0.05,  0.05, -0.05,   // Right face
+    0.05, -0.05, -0.05,   0.05, -0.05,  0.05,   -0.05, -0.05,  0.05,   // Bottom face
+    -0.05,  0.05,  0.05,  -0.05,  0.05, -0.05,   0.05,  0.05, -0.05,   // Top face
+    -0.05,  0.05,  0.05,   0.05, -0.05,  0.05,   -0.05, -0.05,  0.05   // Back face
+]);
 
-  enemies.forEach((enemy) => {
-    ctx.fillStyle = "white";
-    ctx.fillRect(enemy.x, enemy.y, enemy.size, enemy.size);
-  });
+const vertexBuffer = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 
-  bosses.forEach((boss) => {
-    ctx.fillStyle = "red";
-    ctx.fillRect(boss.x, boss.y, boss.size, boss.size);
-    ctx.fillStyle = "white";
-    ctx.fillRect(50, 20, 200, 10);
-    ctx.fillStyle = "red";
-    ctx.fillRect(50, 20, (boss.health / 10) * 200, 10);
-  });
+const positionAttributeLocation = gl.getAttribLocation(shaderProgram, "a_position");
+gl.vertexAttribPointer(positionAttributeLocation, 3, gl.FLOAT, false, 0, 0);
+gl.enableVertexAttribArray(positionAttributeLocation);
 
-  platforms.forEach((platform) => {
-    ctx.fillStyle = "gray";
-    ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
-  });
+// Projection matrix (perspective)
+const projectionMatrix = mat4.create();
+mat4.perspective(projectionMatrix, Math.PI / 4, canvas.width / canvas.height, 0.1, 100);
 
-  ctx.fillStyle = "white";
-  ctx.font = "20px Arial";
-  ctx.fillText("Score: " + score, 10, 20);
-  ctx.fillText("Money: $" + player.money, 10, 40);
+// ModelView matrix for camera setup
+const modelViewMatrix = mat4.create();
+mat4.translate(modelViewMatrix, modelViewMatrix, [0, 0, -3]);
+
+// Send matrices to the shader
+const uProjectionMatrix = gl.getUniformLocation(shaderProgram, "u_projectionMatrix");
+const uModelViewMatrix = gl.getUniformLocation(shaderProgram, "u_modelViewMatrix");
+gl.uniformMatrix4fv(uProjectionMatrix, false, projectionMatrix);
+gl.uniformMatrix4fv(uModelViewMatrix, false, modelViewMatrix);
+
+// Handle movement with WASD keys
+const player = { x: 0, y: 0, z: -3 };
+const speed = 0.1;
+
+function handleKeyDown(event) {
+    if (event.key === "w") player.z += speed;
+    if (event.key === "s") player.z -= speed;
+    if (event.key === "a") player.x -= speed;
+    if (event.key === "d") player.x += speed;
 }
 
-function update() {
-  movePlayer();
-  moveBoss();
-  movePlatforms();
-  draw();
-  requestAnimationFrame(update);
+document.addEventListener("keydown", handleKeyDown);
+
+// Basic animation loop
+function animate() {
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    // Update modelViewMatrix for movement
+    mat4.translate(modelViewMatrix, mat4.create(), [player.x, player.y, player.z]);
+    gl.uniformMatrix4fv(uModelViewMatrix, false, modelViewMatrix);
+
+    gl.drawArrays(gl.TRIANGLES, 0, vertices.length / 3);
+
+    requestAnimationFrame(animate);
 }
 
-setInterval(createEnemy, 2000);
-update();
+animate();
