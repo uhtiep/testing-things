@@ -60,7 +60,7 @@
 
     // Enemies and key tracking
     const enemies = [];
-    const keys = { left: false, right: false, up: false, down: false, shoot: false, hack: false };
+    const keys = { left: false, right: false, up: false, down: false, shoot: false };
 
     // Event listeners for player movement
     document.addEventListener("keydown", (e) => {
@@ -69,7 +69,6 @@
       if (e.code === "ArrowUp" || e.code === "KeyW") keys.up = true;
       if (e.code === "ArrowDown" || e.code === "KeyS") keys.down = true;
       if (e.code === "Space") keys.shoot = true;
-      if (e.code === "KeyH") keys.hack = true;
     });
 
     document.addEventListener("keyup", (e) => {
@@ -78,7 +77,6 @@
       if (e.code === "ArrowUp" || e.code === "KeyW") keys.up = false;
       if (e.code === "ArrowDown" || e.code === "KeyS") keys.down = false;
       if (e.code === "Space") keys.shoot = false;
-      if (e.code === "KeyH") keys.hack = false;
     });
 
     // Player movement
@@ -110,7 +108,7 @@
 
     // Create enemies periodically
     function createEnemies() {
-      if (Math.random() < 0.01 && !gameOver) {
+      if (Math.random() < 0.02 && !gameOver) {  // Lower spawn frequency
         enemies.push({
           x: Math.random() * WIDTH,
           y: Math.random() * HEIGHT,
@@ -125,7 +123,6 @@
     // Update and render enemies
     function updateEnemies() {
       for (let i = 0; i < enemies.length; i++) {
-        // Simple enemy movement towards player
         const enemy = enemies[i];
         const angle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
         enemy.x += Math.cos(angle) * enemy.speed;
