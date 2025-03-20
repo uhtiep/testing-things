@@ -1,16 +1,220 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebGL 3D Game</title>
-    <style>
-        body { margin: 0; overflow: hidden; }
-        canvas { display: block; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Glitch World</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+      background-color: #000;
+      margin: 0 auto;
+    }
+    #score {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      font-size: 24px;
+      color: white;
+    }
+  </style>
 </head>
 <body>
-    <canvas id="webglCanvas"></canvas>
-    <script src="index.js"></script>
+
+  <canvas id="gameCanvas"></canvas>
+  <div id="score">Score: 0</div>
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const WIDTH = window.innerWidth;
+    const HEIGHT = window.innerHeight;
+    canvas.width = WIDTH;
+    canvas.height = HEIGHT;
+
+    // Player setup
+    const player = {
+      x: WIDTH / 2,
+      y: HEIGHT / 2,
+      width: 40,
+      height: 40,
+      speed: 5,
+      color: "cyan",
+      health: 3,
+      dashing: false,
+      dashCooldown: 0
+    };
+
+    // Glitch effects and variables
+    let glitchTime = 0;
+    let glitchMode = false;
+    let hackAbilityCooldown = 0;
+    let score = 0;
+    let gameOver = false;
+
+    // Power-ups and enemies
+    const enemies = [];
+    const glitchZones = [];
+    const glitchClones = [];
+
+    // Key state tracking
+    const keys = { left: false, right: false, up: false, down: false, shoot: false, hack: false };
+
+    // Event listeners for player movement
+    document.addEventListener("keydown", (e) => {
+      if (e.code === "ArrowLeft" || e.code === "KeyA") keys.left = true;
+      if (e.code === "ArrowRight" || e.code === "KeyD") keys.right = true;
+      if (e.code === "ArrowUp" || e.code === "KeyW") keys.up = true;
+      if (e.code === "ArrowDown" || e.code === "KeyS") keys.down = true;
+      if (e.code === "Space") keys.shoot = true;
+      if (e.code === "KeyH") keys.hack = true;
+    });
+
+    document.addEventListener("keyup", (e) => {
+      if (e.code === "ArrowLeft" || e.code === "KeyA") keys.left = false;
+      if (e.code === "ArrowRight" || e.code === "KeyD") keys.right = false;
+      if (e.code === "ArrowUp" || e.code === "KeyW") keys.up = false;
+      if (e.code === "ArrowDown" || e.code === "KeyS") keys.down = false;
+      if (e.code === "Space") keys.shoot = false;
+      if (e.code === "KeyH") keys.hack = false;
+    });
+
+    // Player movement
+    function movePlayer() {
+      if (keys.left && player.x > 0) player.x -= player.speed;
+      if (keys.right && player.x < WIDTH - player.width) player.x += player.speed;
+      if (keys.up && player.y > 0) player.y -= player.speed;
+      if (keys.down && player.y < HEIGHT - player.height) player.y += player.speed;
+    }
+
+    // Glitch effect handling
+    function applyGlitchEffects() {
+      if (glitchMode) {
+        player.x += Math.random() * 10 - 5;  // Random player movement
+        player.y += Math.random() * 10 - 5;
+
+        if (Math.random() < 0.05) {
+          // Random teleportation
+          player.x = Math.random() * WIDTH;
+          player.y = Math.random() * HEIGHT;
+        }
+
+        if (Math.random() < 0.02) {
+          // Random control inversion
+          player.speed = Math.random() < 0.5 ? 5 : -5;
+        }
+      }
+    }
+
+    // Create glitch zones
+    function createGlitchZones() {
+      if (Math.random() < 0.01) {
+        glitchZones.push({
+          x: Math.random() * WIDTH,
+          y: Math.random() * HEIGHT,
+          width: 100,
+          height: 100,
+          active: true
+        });
+      }
+    }
+
+    // Glitch zone effect
+    function handleGlitchZones() {
+      for (let i = 0; i < glitchZones.length; i++) {
+        if (isCollision(player, glitchZones[i])) {
+          glitchMode = true; // Activate glitch mode when inside a glitch zone
+        }
+      }
+    }
+
+    // Create and move glitch clones
+    function createGlitchClones() {
+      if (Math.random() < 0.02) {
+        glitchClones.push({
+          x: player.x + 20,
+          y: player.y + 20,
+          width: 40,
+          height: 40,
+          speed: player.speed,
+          delay: Math.random() * 50 + 30
+        });
+      }
+    }
+
+    function handleGlitchClones() {
+      for (let i = 0; i < glitchClones.length; i++) {
+        glitchClones[i].delay--;
+        if (glitchClones[i].delay <= 0) {
+          glitchClones[i].x = player.x;
+          glitchClones[i].y = player.y;
+        }
+      }
+    }
+
+    // Game logic and rendering
+    function update() {
+      if (gameOver) return;
+
+      movePlayer();
+      applyGlitchEffects();
+      createGlitchZones();
+      handleGlitchZones();
+      createGlitchClones();
+      handleGlitchClones();
+
+      ctx.clearRect(0, 0, WIDTH, HEIGHT);
+
+      // Draw player
+      ctx.fillStyle = player.color;
+      ctx.fillRect(player.x, player.y, player.width, player.height);
+
+      // Draw glitch zones
+      ctx.fillStyle = "rgba(255, 0, 0, 0.3)";
+      for (let i = 0; i < glitchZones.length; i++) {
+        ctx.fillRect(glitchZones[i].x, glitchZones[i].y, glitchZones[i].width, glitchZones[i].height);
+      }
+
+      // Draw glitch clones
+      ctx.fillStyle = "rgba(0, 255, 255, 0.5)";
+      for (let i = 0; i < glitchClones.length; i++) {
+        ctx.fillRect(glitchClones[i].x, glitchClones[i].y, glitchClones[i].width, glitchClones[i].height);
+      }
+
+      // Draw score and health
+      ctx.fillStyle = "white";
+      ctx.font = "20px Arial";
+      ctx.fillText("Score: " + score, 20, 30);
+      ctx.fillText("Health: " + player.health, 20, 60);
+
+      // Handle game over
+      if (player.health <= 0) {
+        gameOver = true;
+        ctx.fillText("GAME OVER", WIDTH / 2 - 70, HEIGHT / 2);
+      }
+
+      requestAnimationFrame(update);
+    }
+
+    // Collision check
+    function isCollision(a, b) {
+      return a.x < b.x + b.width &&
+             a.x + a.width > b.x &&
+             a.y < b.y + b.height &&
+             a.y + a.height > b.y;
+    }
+
+    // Start the game
+    update();
+
+  </script>
+
 </body>
 </html>
