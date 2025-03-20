@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Glitch World</title>
+  <title>Undertale-style Survival Game</title>
   <style>
     body, html {
       margin: 0;
@@ -47,29 +47,24 @@
       height: 40,
       speed: 5,
       color: "cyan",
-      health: 3,
-      dashing: false,
-      dashCooldown: 0
+      health: 3
     };
 
-    // Glitch effects and variables
-    let glitchTime = 0;
-    let glitchMode = false;
+    // Game variables
     let score = 0;
     let gameOver = false;
 
-    // Enemies and key tracking
+    // Enemies setup
     const enemies = [];
-    const bullets = [];
-    const keys = { left: false, right: false, up: false, down: false, shoot: false };
 
     // Event listeners for player movement
+    const keys = { left: false, right: false, up: false, down: false };
+
     document.addEventListener("keydown", (e) => {
       if (e.code === "ArrowLeft" || e.code === "KeyA") keys.left = true;
       if (e.code === "ArrowRight" || e.code === "KeyD") keys.right = true;
       if (e.code === "ArrowUp" || e.code === "KeyW") keys.up = true;
       if (e.code === "ArrowDown" || e.code === "KeyS") keys.down = true;
-      if (e.code === "Space") keys.shoot = true;
     });
 
     document.addEventListener("keyup", (e) => {
@@ -77,7 +72,6 @@
       if (e.code === "ArrowRight" || e.code === "KeyD") keys.right = false;
       if (e.code === "ArrowUp" || e.code === "KeyW") keys.up = false;
       if (e.code === "ArrowDown" || e.code === "KeyS") keys.down = false;
-      if (e.code === "Space") keys.shoot = false;
     });
 
     // Player movement
@@ -88,36 +82,18 @@
       if (keys.down && player.y < HEIGHT - player.height) player.y += player.speed;
     }
 
-    // Glitch effect handling
-    function applyGlitchEffects() {
-      if (glitchMode) {
-        player.x += Math.random() * 5 - 2;  // Slight random player movement
-        player.y += Math.random() * 5 - 2;
-
-        if (Math.random() < 0.02) {
-          // Random teleportation with lower frequency
-          player.x = Math.random() * WIDTH;
-          player.y = Math.random() * HEIGHT;
-        }
-
-        if (Math.random() < 0.005) {
-          // Random control inversion with very low frequency
-          player.speed = Math.random() < 0.5 ? 5 : -5;
-        }
-      }
-    }
-
     // Create enemies periodically
     function createEnemies() {
       if (Math.random() < 0.02 && !gameOver) {  // Lower spawn frequency
-        enemies.push({
+        const enemy = {
           x: Math.random() * WIDTH,
           y: Math.random() * HEIGHT,
           width: 40,
           height: 40,
           color: "red",
           speed: 3
-        });
+        };
+        enemies.push(enemy);
       }
     }
 
@@ -132,39 +108,12 @@
         // Draw enemy
         ctx.fillStyle = enemy.color;
         ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
-      }
-    }
 
-    // Handle shooting (basic bullet functionality)
-    function shoot() {
-      if (keys.shoot) {
-        bullets.push({
-          x: player.x + player.width / 2 - 2,
-          y: player.y,
-          width: 4,
-          height: 10,
-          speed: 7
-        });
-      }
-    }
-
-    // Update and render bullets
-    function updateBullets() {
-      for (let i = 0; i < bullets.length; i++) {
-        const bullet = bullets[i];
-        bullet.y -= bullet.speed; // Move bullet upwards
-        ctx.fillStyle = "white";
-        ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
-
-        // Collision check with enemies
-        for (let j = 0; j < enemies.length; j++) {
-          const enemy = enemies[j];
-          if (isCollision(bullet, enemy)) {
-            enemies.splice(j, 1);  // Remove enemy on hit
-            bullets.splice(i, 1);  // Remove bullet on hit
-            score++;  // Increase score
-            break;
-          }
+        // Check collision with player
+        if (isCollision(player, enemy)) {
+          player.health -= 1;
+          enemies.splice(i, 1);  // Remove enemy upon collision
+          score++;  // Increase score when an enemy hits player
         }
       }
     }
@@ -182,11 +131,8 @@
       if (gameOver) return;
 
       movePlayer();
-      applyGlitchEffects();
       createEnemies();
-      shoot();
       updateEnemies();
-      updateBullets();
 
       ctx.clearRect(0, 0, WIDTH, HEIGHT);
 
