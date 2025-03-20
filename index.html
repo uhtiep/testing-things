@@ -60,6 +60,7 @@
 
     // Enemies and key tracking
     const enemies = [];
+    const bullets = [];
     const keys = { left: false, right: false, up: false, down: false, shoot: false };
 
     // Event listeners for player movement
@@ -135,7 +136,6 @@
     }
 
     // Handle shooting (basic bullet functionality)
-    const bullets = [];
     function shoot() {
       if (keys.shoot) {
         bullets.push({
