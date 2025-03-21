@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retro Emulator</title>
+    <title>Rhythm Game</title>
     <link rel="stylesheet" href="fye.css">
 </head>
 <body>
-    <header>
-        <h1>Retro Emulator</h1>
-    </header>
-    <main>
-        <input type="file" id="romInput" accept=".nes,.smc,.gba">
-        <canvas id="emulatorCanvas"></canvas>
-    </main>
+    <audio id="music" src="dance_of_the_corpse.mp3"></audio>
+    <div class="game-container">
+        <div class="lane" id="c-lane">C</div>
+        <div class="lane" id="n-lane">N</div>
+    </div>
+    <div class="score">Score: <span id="score">0</span></div>
     <script src="index.js"></script>
 </body>
 </html>

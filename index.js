@@ -1,32 +1,59 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const romInput = document.getElementById("romInput");
-  const canvas = document.getElementById("emulatorCanvas");
-  const ctx = canvas.getContext("2d");
-  canvas.width = 640;
-  canvas.height = 480;
+    const lanes = {
+        "c": document.getElementById("c-lane"),
+        "n": document.getElementById("n-lane")
+    };
+    
+    let score = 0;
+    const scoreDisplay = document.getElementById("score");
+    const music = document.getElementById("music");
 
-  let emulator;
+    function createNote(key) {
+        const note = document.createElement("div");
+        note.classList.add("note");
+        lanes[key].appendChild(note);
 
-  romInput.addEventListener("change", async (event) => {
-      const file = event.target.files[0];
-      if (!file) return;
+        let position = -40;
+        const fallSpeed = 3;
 
-      const reader = new FileReader();
-      reader.onload = async function () {
-          const romBuffer = new Uint8Array(reader.result);
-          runEmulator(romBuffer);
-      };
-      reader.readAsArrayBuffer(file);
-  });
+        function moveNote() {
+            position += fallSpeed;
+            note.style.top = position + "px";
 
-  function runEmulator(romBuffer) {
-      if (emulator) emulator.stop();
+            if (position > 400) {
+                note.remove();
+            } else {
+                requestAnimationFrame(moveNote);
+            }
+        }
+        moveNote();
+    }
 
-      emulator = new EmulatorJS({
-          canvas: canvas,
-          romData: romBuffer,
-      });
+    function startGame() {
+        music.play();
 
-      emulator.start();
-  }
+        setInterval(() => {
+            createNote(Math.random() > 0.5 ? "c" : "n");
+        }, 1000);
+    }
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "c" || event.key === "n") {
+            let lane = lanes[event.key];
+            let notes = lane.getElementsByClassName("note");
+
+            if (notes.length > 0) {
+                let note = notes[0];
+                let notePos = parseInt(note.style.top);
+
+                if (notePos > 350 && notePos < 400) {
+                    score += 100;
+                    note.remove();
+                }
+            }
+            scoreDisplay.textContent = score;
+        }
+    });
+
+    setTimeout(startGame, 1000);
 });
