@@ -80,3 +80,33 @@ body {
 #startButton:hover {
   transform: scale(1.1);
 }
+
+/* Spark Effect */
+.spark {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  background: url('spark.jpeg') no-repeat center/contain;
+  pointer-events: none;
+  animation: fadeOut 0.5s linear;
+}
+
+/* Nice Popup */
+.nice-popup {
+  position: absolute;
+  width: 80px;
+  height: 40px;
+  background: url('nice.jpeg') no-repeat center/contain;
+  pointer-events: none;
+  animation: fadeOut 0.7s linear;
+}
+
+/* Fade-out Animation */
+@keyframes fadeOut {
+  from {
+      opacity: 1;
+  }
+  to {
+      opacity: 0;
+  }
+}
