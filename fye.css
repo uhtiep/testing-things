@@ -110,3 +110,13 @@ body {
       opacity: 0;
   }
 }
+/* Visible Hit Zone */
+.hit-zone {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100px;
+  height: 30px;  /* The hitbox height */
+  background: rgba(0, 255, 0, 0.5);  /* Semi-transparent green to indicate hit zone */
+  border-radius: 5px;
+}

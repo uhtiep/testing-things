@@ -25,6 +25,11 @@ document.addEventListener("DOMContentLoaded", () => {
             note.dataset.duration = duration;
             note.dataset.startTime = performance.now(); // Store start time for hold note
             holdNotes.push(note);
+
+            // Create the visible hit zone
+            const hitZone = document.createElement("div");
+            hitZone.classList.add("hit-zone");
+            note.appendChild(hitZone);
         }
 
         lanes[key].appendChild(note);
@@ -86,7 +91,6 @@ document.addEventListener("DOMContentLoaded", () => {
             if (notePos > 520 && notePos < 580) {
                 score += 100;
                 note.remove();
-                showEffect(lane, "spark");
                 showEffect(lane, "nice-popup");
             }
         }
@@ -109,7 +113,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (timeHeld >= duration) {
                     score += 100;
                     note.remove();
-                    showEffect(lane, "spark");
                     showEffect(lane, "nice-popup");
                 }
             }
