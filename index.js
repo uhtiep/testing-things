@@ -59,7 +59,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function startGame() {
         music.currentTime = 0;
-        music.play();
+        music.play().then(() => {
+            console.log("Music started playing.");
+        }).catch((error) => {
+            console.error("Error playing music:", error);
+        });
 
         chart.forEach((note) => {
             setTimeout(() => {
