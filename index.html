@@ -9,14 +9,20 @@
 </head>
 
 <body>
-    <audio id="music" src="kiko.mp3"></audio>
+    <audio id="music" preload="auto">
+        <source src="kiko.mp3" type="audio/mpeg">
+    </audio>
 
     <div class="game-container">
-        <div class="lane" id="c-lane">C</div>
-        <div class="lane" id="n-lane">N</div>
+        <div class="lane" id="d-lane">D</div>
+        <div class="lane" id="f-lane">F</div>
+        <div class="lane" id="j-lane">J</div>
+        <div class="lane" id="k-lane">K</div>
     </div>
 
     <div class="score">Score: <span id="score">0</span></div>
+
+    <button id="startButton">Start Game</button>
 
     <script src="index.js"></script>
 </body>

@@ -1,35 +1,28 @@
 document.addEventListener("DOMContentLoaded", () => {
     const lanes = {
-        "c": document.getElementById("c-lane"),
-        "n": document.getElementById("n-lane")
+        "d": document.getElementById("d-lane"),
+        "f": document.getElementById("f-lane"),
+        "j": document.getElementById("j-lane"),
+        "k": document.getElementById("k-lane")
     };
 
-    // Chart synchronized with "kikuo_-_Aishite_(Hydr0.org).mp3"
+    // Chart synced to "kikuo_-_Aishite_(Hydr0.org).mp3"
     const chart = [
-        { time: 1500, key: "c", type: "tap" },
-        { time: 3000, key: "n", type: "tap" },
-        { time: 4500, key: "c", type: "tap" },
-        { time: 6000, key: "n", type: "tap" },
-        { time: 7500, key: "c", type: "hold", duration: 1500 },
-        { time: 10000, key: "n", type: "tap" },
-        { time: 11500, key: "c", type: "tap" },
-        { time: 13000, key: "n", type: "hold", duration: 2000 },
-        { time: 16500, key: "c", type: "tap" },
-        { time: 18000, key: "n", type: "tap" },
-        { time: 19500, key: "c", type: "tap" },
-        { time: 21000, key: "n", type: "tap" },
-        { time: 23000, key: "c", type: "hold", duration: 3000 },
-        { time: 27000, key: "n", type: "tap" },
-        { time: 28500, key: "c", type: "tap" },
-        { time: 30000, key: "n", type: "hold", duration: 2500 },
-        { time: 34000, key: "c", type: "tap" },
-        { time: 35500, key: "n", type: "tap" },
-        { time: 37000, key: "c", type: "tap" },
-        { time: 38500, key: "n", type: "tap" },
-        { time: 40500, key: "c", type: "hold", duration: 3500 },
-        { time: 46000, key: "n", type: "tap" },
-        { time: 47500, key: "c", type: "tap" },
-        { time: 49000, key: "n", type: "hold", duration: 3000 },
+        { time: 1000, key: "d", type: "tap" },
+        { time: 1500, key: "f", type: "tap" },
+        { time: 2000, key: "j", type: "tap" },
+        { time: 2500, key: "k", type: "tap" },
+        { time: 3000, key: "d", type: "hold", duration: 1500 },
+        { time: 5000, key: "f", type: "tap" },
+        { time: 6000, key: "j", type: "hold", duration: 2000 },
+        { time: 8500, key: "k", type: "tap" },
+        { time: 10000, key: "d", type: "tap" },
+        { time: 12000, key: "f", type: "hold", duration: 2500 },
+        { time: 16000, key: "j", type: "tap" },
+        { time: 18000, key: "k", type: "tap" },
+        { time: 20000, key: "d", type: "tap" },
+        { time: 22000, key: "f", type: "tap" },
+        { time: 24000, key: "j", type: "hold", duration: 3000 },
     ];
 
     let score = 0;
@@ -64,6 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function startGame() {
+        music.currentTime = 0; // Ensure song restarts properly
         music.play();
 
         chart.forEach((note) => {
@@ -73,9 +67,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Input handling for C and N keys
+    // Input handling for D, F, J, and K keys
     document.addEventListener("keydown", (event) => {
-        if (event.key === "c" || event.key === "n") {
+        if (lanes[event.key]) {
             const lane = lanes[event.key];
             const notes = lane.getElementsByClassName("note");
             const holdNotes = lane.getElementsByClassName("hold-note");
