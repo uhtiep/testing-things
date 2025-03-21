@@ -161,11 +161,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     startButton.addEventListener("click", () => {
+        // Ensure that the start button disappears after being clicked
+        startButton.style.display = "none";
         score = 0;
         combo = 0;
         scoreDisplay.textContent = score;
         comboDisplay.innerHTML = ''; // Clear combo display
-        startButton.style.display = "none";
         startGame();
     });
 
