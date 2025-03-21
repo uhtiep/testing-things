@@ -37,5 +37,5 @@ body {
   width: 80px;
   position: absolute;
   left: 10px;
-  background: rgba(0, 255, 0, 0.5); /* 50% transparent for hold notes */
+  background: rgba(0, 255, 0, 0.5); /* 50% transparent */
 }

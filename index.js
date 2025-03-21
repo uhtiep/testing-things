@@ -49,36 +49,54 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Input handling for D, F, J, and K keys
+    const heldKeys = {};
+
+    // Input handling
     document.addEventListener("keydown", (event) => {
+        if (!heldKeys[event.key] && lanes[event.key]) {
+            heldKeys[event.key] = true;
+            checkNoteHit(event.key);
+        }
+    });
+
+    document.addEventListener("keyup", (event) => {
         if (lanes[event.key]) {
-            const lane = lanes[event.key];
-            const notes = lane.getElementsByClassName("note");
-            const holdNotes = lane.getElementsByClassName("hold-note");
+            heldKeys[event.key] = false;
+        }
+    });
 
-            if (notes.length > 0) {
-                const note = notes[0];
-                const notePos = parseInt(note.style.top);
+    function checkNoteHit(key) {
+        const lane = lanes[key];
+        const notes = lane.getElementsByClassName("note");
+        const holdNotes = lane.getElementsByClassName("hold-note");
 
-                if (notePos > 520 && notePos < 580) {
-                    score += 100;
-                    note.remove();
-                }
+        if (notes.length > 0) {
+            const note = notes[0];
+            const notePos = parseInt(note.style.top);
+
+            if (notePos > 520 && notePos < 580) {
+                score += 100;
+                note.remove();
             }
+        }
 
-            if (holdNotes.length > 0) {
-                const holdNote = holdNotes[0];
-                const holdPos = parseInt(holdNote.style.top);
+        if (holdNotes.length > 0) {
+            const holdNote = holdNotes[0];
+            const holdPos = parseInt(holdNote.style.top);
 
-                if (holdPos > 520 && holdPos < 580) {
-                    score += 150;
+            // Register hold only if key is held down continuously
+            if (heldKeys[key] && holdPos > 520 && holdPos < 580) {
+                score += 2; // Score increments for holding
+                holdNote.style.height = `${parseInt(holdNote.style.height) - 4}px`;
+
+                if (parseInt(holdNote.style.height) <= 0) {
                     holdNote.remove();
                 }
             }
-
-            scoreDisplay.textContent = score;
         }
-    });
+
+        scoreDisplay.textContent = score;
+    }
 
     startButton.addEventListener("click", () => {
         startButton.style.display = "none";
@@ -89,15 +107,22 @@ document.addEventListener("DOMContentLoaded", () => {
         const chart = [];
         const keys = ["d", "f", "j", "k"];
         let currentTime = 1000;
+        const minGap = 300;
 
-        // Create notes throughout the entire song (~3:50 min)
+        // Generate notes for the whole song (~3:50 min)
         while (currentTime < 230000) {
             const key = keys[Math.floor(Math.random() * keys.length)];
             const type = Math.random() > 0.8 ? "hold" : "tap";
             const duration = type === "hold" ? Math.random() * 2000 + 1000 : 0;
 
-            chart.push({ time: currentTime, key, type, duration });
-            currentTime += Math.random() * 800 + 300; // Randomize note intervals
+            // Ensure no overlapping
+            if (
+                chart.length === 0 ||
+                currentTime - chart[chart.length - 1].time >= minGap
+            ) {
+                chart.push({ time: currentTime, key, type, duration });
+                currentTime += Math.random() * 800 + 300;
+            }
         }
 
         return chart;
