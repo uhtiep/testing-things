@@ -120,3 +120,20 @@ body {
   background: rgba(0, 255, 0, 0.5);  /* Semi-transparent green to indicate hit zone */
   border-radius: 5px;
 }
+
+/* Combo Display */
+#combo {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+#combo img {
+  width: 30px;
+  height: 40px;
+}

@@ -8,13 +8,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const chart = generateFullChart();
     let score = 0;
-    let gameStarted = false;
+    let combo = 0;
     const scoreDisplay = document.getElementById("score");
     const music = document.getElementById("music");
     const startButton = document.getElementById("startButton");
 
     const heldKeys = {};
     const holdNotes = [];
+    const comboDisplay = document.getElementById("combo");
 
     function createNote(key, type, duration = 0) {
         const note = document.createElement("div");
@@ -37,6 +38,9 @@ document.addEventListener("DOMContentLoaded", () => {
         let position = -40;
         const fallSpeed = 4;
 
+        // Adjust spawn to be near the top (not too close to the bottom)
+        position = Math.random() * 100 - 40;
+
         function moveNote() {
             position += fallSpeed;
             note.style.top = position + "px";
@@ -54,8 +58,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function startGame() {
-        if (gameStarted) return; // Prevent starting the game multiple times
-        gameStarted = true;
         music.currentTime = 0;
         music.play();
 
@@ -90,7 +92,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (notePos > 520 && notePos < 580) {
                 score += 100;
+                combo += 1;
                 note.remove();
+                updateComboDisplay(combo);
                 showEffect(lane, "nice-popup");
             }
         }
@@ -112,7 +116,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 const timeHeld = performance.now() - startTime;
                 if (timeHeld >= duration) {
                     score += 100;
+                    combo += 1;
                     note.remove();
+                    updateComboDisplay(combo);
                     showEffect(lane, "nice-popup");
                 }
             }
@@ -126,6 +132,26 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    function updateComboDisplay(combo) {
+        // Reset combo images
+        comboDisplay.innerHTML = '';
+
+        // Display combo number with images
+        const comboStr = combo.toString();
+        comboStr.split('').forEach(digit => {
+            const img = document.createElement('img');
+            img.src = `${digit}.png`; // Load corresponding digit image
+            img.alt = digit;
+            comboDisplay.appendChild(img);
+        });
+
+        // Display combo label
+        const comboLabel = document.createElement('img');
+        comboLabel.src = 'combo.png';
+        comboLabel.alt = 'Combo';
+        comboDisplay.appendChild(comboLabel);
+    }
+
     function showEffect(lane, effectClass) {
         const effect = document.createElement("div");
         effect.className = effectClass;
@@ -136,8 +162,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     startButton.addEventListener("click", () => {
         score = 0;
+        combo = 0;
         scoreDisplay.textContent = score;
-        gameStarted = false;
+        comboDisplay.innerHTML = ''; // Clear combo display
         startButton.style.display = "none";
         startGame();
     });
@@ -153,10 +180,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const type = Math.random() > 0.8 ? "hold" : "tap";
             const duration = type === "hold" ? Math.random() * 2000 + 1000 : 0;
 
-            if (
-                chart.length === 0 ||
-                currentTime - chart[chart.length - 1].time >= minGap
-            ) {
+            // Prevent spawning too close to each other
+            if (chart.length === 0 || currentTime - chart[chart.length - 1].time >= minGap) {
                 chart.push({ time: currentTime, key, type, duration });
                 currentTime += Math.random() * 800 + 300;
             }
