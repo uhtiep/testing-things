@@ -1,41 +1,82 @@
+/* OSU!mania Style Design */
 body {
-  text-align: center;
-  background-color: black;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(90deg, #1A1A1A, #2D2D2D);
   color: white;
-  font-family: Arial, sans-serif;
+  font-family: 'Arial', sans-serif;
   overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  flex-direction: column;
 }
 
+/* Game Container */
 .game-container {
   display: flex;
   justify-content: center;
-  margin-top: 50px;
+  border: 3px solid #FFFFFF;
+  border-radius: 8px;
+  box-shadow: 0 0 20px #00FFFF;
 }
 
+/* Lanes */
 .lane {
-  width: 100px;
+  width: 120px;
   height: 600px;
-  border: 2px solid white;
-  margin: 10px;
+  margin: 0 5px;
   position: relative;
-  font-size: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   overflow: hidden;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid #FFFFFF;
+  display: flex;
+  align-items: flex-end;
 }
 
+/* Note Styling */
 .note {
-  width: 80px;
+  width: 100px;
   height: 30px;
-  background: red;
   position: absolute;
   left: 10px;
+  background: linear-gradient(180deg, #FF69B4, #FF1493);
+  border-radius: 5px;
+  box-shadow: 0 0 10px #FF69B4;
 }
 
+/* Hold Note */
 .hold-note {
-  width: 80px;
+  width: 100px;
   position: absolute;
   left: 10px;
-  background: rgba(0, 255, 0, 0.5); /* 50% transparent */
+  background: rgba(0, 255, 127, 0.5);
+  border-radius: 5px;
+  box-shadow: 0 0 10px #00FF7F;
+}
+
+/* Score Display */
+.score-container {
+  margin-top: 20px;
+  font-size: 30px;
+  text-shadow: 0 0 10px cyan;
+}
+
+/* Start Button */
+#startButton {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 20px;
+  color: #FFFFFF;
+  background: linear-gradient(90deg, #00FFFF, #008B8B);
+  border: none;
+  border-radius: 5px;
+  box-shadow: 0 0 15px #00FFFF;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+#startButton:hover {
+  transform: scale(1.1);
 }
