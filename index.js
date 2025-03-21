@@ -4,12 +4,32 @@ document.addEventListener("DOMContentLoaded", () => {
         "n": document.getElementById("n-lane")
     };
 
+    // Chart synchronized with "kikuo_-_Aishite_(Hydr0.org).mp3"
     const chart = [
-        { time: 1000, key: "c", type: "tap" },
-        { time: 1500, key: "n", type: "tap" },
-        { time: 2200, key: "c", type: "hold", duration: 1200 },
-        { time: 4000, key: "n", type: "tap" },
-        { time: 5500, key: "c", type: "hold", duration: 1800 },
+        { time: 1500, key: "c", type: "tap" },
+        { time: 3000, key: "n", type: "tap" },
+        { time: 4500, key: "c", type: "tap" },
+        { time: 6000, key: "n", type: "tap" },
+        { time: 7500, key: "c", type: "hold", duration: 1500 },
+        { time: 10000, key: "n", type: "tap" },
+        { time: 11500, key: "c", type: "tap" },
+        { time: 13000, key: "n", type: "hold", duration: 2000 },
+        { time: 16500, key: "c", type: "tap" },
+        { time: 18000, key: "n", type: "tap" },
+        { time: 19500, key: "c", type: "tap" },
+        { time: 21000, key: "n", type: "tap" },
+        { time: 23000, key: "c", type: "hold", duration: 3000 },
+        { time: 27000, key: "n", type: "tap" },
+        { time: 28500, key: "c", type: "tap" },
+        { time: 30000, key: "n", type: "hold", duration: 2500 },
+        { time: 34000, key: "c", type: "tap" },
+        { time: 35500, key: "n", type: "tap" },
+        { time: 37000, key: "c", type: "tap" },
+        { time: 38500, key: "n", type: "tap" },
+        { time: 40500, key: "c", type: "hold", duration: 3500 },
+        { time: 46000, key: "n", type: "tap" },
+        { time: 47500, key: "c", type: "tap" },
+        { time: 49000, key: "n", type: "hold", duration: 3000 },
     ];
 
     let score = 0;
