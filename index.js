@@ -15,11 +15,16 @@ document.addEventListener("DOMContentLoaded", () => {
     let score = 0;
     const scoreDisplay = document.getElementById("score");
     const music = document.getElementById("music");
+    const startButton = document.getElementById("startButton");
 
     function createNote(key, type, duration = 0) {
         const note = document.createElement("div");
         note.classList.add(type === "hold" ? "hold-note" : "note");
-        if (type === "hold") note.style.height = `${duration / 3}px`;
+
+        if (type === "hold") {
+            note.style.height = `${duration / 3}px`;
+        }
+
         lanes[key].appendChild(note);
 
         let position = -40;
@@ -40,23 +45,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function startGame() {
         music.play();
-        chart.forEach(note => {
+
+        chart.forEach((note) => {
             setTimeout(() => {
                 createNote(note.key, note.type, note.duration);
             }, note.time);
         });
     }
 
+    // Input handling for C and N keys
     document.addEventListener("keydown", (event) => {
         if (event.key === "c" || event.key === "n") {
-            let lane = lanes[event.key];
-            let notes = lane.getElementsByClassName("note");
-            let holdNotes = lane.getElementsByClassName("hold-note");
+            const lane = lanes[event.key];
+            const notes = lane.getElementsByClassName("note");
+            const holdNotes = lane.getElementsByClassName("hold-note");
 
             if (notes.length > 0) {
-                let note = notes[0];
-                let notePos = parseInt(note.style.top);
+                const note = notes[0];
+                const notePos = parseInt(note.style.top);
 
+                // Check if the note is in the hit window
                 if (notePos > 520 && notePos < 580) {
                     score += 100;
                     note.remove();
@@ -64,9 +72,10 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             if (holdNotes.length > 0) {
-                let holdNote = holdNotes[0];
-                let holdPos = parseInt(holdNote.style.top);
+                const holdNote = holdNotes[0];
+                const holdPos = parseInt(holdNote.style.top);
 
+                // Check if hold note is within the hit window
                 if (holdPos > 520 && holdPos < 580) {
                     score += 150;
                     holdNote.remove();
@@ -77,5 +86,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    setTimeout(startGame, 1000);
+    startButton.addEventListener("click", () => {
+        startButton.style.display = "none";
+        startGame();
+    });
 });
