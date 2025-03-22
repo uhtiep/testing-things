@@ -17,6 +17,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const musicUpload = document.getElementById("musicUpload");
     const comboImage = document.getElementById("combo-image");
 
+    const chartMusicMap = {
+        "custom test.json": "test.mp3",
+        "invincible.json": "invincible.mp3"
+    };
+
     function createNote(key, type, duration = 0) {
         const note = document.createElement("div");
         note.classList.add(type === "hold" ? "hold-note" : "note");
@@ -120,6 +125,12 @@ document.addEventListener("DOMContentLoaded", () => {
             reader.onload = (e) => {
                 try {
                     chart = JSON.parse(e.target.result);
+                    const chartName = file.name;
+                    if (chartMusicMap[chartName]) {
+                        music.src = chartMusicMap[chartName];
+                    } else {
+                        alert("No associated music found for this chart!");
+                    }
                 } catch (error) {
                     alert("Invalid chart format");
                 }
@@ -142,14 +153,28 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(response => response.json())
             .then(data => {
                 chart = data;
+                if (chartMusicMap[selectedChart]) {
+                    music.src = chartMusicMap[selectedChart];
+                } else {
+                    alert("No associated music found for this chart!");
+                }
             })
             .catch(() => alert("Failed to load chart."));
     });
 
-    // Load initial chart
+    // Preload charts and associated music
+    Object.keys(chartMusicMap).forEach(chart => {
+        const option = document.createElement("option");
+        option.value = chart;
+        option.textContent = chart;
+        chartSelect.appendChild(option);
+    });
+
+    // Load default chart
     fetch("custom test.json")
         .then(response => response.json())
         .then(data => {
             chart = data;
+            music.src = "test.mp3";
         });
 });
