@@ -6,31 +6,24 @@ document.addEventListener("DOMContentLoaded", () => {
         "k": document.getElementById("k-lane")
     };
 
-    const chart = generateFullChart();
-    let score = 0;
-    let combo = 0;
     const scoreDisplay = document.getElementById("score");
     const music = document.getElementById("music");
     const startButton = document.getElementById("startButton");
-
-    const heldKeys = {};
-    const holdNotes = [];
     const comboDisplay = document.getElementById("combo");
+
+    let score = 0;
+    let combo = 0;
+    let chart = [];
+    const heldKeys = {};
+    let lastNoteTime = 0;
+    const minNoteGap = 400; // Prevent notes from spawning too close
 
     function createNote(key, type, duration = 0) {
         const note = document.createElement("div");
         note.classList.add(type === "hold" ? "hold-note" : "note");
 
         if (type === "hold") {
-            note.style.height = `${duration / 3}px`; // Make hold notes taller
-            note.dataset.duration = duration;
-            note.dataset.startTime = performance.now(); // Store start time for hold note
-            holdNotes.push(note);
-
-            // Create the visible hit zone
-            const hitZone = document.createElement("div");
-            hitZone.classList.add("hit-zone");
-            note.appendChild(hitZone);
+            note.style.height = `${duration / 3}px`;
         }
 
         lanes[key].appendChild(note);
@@ -38,18 +31,12 @@ document.addEventListener("DOMContentLoaded", () => {
         let position = -40;
         const fallSpeed = 4;
 
-        // Adjust spawn to be near the top (not too close to the bottom)
-        position = Math.random() * 100 - 40;
-
         function moveNote() {
             position += fallSpeed;
             note.style.top = position + "px";
 
             if (position > 600) {
                 note.remove();
-                if (type === "hold") {
-                    removeHoldNote(note); // Remove hold note when it's missed
-                }
             } else {
                 requestAnimationFrame(moveNote);
             }
@@ -59,11 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function startGame() {
         music.currentTime = 0;
-        music.play().then(() => {
-            console.log("Music started playing.");
-        }).catch((error) => {
-            console.error("Error playing music:", error);
-        });
+        music.play();
 
         chart.forEach((note) => {
             setTimeout(() => {
@@ -82,7 +65,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener("keyup", (event) => {
         if (lanes[event.key]) {
             heldKeys[event.key] = false;
-            handleHoldNoteRelease(event.key);
         }
     });
 
@@ -96,81 +78,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (notePos > 520 && notePos < 580) {
                 score += 100;
-                combo += 1;
+                combo++;
+                updateCombo();
                 note.remove();
-                updateComboDisplay(combo);
-                showEffect(lane, "nice-popup");
+            } else {
+                combo = 0; // Reset combo on miss
+                updateCombo();
             }
         }
         scoreDisplay.textContent = score;
     }
 
-    function handleHoldNoteRelease(key) {
-        const lane = lanes[key];
-        const holdNotesInLane = lane.getElementsByClassName("hold-note");
-
-        if (holdNotesInLane.length > 0) {
-            const note = holdNotesInLane[0];
-            const notePos = parseInt(note.style.top);
-            const startTime = parseFloat(note.dataset.startTime);
-            const duration = parseFloat(note.dataset.duration);
-
-            // Check if the key was released during the hold note
-            if (notePos > 520 && notePos < 580) {
-                const timeHeld = performance.now() - startTime;
-                if (timeHeld >= duration) {
-                    score += 100;
-                    combo += 1;
-                    note.remove();
-                    updateComboDisplay(combo);
-                    showEffect(lane, "nice-popup");
-                }
-            }
-        }
-    }
-
-    function removeHoldNote(note) {
-        const index = holdNotes.indexOf(note);
-        if (index !== -1) {
-            holdNotes.splice(index, 1);
-        }
-    }
-
-    function updateComboDisplay(combo) {
-        // Reset combo images
-        comboDisplay.innerHTML = '';
-
-        // Display combo number with images
+    function updateCombo() {
+        comboDisplay.innerHTML = "";
         const comboStr = combo.toString();
-        comboStr.split('').forEach(digit => {
-            const img = document.createElement('img');
-            img.src = `${digit}.png`; // Load corresponding digit image
-            img.alt = digit;
+        for (let i = 0; i < comboStr.length; i++) {
+            let img = document.createElement("img");
+            img.src = comboStr[i] + ".png";
             comboDisplay.appendChild(img);
-        });
-
-        // Display combo label
-        const comboLabel = document.createElement('img');
-        comboLabel.src = 'combo.png';
-        comboLabel.alt = 'Combo';
-        comboDisplay.appendChild(comboLabel);
-    }
-
-    function showEffect(lane, effectClass) {
-        const effect = document.createElement("div");
-        effect.className = effectClass;
-        lane.appendChild(effect);
-
-        setTimeout(() => effect.remove(), 700);
+        }
+        let comboText = document.createElement("img");
+        comboText.src = "combo.png";
+        comboDisplay.appendChild(comboText);
     }
 
     startButton.addEventListener("click", () => {
-        // Ensure that the start button disappears after being clicked
         startButton.style.display = "none";
-        score = 0;
-        combo = 0;
-        scoreDisplay.textContent = score;
-        comboDisplay.innerHTML = ''; // Clear combo display
         startGame();
     });
 
@@ -178,20 +111,49 @@ document.addEventListener("DOMContentLoaded", () => {
         const chart = [];
         const keys = ["d", "f", "j", "k"];
         let currentTime = 1000;
-        const minGap = 300;
 
         while (currentTime < 230000) {
             const key = keys[Math.floor(Math.random() * keys.length)];
             const type = Math.random() > 0.8 ? "hold" : "tap";
             const duration = type === "hold" ? Math.random() * 2000 + 1000 : 0;
 
-            // Prevent spawning too close to each other
-            if (chart.length === 0 || currentTime - chart[chart.length - 1].time >= minGap) {
+            if (currentTime - lastNoteTime >= minNoteGap) {
                 chart.push({ time: currentTime, key, type, duration });
+                lastNoteTime = currentTime;
                 currentTime += Math.random() * 800 + 300;
             }
         }
 
         return chart;
     }
+
+    function loadChart(file) {
+        fetch(file)
+            .then(response => response.json())
+            .then(data => {
+                chart = data;
+                console.log("Custom chart loaded.");
+            })
+            .catch(error => console.error("Error loading chart:", error));
+    }
+
+    // Default chart
+    chart = generateFullChart();
+
+    // Allow file selection for custom charts
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = ".json";
+    fileInput.addEventListener("change", (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                chart = JSON.parse(e.target.result);
+                console.log("Loaded custom chart:", chart);
+            };
+            reader.readAsText(file);
+        }
+    });
+    document.body.appendChild(fileInput);
 });

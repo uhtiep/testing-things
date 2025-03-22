@@ -2,30 +2,25 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OSU!mania Rhythm Game</title>
+    <title>Rhythm Game</title>
     <link rel="stylesheet" href="fye.css">
 </head>
 
 <body>
-    <audio id="music" preload="auto">
-        <source src="kiko.mp3" type="audio/mpeg">
-    </audio>
-
-    <div class="game-container">
-        <div class="lane" id="d-lane">D</div>
-        <div class="lane" id="f-lane">F</div>
-        <div class="lane" id="j-lane">J</div>
-        <div class="lane" id="k-lane">K</div>
+    <div id="game-container">
+        <div id="d-lane" class="lane"></div>
+        <div id="f-lane" class="lane"></div>
+        <div id="j-lane" class="lane"></div>
+        <div id="k-lane" class="lane"></div>
     </div>
 
-    <div class="score-container">Score: <span id="score">0</span></div>
-
     <button id="startButton">Start Game</button>
+    <div id="score">0</div>
+    <div id="combo"></div>
+
+    <audio id="music" src="kiko.mp3"></audio>
 
     <script src="index.js"></script>
-
 </body>
 
 </html>
