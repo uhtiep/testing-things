@@ -1,139 +1,99 @@
-/* OSU!mania Style Design */
 body {
   margin: 0;
   padding: 0;
-  background: linear-gradient(90deg, #1A1A1A, #2D2D2D);
+  box-sizing: border-box;
+  background: black;
   color: white;
-  font-family: 'Arial', sans-serif;
+  font-family: Arial, sans-serif;
   overflow: hidden;
+  text-align: center;
+}
+
+/* Game Container */
+#game-container {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  flex-direction: column;
 }
 
-/* Game Container */
-.game-container {
+/* Lanes for Notes */
+.lane-container {
   display: flex;
-  justify-content: center;
-  border: 3px solid #FFFFFF;
-  border-radius: 8px;
-  box-shadow: 0 0 20px #00FFFF;
+  gap: 10px;
 }
 
-/* Lanes */
 .lane {
-  width: 120px;
+  width: 100px;
   height: 600px;
-  margin: 0 5px;
+  border: 2px solid white;
   position: relative;
   overflow: hidden;
-  background: rgba(0, 0, 0, 0.7);
-  border: 1px solid #FFFFFF;
-  display: flex;
-  align-items: flex-end;
 }
 
-/* Note Styling */
-.note {
-  width: 100px;
-  height: 30px;
+/* Notes and Hold Notes */
+.note, .hold-note {
   position: absolute;
-  left: 10px;
-  background: linear-gradient(180deg, #FF69B4, #FF1493);
-  border-radius: 5px;
-  box-shadow: 0 0 10px #FF69B4;
+  width: 80px;
+  height: 40px;
+  background: linear-gradient(to bottom, cyan, blue);
+  border-radius: 10px;
 }
 
-/* Hold Note */
+/* Hold Note Extension */
 .hold-note {
-  width: 100px;
-  position: absolute;
-  left: 10px;
-  background: rgba(0, 255, 127, 0.5);
-  border-radius: 5px;
-  box-shadow: 0 0 10px #00FF7F;
+  background: linear-gradient(to bottom, yellow, orange);
 }
 
 /* Score Display */
-.score-container {
-  margin-top: 20px;
-  font-size: 30px;
-  text-shadow: 0 0 10px cyan;
+#score {
+  font-size: 40px;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+}
+
+/* Combo Display */
+#combo-image {
+  display: flex;
+  position: absolute;
+  top: 100px;
+  left: 20px;
+  gap: 5px;
+  align-items: center;
 }
 
 /* Start Button */
 #startButton {
-  margin-top: 20px;
   padding: 10px 20px;
-  font-size: 20px;
-  color: #FFFFFF;
-  background: linear-gradient(90deg, #00FFFF, #008B8B);
+  font-size: 24px;
+  background-color: #00ffcc;
   border: none;
-  border-radius: 5px;
-  box-shadow: 0 0 15px #00FFFF;
+  border-radius: 10px;
   cursor: pointer;
-  transition: transform 0.2s;
 }
 
-#startButton:hover {
-  transform: scale(1.1);
-}
-
-/* Spark Effect */
-.spark {
+/* Upload & Chart Select Section */
+#controls {
   position: absolute;
-  width: 60px;
-  height: 60px;
-  background: url('spark.jpeg') no-repeat center/contain;
-  pointer-events: none;
-  animation: fadeOut 0.5s linear;
+  bottom: 20px;
+  left: 20px;
 }
 
-/* Nice Popup */
-.nice-popup {
-  position: absolute;
-  width: 80px;
-  height: 40px;
-  background: url('nice.jpeg') no-repeat center/contain;
-  pointer-events: none;
-  animation: fadeOut 0.7s linear;
+#chartSelect, #chartUpload, #musicUpload {
+  margin: 10px;
+  padding: 8px;
+  border: 1px solid white;
+  border-radius: 5px;
+  background: #333;
+  color: white;
 }
 
-/* Fade-out Animation */
-@keyframes fadeOut {
-  from {
-      opacity: 1;
-  }
-  to {
-      opacity: 0;
-  }
-}
-/* Visible Hit Zone */
+/* Note Hit Zone (Visual Cue) */
 .hit-zone {
   position: absolute;
-  bottom: 0;
-  left: 0;
+  bottom: 20px;
   width: 100px;
-  height: 30px;  /* The hitbox height */
-  background: rgba(0, 255, 0, 0.5);  /* Semi-transparent green to indicate hit zone */
-  border-radius: 5px;
-}
-
-/* Combo Display */
-#combo {
-  position: absolute;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-}
-
-#combo img {
-  width: 30px;
-  height: 40px;
+  height: 10px;
+  background: red;
 }

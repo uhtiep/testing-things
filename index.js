@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const musicUpload = document.getElementById("musicUpload");
     const comboImage = document.getElementById("combo-image");
 
+    // Mapping charts to their respective music
     const chartMusicMap = {
         "custom test.json": "test.mp3",
         "invincible.json": "invincible.mp3"
@@ -101,8 +102,18 @@ document.addEventListener("DOMContentLoaded", () => {
     function updateComboUI() {
         if (combo > 0) {
             comboImage.style.display = "inline";
+            comboImage.innerHTML = "";
+
             const digits = combo.toString().split("").map(Number);
-            comboImage.innerHTML = digits.map(d => `<img src="${d}.png" />`).join("") + '<img src="combo.png" />';
+            digits.forEach(digit => {
+                const img = document.createElement("img");
+                img.src = `${digit}.png`;
+                comboImage.appendChild(img);
+            });
+
+            const comboText = document.createElement("img");
+            comboText.src = "combo.png";
+            comboImage.appendChild(comboText);
         } else {
             comboImage.style.display = "none";
         }
@@ -162,7 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
             .catch(() => alert("Failed to load chart."));
     });
 
-    // Preload charts and associated music
+    // Populate chart selection and preload charts with music
     Object.keys(chartMusicMap).forEach(chart => {
         const option = document.createElement("option");
         option.value = chart;
@@ -170,7 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
         chartSelect.appendChild(option);
     });
 
-    // Load default chart
+    // Load the default chart and music
     fetch("custom test.json")
         .then(response => response.json())
         .then(data => {
