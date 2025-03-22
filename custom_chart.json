@@ -1,0 +1,27 @@
+{
+    "music": "path/to/musicfile.mp3",
+    "notes": [
+      {
+        "time": 0,
+        "key": "d",
+        "type": "hit"
+      },
+      {
+        "time": 500,
+        "key": "f",
+        "type": "hit"
+      },
+      {
+        "time": 1000,
+        "key": "j",
+        "type": "hold",
+        "duration": 500
+      },
+      {
+        "time": 1500,
+        "key": "k",
+        "type": "hit"
+      }
+    ]
+  }
+  

@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rhythm Game</title>
     <link rel="stylesheet" href="fye.css">
 </head>
-
 <body>
     <div id="game-container">
         <div id="d-lane" class="lane"></div>
@@ -18,9 +18,17 @@
     <div id="score">0</div>
     <div id="combo"></div>
 
+    <!-- Chart and Music Upload Section -->
+    <div id="controls">
+        <select id="chartSelect">
+            <option value="">Select Chart</option>
+        </select>
+        <input type="file" id="chartUpload" accept=".json" />
+        <input type="file" id="musicUpload" accept="audio/*" />
+    </div>
+
     <audio id="music" src="kiko.mp3"></audio>
 
     <script src="index.js"></script>
 </body>
-
 </html>
