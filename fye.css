@@ -9,22 +9,27 @@ body {
   text-align: center;
 }
 
-/* Game Container */
+/* Game Container (OSU!mania style) */
 #game-container {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   height: 100vh;
+  width: 100vw;
 }
 
 /* Lanes for Notes */
 .lane-container {
   display: flex;
+  flex-direction: column;
   gap: 10px;
+  height: 600px;
+  position: relative;
 }
 
+/* Single Lane */
 .lane {
-  width: 100px;
+  width: 80px;
   height: 600px;
   border: 2px solid white;
   position: relative;
@@ -34,7 +39,7 @@ body {
 /* Notes and Hold Notes */
 .note, .hold-note {
   position: absolute;
-  width: 80px;
+  width: 60px;
   height: 40px;
   background: linear-gradient(to bottom, cyan, blue);
   border-radius: 10px;
@@ -43,6 +48,9 @@ body {
 /* Hold Note Extension */
 .hold-note {
   background: linear-gradient(to bottom, yellow, orange);
+  width: 60px;
+  border-radius: 5px;
+  height: 100%;
 }
 
 /* Score Display */
@@ -93,7 +101,7 @@ body {
 .hit-zone {
   position: absolute;
   bottom: 20px;
-  width: 100px;
+  width: 80px;
   height: 10px;
   background: red;
 }
