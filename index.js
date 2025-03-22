@@ -6,17 +6,16 @@ document.addEventListener("DOMContentLoaded", () => {
         "k": document.getElementById("k-lane")
     };
 
+    let chart = [];
+    let score = 0;
+    let combo = 0;
     const scoreDisplay = document.getElementById("score");
     const music = document.getElementById("music");
     const startButton = document.getElementById("startButton");
-    const comboDisplay = document.getElementById("combo");
-
-    let score = 0;
-    let combo = 0;
-    let chart = [];
-    const heldKeys = {};
-    let lastNoteTime = 0;
-    const minNoteGap = 400; // Prevent notes from spawning too close
+    const chartSelect = document.getElementById("chartSelect");
+    const chartUpload = document.getElementById("chartUpload");
+    const musicUpload = document.getElementById("musicUpload");
+    const comboImage = document.getElementById("combo-image");
 
     function createNote(key, type, duration = 0) {
         const note = document.createElement("div");
@@ -24,6 +23,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (type === "hold") {
             note.style.height = `${duration / 3}px`;
+            note.style.top = `-${duration / 3}px`;
+        } else {
+            note.style.top = "-40px";
         }
 
         lanes[key].appendChild(note);
@@ -37,6 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (position > 600) {
                 note.remove();
+                resetCombo();
             } else {
                 requestAnimationFrame(moveNote);
             }
@@ -45,8 +48,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function startGame() {
-        music.currentTime = 0;
-        music.play();
+        if (music.readyState >= 2) {
+            music.currentTime = 0;
+            music.play();
+        }
 
         chart.forEach((note) => {
             setTimeout(() => {
@@ -54,6 +59,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }, note.time);
         });
     }
+
+    const heldKeys = {};
 
     document.addEventListener("keydown", (event) => {
         if (!heldKeys[event.key] && lanes[event.key]) {
@@ -79,27 +86,26 @@ document.addEventListener("DOMContentLoaded", () => {
             if (notePos > 520 && notePos < 580) {
                 score += 100;
                 combo++;
-                updateCombo();
                 note.remove();
-            } else {
-                combo = 0; // Reset combo on miss
-                updateCombo();
+                updateComboUI();
             }
         }
         scoreDisplay.textContent = score;
     }
 
-    function updateCombo() {
-        comboDisplay.innerHTML = "";
-        const comboStr = combo.toString();
-        for (let i = 0; i < comboStr.length; i++) {
-            let img = document.createElement("img");
-            img.src = comboStr[i] + ".png";
-            comboDisplay.appendChild(img);
+    function updateComboUI() {
+        if (combo > 0) {
+            comboImage.style.display = "inline";
+            const digits = combo.toString().split("").map(Number);
+            comboImage.innerHTML = digits.map(d => `<img src="${d}.png" />`).join("") + '<img src="combo.png" />';
+        } else {
+            comboImage.style.display = "none";
         }
-        let comboText = document.createElement("img");
-        comboText.src = "combo.png";
-        comboDisplay.appendChild(comboText);
+    }
+
+    function resetCombo() {
+        combo = 0;
+        updateComboUI();
     }
 
     startButton.addEventListener("click", () => {
@@ -107,53 +113,43 @@ document.addEventListener("DOMContentLoaded", () => {
         startGame();
     });
 
-    function generateFullChart() {
-        const chart = [];
-        const keys = ["d", "f", "j", "k"];
-        let currentTime = 1000;
-
-        while (currentTime < 230000) {
-            const key = keys[Math.floor(Math.random() * keys.length)];
-            const type = Math.random() > 0.8 ? "hold" : "tap";
-            const duration = type === "hold" ? Math.random() * 2000 + 1000 : 0;
-
-            if (currentTime - lastNoteTime >= minNoteGap) {
-                chart.push({ time: currentTime, key, type, duration });
-                lastNoteTime = currentTime;
-                currentTime += Math.random() * 800 + 300;
-            }
-        }
-
-        return chart;
-    }
-
-    function loadChart(file) {
-        fetch(file)
-            .then(response => response.json())
-            .then(data => {
-                chart = data;
-                console.log("Custom chart loaded.");
-            })
-            .catch(error => console.error("Error loading chart:", error));
-    }
-
-    // Default chart
-    chart = generateFullChart();
-
-    // Allow file selection for custom charts
-    const fileInput = document.createElement("input");
-    fileInput.type = "file";
-    fileInput.accept = ".json";
-    fileInput.addEventListener("change", (event) => {
+    chartUpload.addEventListener("change", (event) => {
         const file = event.target.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onload = function (e) {
-                chart = JSON.parse(e.target.result);
-                console.log("Loaded custom chart:", chart);
+            reader.onload = (e) => {
+                try {
+                    chart = JSON.parse(e.target.result);
+                } catch (error) {
+                    alert("Invalid chart format");
+                }
             };
             reader.readAsText(file);
         }
     });
-    document.body.appendChild(fileInput);
+
+    musicUpload.addEventListener("change", (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const objectURL = URL.createObjectURL(file);
+            music.src = objectURL;
+        }
+    });
+
+    chartSelect.addEventListener("change", () => {
+        const selectedChart = chartSelect.value;
+        fetch(selectedChart)
+            .then(response => response.json())
+            .then(data => {
+                chart = data;
+            })
+            .catch(() => alert("Failed to load chart."));
+    });
+
+    // Load initial chart
+    fetch("custom test.json")
+        .then(response => response.json())
+        .then(data => {
+            chart = data;
+        });
 });

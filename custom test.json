@@ -1,0 +1,6 @@
+[
+    { "time": 1000, "key": "d", "type": "tap" },
+    { "time": 1500, "key": "f", "type": "tap" },
+    { "time": 2000, "key": "j", "type": "hold", "duration": 2000 },
+    { "time": 5000, "key": "k", "type": "tap" }
+]
