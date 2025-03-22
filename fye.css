@@ -14,11 +14,7 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
-}
-
-.lane-container {
-  display: flex;
-  gap: 10px;
+  position: relative;
 }
 
 .lane {
@@ -29,16 +25,21 @@ body {
   overflow: hidden;
 }
 
-.note, .hold-note {
+.note {
   position: absolute;
   width: 80px;
   height: 40px;
   background: linear-gradient(to bottom, cyan, blue);
   border-radius: 10px;
+  transition: all 0.1s ease;
 }
 
 .hold-note {
+  position: absolute;
+  width: 80px;
   background: linear-gradient(to bottom, yellow, orange);
+  border-radius: 10px;
+  transition: all 0.1s ease;
 }
 
 #score {
