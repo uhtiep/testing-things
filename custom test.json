@@ -2,17 +2,17 @@
     "music": "kiko.mp3",
     "notes": [
       {
-        "time": 0,
+        "time": 2,
         "key": "d",
         "type": "hit"
       },
       {
-        "time": 500,
+        "time": 4,
         "key": "f",
         "type": "hit"
       },
       {
-        "time": 1000,
+        "time": 5,
         "key": "j",
         "type": "hold",
         "duration": 500
