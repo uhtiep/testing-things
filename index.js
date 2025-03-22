@@ -34,6 +34,9 @@ document.addEventListener("DOMContentLoaded", () => {
             note.style.top = "-40px";
         }
 
+        // Set position in the lane
+        note.style.left = `${lanes[key].offsetLeft + 10}px`; // Ensures it's placed correctly
+
         lanes[key].appendChild(note);
 
         let position = -40;
