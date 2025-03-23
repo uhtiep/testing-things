@@ -42,12 +42,6 @@ body {
     transform: scale(1.1);
 }
 
-#balls-container {
-    display: flex;
-    justify-content: center;
-    margin: 20px 0;
-}
-
 #start-btn {
     padding: 10px 20px;
     background-color: #4CAF50;
@@ -55,6 +49,7 @@ body {
     border: none;
     cursor: pointer;
     font-size: 18px;
+    margin-top: 20px;
 }
 
 #start-btn:hover {

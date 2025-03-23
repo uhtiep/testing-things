@@ -7,7 +7,6 @@ function startGame() {
 
     // Initialize the game
     initializeTubes();
-    initializeBalls();
 }
 
 function initializeTubes() {
@@ -23,25 +22,35 @@ function initializeTubes() {
         tube.addEventListener('drop', dropBall);
         tubesContainer.appendChild(tube);
     }
+
+    initializeBalls();
 }
 
 function initializeBalls() {
-    const ballsContainer = document.getElementById('balls-container');
-    ballsContainer.innerHTML = ''; // Clear existing balls
-
+    const tubes = document.querySelectorAll('.tube');
     const colors = ['red', 'blue', 'green']; // Only 3 colors per round
-    const ballCount = 6; // Number of balls to be created
+    const ballsPerTube = 4; // Number of balls per tube (each tube gets balls of one color)
 
-    // Create balls with only the 3 colors
-    for (let i = 0; i < ballCount; i++) {
-        const ball = document.createElement('div');
-        ball.classList.add('ball');
-        ball.style.backgroundColor = colors[i % colors.length]; // Cycle through the 3 colors
-        ball.setAttribute('draggable', true);
-        ball.setAttribute('id', `ball-${i}`);
-        ball.addEventListener('dragstart', dragStart);
-        ballsContainer.appendChild(ball);
-    }
+    // Assign balls to tubes
+    tubes.forEach((tube, index) => {
+        const tubeBalls = [];
+        for (let i = 0; i < ballsPerTube; i++) {
+            const ball = document.createElement('div');
+            ball.classList.add('ball');
+            ball.style.backgroundColor = colors[index]; // Assign a color per tube
+            ball.setAttribute('draggable', true);
+            ball.setAttribute('id', `ball-${index}-${i}`);
+            ball.addEventListener('dragstart', dragStart);
+            tubeBalls.push(ball);
+        }
+
+        // Add the balls to the tube
+        tubeBalls.forEach(ball => {
+            tube.appendChild(ball);
+        });
+    });
+
+    document.getElementById('start-btn').disabled = false; // Enable the button for a new game
 }
 
 function dragStart(event) {
@@ -58,9 +67,34 @@ function dropBall(event) {
     const ball = document.getElementById(ballId);
 
     const tube = event.target;
-    if (tube.classList.contains('tube')) {
-        if (tube.children.length < 5) { // Limit the number of balls in each tube (for example, 5 balls per tube)
+    if (tube.classList.contains('tube') && tube !== ball.parentElement) {
+        const topBall = tube.children[tube.children.length - 1];
+
+        if (topBall && topBall.style.backgroundColor === ball.style.backgroundColor) {
+            // Move the ball only if the top ball of the tube matches the ball's color
             tube.appendChild(ball);
         }
     }
+
+    // Check if the game is won (all tubes have only 1 color)
+    if (checkWinCondition()) {
+        alert("You win!");
+        document.getElementById('start-btn').disabled = false; // Enable the button for a new game
+    }
+}
+
+function checkWinCondition() {
+    const tubes = document.querySelectorAll('.tube');
+
+    // Check if each tube contains only one color of balls
+    for (let tube of tubes) {
+        const balls = tube.children;
+        const firstBallColor = balls[0]?.style.backgroundColor;
+
+        if (!firstBallColor || [...balls].some(ball => ball.style.backgroundColor !== firstBallColor)) {
+            return false; // If any tube has mixed colors, the player hasn't won yet
+        }
+    }
+
+    return true; // All tubes contain only one color
 }
