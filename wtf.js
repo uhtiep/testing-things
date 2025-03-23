@@ -19,6 +19,8 @@ function initializeTubes() {
         const tube = document.createElement('div');
         tube.classList.add('tube');
         tube.setAttribute('id', `tube-${i}`);
+        tube.addEventListener('dragover', dragOver);
+        tube.addEventListener('drop', dropBall);
         tubesContainer.appendChild(tube);
     }
 }
@@ -27,14 +29,14 @@ function initializeBalls() {
     const ballsContainer = document.getElementById('balls-container');
     ballsContainer.innerHTML = ''; // Clear existing balls
 
-    const colors = ['red', 'blue', 'green', 'yellow'];
+    const colors = ['red', 'blue', 'green']; // Only 3 colors per round
     const ballCount = 6; // Number of balls to be created
 
-    // Create balls
+    // Create balls with only the 3 colors
     for (let i = 0; i < ballCount; i++) {
         const ball = document.createElement('div');
         ball.classList.add('ball');
-        ball.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        ball.style.backgroundColor = colors[i % colors.length]; // Cycle through the 3 colors
         ball.setAttribute('draggable', true);
         ball.setAttribute('id', `ball-${i}`);
         ball.addEventListener('dragstart', dragStart);
@@ -45,12 +47,6 @@ function initializeBalls() {
 function dragStart(event) {
     event.dataTransfer.setData("text", event.target.id);
 }
-
-const tubes = document.querySelectorAll('.tube');
-tubes.forEach(tube => {
-    tube.addEventListener('dragover', dragOver);
-    tube.addEventListener('drop', dropBall);
-});
 
 function dragOver(event) {
     event.preventDefault(); // Allow the drop
@@ -63,7 +59,7 @@ function dropBall(event) {
 
     const tube = event.target;
     if (tube.classList.contains('tube')) {
-        if (tube.children.length < 5) { // Limit the number of balls in each tube
+        if (tube.children.length < 5) { // Limit the number of balls in each tube (for example, 5 balls per tube)
             tube.appendChild(ball);
         }
     }
