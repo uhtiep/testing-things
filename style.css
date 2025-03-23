@@ -12,50 +12,60 @@ body {
 
 #tubes-container {
     display: flex;
-    justify-content: space-evenly;
+    justify-content: center;
     margin: 20px 0;
+    position: relative;
+}
+
+.tube, .container {
+    width: 50px;
+    height: 100px;
+    margin: 10px;
+    background-color: #ddd;
+    border-radius: 10px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    border: 2px solid #333;
+    overflow: hidden;
 }
 
 .tube {
-    width: 50px;
     height: 200px;
-    background-color: #ddd;
-    border-radius: 10px;
-    margin: 10px;
-    position: relative;
-    display: flex;
-    flex-direction: column-reverse;
-    justify-content: flex-start;
-    border: 2px solid #333;
+    background-color: lightblue;
 }
 
-.ball {
+.container {
+    height: 150px;
+    background-color: lightgreen;
+}
+
+.water {
     width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    margin: 5px;
-    cursor: pointer;
-    transition: transform 0.2s;
+    height: 20px;
+    background-color: blue;
+    margin-bottom: 5px;
+    transition: height 1s;
 }
 
-.ball:hover {
-    transform: scale(1.1);
+#guesses-container {
+    margin-top: 20px;
 }
 
-#start-btn {
+button {
     padding: 10px 20px;
     background-color: #4CAF50;
     color: white;
     border: none;
     cursor: pointer;
     font-size: 18px;
-    margin-top: 20px;
 }
 
-#start-btn:hover {
+button:hover {
     background-color: #45a049;
 }
 
-audio {
-    display: none;
+#start-btn {
+    margin-top: 20px;
 }
