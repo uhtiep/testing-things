@@ -3,24 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Water Flow Game</title>
+    <title>Physics and Combat Games</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="game-container">
-        <h1>Which Container Will Fill First?</h1>
-        <div id="tubes-container">
-            <!-- Tubes will be generated here -->
-        </div>
-        <div id="guesses-container">
-            <h3>Make Your Guess!</h3>
-            <!-- Guess buttons will be added here -->
-        </div>
-        <button id="start-btn">Start</button>
-        <audio id="background-music" loop>
-            <source src="yipe.mp3" type="audio/mp3">
-        </audio>
+    <div id="home-screen">
+        <h1>Welcome to the Games!</h1>
+        <p>Select an activity:</p>
+        <button onclick="startPhysicsGame()">Physics Testing Game</button>
+        <button onclick="startCombatGame()">Combat Game</button>
     </div>
+
+    <div id="physics-game" style="display:none;">
+        <h2>Physics Testing Game</h2>
+        <canvas id="physicsCanvas"></canvas>
+        <button onclick="goHome()">Go Home</button>
+    </div>
+
+    <div id="combat-game" style="display:none;">
+        <h2>Combat Game</h2>
+        <canvas id="combatCanvas"></canvas>
+        <button onclick="goHome()">Go Home</button>
+    </div>
+
     <script src="wtf.js"></script>
 </body>
 </html>

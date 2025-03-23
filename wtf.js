@@ -1,105 +1,120 @@
-let tubes = [];
-let containers = [];
-let waterFlowing = false;
-let playerGuess = null;
-let isGameOver = false;
+// Set up canvas sizes
+const physicsCanvas = document.getElementById('physicsCanvas');
+const combatCanvas = document.getElementById('combatCanvas');
 
-// Event listener for start button
-document.getElementById('start-btn').addEventListener('click', startFlow);
+const physicsCtx = physicsCanvas.getContext('2d');
+const combatCtx = combatCanvas.getContext('2d');
 
-// Generate random game structure
-function generateGame() {
-    const tubesContainer = document.getElementById('tubes-container');
-    const guessesContainer = document.getElementById('guesses-container');
-    tubesContainer.innerHTML = '';
-    guessesContainer.innerHTML = '';
+let currentGame = null;
 
-    // Randomly place 3 tubes and 3 containers in the layout
-    let tubeIndexes = [1, 2, 3];
-    let containerIndexes = [4, 5, 6];
-
-    // Create tubes
-    tubeIndexes.forEach((index) => {
-        const tube = document.createElement('div');
-        tube.classList.add('tube');
-        tube.setAttribute('id', `tube-${index}`);
-        tubes.push(tube);
-        tubesContainer.appendChild(tube);
-    });
-
-    // Create containers
-    containerIndexes.forEach((index) => {
-        const container = document.createElement('div');
-        container.classList.add('container');
-        container.setAttribute('id', `container-${index}`);
-        containers.push(container);
-        tubesContainer.appendChild(container);
-
-        // Create a guess button for each container
-        const button = document.createElement('button');
-        button.textContent = `Guess Container ${index}`;
-        button.addEventListener('click', () => makeGuess(index));
-        guessesContainer.appendChild(button);
-    });
-
-    // Randomly populate tubes with balls representing water
-    tubes.forEach((tube) => {
-        const water = document.createElement('div');
-        water.classList.add('water');
-        water.style.height = `${Math.random() * 80 + 20}px`; // Random height for water
-        tube.appendChild(water);
-    });
+function goHome() {
+    document.getElementById('home-screen').style.display = 'block';
+    document.getElementById('physics-game').style.display = 'none';
+    document.getElementById('combat-game').style.display = 'none';
 }
 
-// Function for the player to make a guess
-function makeGuess(containerIndex) {
-    if (isGameOver) return;
-    playerGuess = containerIndex;
-    alert(`You guessed that container ${containerIndex} will fill first!`);
+function startPhysicsGame() {
+    document.getElementById('home-screen').style.display = 'none';
+    document.getElementById('physics-game').style.display = 'block';
+    currentGame = 'physics';
+    initPhysicsGame();
 }
 
-// Function to start the water flow
-function startFlow() {
-    if (waterFlowing || isGameOver) return;
-    waterFlowing = true;
-    const flowInterval = setInterval(() => {
-        if (isGameOver) {
-            clearInterval(flowInterval);
-            return;
+function startCombatGame() {
+    document.getElementById('home-screen').style.display = 'none';
+    document.getElementById('combat-game').style.display = 'block';
+    currentGame = 'combat';
+    initCombatGame();
+}
+
+// Physics Game Setup
+function initPhysicsGame() {
+    // Set up canvas dimensions
+    physicsCanvas.width = window.innerWidth;
+    physicsCanvas.height = window.innerHeight;
+    // Example physics objects (planks, nails, etc.)
+    // You could expand this later with more complex physics interactions
+    let planks = [];
+    let gravity = 0.5;
+
+    function createPlank(x, y, width, height) {
+        planks.push({x, y, width, height, velocityY: 0});
+    }
+
+    function updatePhysics() {
+        physicsCtx.clearRect(0, 0, physicsCanvas.width, physicsCanvas.height);
+        for (let plank of planks) {
+            plank.velocityY += gravity;
+            plank.y += plank.velocityY;
+            physicsCtx.fillStyle = '#1e90ff';
+            physicsCtx.fillRect(plank.x, plank.y, plank.width, plank.height);
         }
-        // Simulate water flowing
-        const flowingTube = tubes[Math.floor(Math.random() * tubes.length)];
-        const targetContainer = containers[Math.floor(Math.random() * containers.length)];
+        requestAnimationFrame(updatePhysics);
+    }
 
-        // Check if the water can flow into the container
-        const water = flowingTube.querySelector('.water');
-        if (water) {
-            // Simulate water flowing into container
-            const containerWater = document.createElement('div');
-            containerWater.classList.add('water');
-            containerWater.style.height = `${parseFloat(water.style.height)}px`;
-            targetContainer.appendChild(containerWater);
+    createPlank(200, 0, 100, 20);  // Example plank
+    updatePhysics();
+}
 
-            // Check if the container is filled (assuming a threshold height)
-            if (targetContainer.scrollHeight >= 130) {
-                isGameOver = true;
-                clearInterval(flowInterval);
-                alert(`Container ${targetContainer.id} filled first!`);
-                if (playerGuess === parseInt(targetContainer.id.split('-')[1])) {
-                    alert("You won!");
-                } else {
-                    alert("You lost! Try again.");
-                }
-                document.getElementById('start-btn').disabled = false; // Allow the player to start a new game
-            }
+// Combat Game Setup
+function initCombatGame() {
+    // Set up canvas dimensions
+    combatCanvas.width = window.innerWidth;
+    combatCanvas.height = window.innerHeight;
+
+    let player = { x: 100, y: 100, width: 50, height: 50, image: 'hand.png' };
+    let enemies = [];
+    let isPunching = false;
+    let isShooting = false;
+
+    const playerImage = new Image();
+    playerImage.src = player.image;
+
+    function spawnEnemy() {
+        const enemy = { x: Math.random() * combatCanvas.width, y: Math.random() * combatCanvas.height, width: 50, height: 50, image: 'enemy.png' };
+        enemies.push(enemy);
+    }
+
+    function drawCombat() {
+        combatCtx.clearRect(0, 0, combatCanvas.width, combatCanvas.height);
+        combatCtx.drawImage(playerImage, player.x, player.y, player.width, player.height);
+
+        for (let enemy of enemies) {
+            const enemyImage = new Image();
+            enemyImage.src = enemy.image;
+            combatCtx.drawImage(enemyImage, enemy.x, enemy.y, enemy.width, enemy.height);
         }
-    }, 1000); // Flow every second
-}
 
-// Initialize the game
-function initializeGame() {
-    generateGame();
-    document.getElementById('start-btn').disabled = false; // Enable the "Start" button
-}
+        if (isPunching) {
+            // Handle punching logic (e.g., check for collision with enemies)
+        }
 
-initializeGame();
+        if (isShooting) {
+            // Handle shooting logic (e.g., create projectiles)
+        }
+
+        requestAnimationFrame(drawCombat);
+    }
+
+    // Game control - Punching and Shooting
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'z') {
+            isPunching = true;
+        }
+        if (event.key === 'x') {
+            isShooting = true;
+        }
+    });
+
+    document.addEventListener('keyup', (event) => {
+        if (event.key === 'z') {
+            isPunching = false;
+        }
+        if (event.key === 'x') {
+            isShooting = false;
+        }
+    });
+
+    setInterval(spawnEnemy, 2000);  // Spawn enemies periodically
+    drawCombat();
+}
