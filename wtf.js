@@ -15,6 +15,15 @@ let mouseX, mouseY;
 physicsCanvas.width = window.innerWidth;
 physicsCanvas.height = window.innerHeight;
 
+// Set the bottom square "ground" area
+const groundHeight = 100;
+
+// Create the ground square
+function drawGround() {
+    physicsCtx.fillStyle = "#444";
+    physicsCtx.fillRect(0, physicsCanvas.height - groundHeight, physicsCanvas.width, groundHeight);
+}
+
 function goHome() {
     document.getElementById('home-screen').style.display = 'block';
     document.getElementById('physics-game').style.display = 'none';
@@ -45,10 +54,35 @@ function initPhysicsGame() {
         }
 
         draw() {
-            physicsCtx.fillStyle = this.type === 'plank' ? '#1e90ff' : 
-                                    this.type === 'nail' ? '#a9a9a9' :
-                                    this.type === 'wheel' ? '#808080' : '#ff4500';
-            physicsCtx.fillRect(this.x, this.y, this.width, this.height);
+            if (this.type === 'plank') {
+                physicsCtx.fillStyle = '#1e90ff';
+                physicsCtx.fillRect(this.x, this.y, this.width, this.height);
+            } else if (this.type === 'nail') {
+                // Draw a small circle for nails
+                physicsCtx.fillStyle = '#a9a9a9';
+                physicsCtx.beginPath();
+                physicsCtx.arc(this.x, this.y, 10, 0, 2 * Math.PI);
+                physicsCtx.fill();
+
+                // Draw an "X" in the middle of the nail
+                physicsCtx.strokeStyle = '#000';
+                physicsCtx.beginPath();
+                physicsCtx.moveTo(this.x - 5, this.y - 5);
+                physicsCtx.lineTo(this.x + 5, this.y + 5);
+                physicsCtx.moveTo(this.x - 5, this.y + 5);
+                physicsCtx.lineTo(this.x + 5, this.y - 5);
+                physicsCtx.stroke();
+            } else if (this.type === 'wheel') {
+                // Draw wheels as circles
+                physicsCtx.fillStyle = '#808080';
+                physicsCtx.beginPath();
+                physicsCtx.arc(this.x, this.y, this.width / 2, 0, 2 * Math.PI);
+                physicsCtx.fill();
+            } else if (this.type === 'engine') {
+                // Draw engines as squares
+                physicsCtx.fillStyle = '#ff4500';
+                physicsCtx.fillRect(this.x, this.y, this.width, this.height);
+            }
         }
 
         update() {
@@ -175,6 +209,9 @@ function initPhysicsGame() {
     function updatePhysics() {
         physicsCtx.clearRect(0, 0, physicsCanvas.width, physicsCanvas.height);
 
+        // Draw ground
+        drawGround();
+
         // Update all objects in the scene
         for (let obj of objects) {
             obj.update();
@@ -186,4 +223,3 @@ function initPhysicsGame() {
 
     updatePhysics();
 }
-
