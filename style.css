@@ -1,0 +1,60 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #f0f0f0;
+    padding: 20px;
+}
+
+#game-container {
+    width: 80%;
+    margin: 0 auto;
+}
+
+#tubes-container {
+    display: flex;
+    justify-content: space-evenly;
+    margin: 20px 0;
+}
+
+.tube {
+    width: 50px;
+    height: 200px;
+    background-color: #ddd;
+    border-radius: 10px;
+    margin: 10px;
+    position: relative;
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: flex-start;
+}
+
+.ball {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin: 5px;
+    cursor: pointer;
+}
+
+#balls-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+#start-btn {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+#start-btn:hover {
+    background-color: #45a049;
+}
+
+audio {
+    display: none;
+}
