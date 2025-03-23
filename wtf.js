@@ -17,11 +17,22 @@ physicsCanvas.height = window.innerHeight;
 
 // Set the bottom square "ground" area
 const groundHeight = 100;
+const groundY = physicsCanvas.height - groundHeight;
 
 // Create the ground square
 function drawGround() {
     physicsCtx.fillStyle = "#444";
-    physicsCtx.fillRect(0, physicsCanvas.height - groundHeight, physicsCanvas.width, groundHeight);
+    physicsCtx.fillRect(0, groundY, physicsCanvas.width, groundHeight);
+}
+
+// Function to detect collision between two rectangles (axis-aligned bounding boxes)
+function checkCollision(obj1, obj2) {
+    return (
+        obj1.x < obj2.x + obj2.width &&
+        obj1.x + obj1.width > obj2.x &&
+        obj1.y < obj2.y + obj2.height &&
+        obj1.y + obj1.height > obj2.y
+    );
 }
 
 function goHome() {
@@ -86,15 +97,49 @@ function initPhysicsGame() {
         }
 
         update() {
+            // Apply gravity unless the object is locked
             if (!this.isLocked) {
                 this.velocityY += 0.5; // Gravity
                 this.x += this.velocityX;
                 this.y += this.velocityY;
             }
+
+            // Collision with ground (stop at the ground level)
+            if (this.y + this.height >= groundY) {
+                this.y = groundY - this.height;
+                this.velocityY = 0; // Stop downward movement
+            }
+
+            // Collision with other objects
+            for (let other of objects) {
+                if (this !== other && checkCollision(this, other)) {
+                    handleCollision(this, other);
+                }
+            }
         }
 
         isHit(x, y) {
             return x >= this.x && x <= this.x + this.width && y >= this.y && y <= this.y + this.height;
+        }
+    }
+
+    // Handle collision between two objects (basic response)
+    function handleCollision(obj1, obj2) {
+        // If it's a nail, it works as a joint, so the plank can pivot (for example).
+        if (obj1.type === 'nail' || obj2.type === 'nail') {
+            // Handle the specific interactions (e.g., plank pivots around a nail)
+            if (obj1.type === 'plank' && obj2.type === 'nail') {
+                // Implement plank-pivoting logic (for seesaw behavior, etc.)
+            } else if (obj2.type === 'plank' && obj1.type === 'nail') {
+                // Implement plank-pivoting logic (for seesaw behavior, etc.)
+            }
+        } else {
+            // Basic collision response (elastic or stop)
+            if (obj1.type === 'wheel' || obj2.type === 'wheel') {
+                // Bounce wheel off the other object
+                obj1.velocityX = -obj1.velocityX * 0.5; // Reduce speed on bounce
+                obj2.velocityX = -obj2.velocityX * 0.5; // Reduce speed on bounce
+            }
         }
     }
 
