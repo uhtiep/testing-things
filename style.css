@@ -42,10 +42,11 @@ button:hover {
     display: none;
 }
 
-/* Canvas Styles */
+/* Same as before */
 canvas {
     border: 1px solid #1e90ff;
     background-color: #222;
     width: 100%;
     height: 500px;
+    margin-top: 50px;
 }

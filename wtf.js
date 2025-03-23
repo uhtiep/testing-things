@@ -1,11 +1,19 @@
 // Set up canvas sizes
 const physicsCanvas = document.getElementById('physicsCanvas');
-const combatCanvas = document.getElementById('combatCanvas');
-
 const physicsCtx = physicsCanvas.getContext('2d');
-const combatCtx = combatCanvas.getContext('2d');
 
 let currentGame = null;
+
+let objects = [];
+let lockedObjects = [];
+let movingObject = null;
+let isMoving = false;
+
+let mouseX, mouseY;
+
+// Set up canvas dimensions
+physicsCanvas.width = window.innerWidth;
+physicsCanvas.height = window.innerHeight;
 
 function goHome() {
     document.getElementById('home-screen').style.display = 'block';
@@ -20,101 +28,162 @@ function startPhysicsGame() {
     initPhysicsGame();
 }
 
-function startCombatGame() {
-    document.getElementById('home-screen').style.display = 'none';
-    document.getElementById('combat-game').style.display = 'block';
-    currentGame = 'combat';
-    initCombatGame();
-}
-
-// Physics Game Setup
 function initPhysicsGame() {
-    // Set up canvas dimensions
-    physicsCanvas.width = window.innerWidth;
-    physicsCanvas.height = window.innerHeight;
-    // Example physics objects (planks, nails, etc.)
-    // You could expand this later with more complex physics interactions
-    let planks = [];
-    let gravity = 0.5;
+    // Physics properties for different objects
+    class ObjectBase {
+        constructor(x, y, width, height, type) {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+            this.type = type;
+            this.velocityX = 0;
+            this.velocityY = 0;
+            this.isLocked = false;
+            this.isMoving = false;
+            this.isEngineOn = false;
+        }
 
-    function createPlank(x, y, width, height) {
-        planks.push({x, y, width, height, velocityY: 0});
+        draw() {
+            physicsCtx.fillStyle = this.type === 'plank' ? '#1e90ff' : 
+                                    this.type === 'nail' ? '#a9a9a9' :
+                                    this.type === 'wheel' ? '#808080' : '#ff4500';
+            physicsCtx.fillRect(this.x, this.y, this.width, this.height);
+        }
+
+        update() {
+            if (!this.isLocked) {
+                this.velocityY += 0.5; // Gravity
+                this.x += this.velocityX;
+                this.y += this.velocityY;
+            }
+        }
+
+        isHit(x, y) {
+            return x >= this.x && x <= this.x + this.width && y >= this.y && y <= this.y + this.height;
+        }
+    }
+
+    class Engine extends ObjectBase {
+        constructor(x, y, width, height) {
+            super(x, y, width, height, 'engine');
+        }
+
+        turnOn() {
+            this.isEngineOn = true;
+        }
+
+        turnOff() {
+            this.isEngineOn = false;
+        }
+
+        update() {
+            super.update();
+            if (this.isEngineOn) {
+                for (let obj of objects) {
+                    if (obj.type === 'wheel' && this.isHit(obj.x, obj.y)) {
+                        obj.velocityX = 5; // Engine powers wheel
+                    }
+                }
+            }
+        }
+    }
+
+    class Wheel extends ObjectBase {
+        constructor(x, y, width, height) {
+            super(x, y, width, height, 'wheel');
+            this.velocityX = 0;
+        }
+
+        update() {
+            super.update();
+        }
+    }
+
+    // Handle user input and object spawning
+    document.addEventListener('keydown', (event) => {
+        switch (event.key) {
+            case 'z':
+                toggleLock();
+                break;
+            case 'x':
+                startMoving();
+                break;
+            case 'y':
+                spawnObject('plank');
+                break;
+            case 'u':
+                spawnObject('wheel');
+                break;
+            case 'i':
+                spawnObject('engine');
+                break;
+            case 'o':
+                spawnObject('nail');
+                break;
+        }
+    });
+
+    // Mouse Position Tracking
+    physicsCanvas.addEventListener('mousemove', (event) => {
+        mouseX = event.clientX;
+        mouseY = event.clientY;
+    });
+
+    physicsCanvas.addEventListener('mousedown', (event) => {
+        if (isMoving) {
+            moveObjectAtMouse(event.clientX, event.clientY);
+        }
+    });
+
+    function spawnObject(type) {
+        objects.push(new ObjectBase(mouseX, mouseY, 100, 20, type)); // Default size
+    }
+
+    function toggleLock() {
+        for (let obj of objects) {
+            if (obj.isHit(mouseX, mouseY)) {
+                obj.isLocked = !obj.isLocked;
+                if (obj.isLocked) {
+                    lockedObjects.push(obj);
+                } else {
+                    let index = lockedObjects.indexOf(obj);
+                    if (index !== -1) lockedObjects.splice(index, 1);
+                }
+                break;
+            }
+        }
+    }
+
+    function startMoving() {
+        for (let obj of objects) {
+            if (obj.isHit(mouseX, mouseY) && !obj.isLocked) {
+                movingObject = obj;
+                isMoving = true;
+                break;
+            }
+        }
+    }
+
+    function moveObjectAtMouse(x, y) {
+        if (movingObject) {
+            movingObject.x = x - movingObject.width / 2;
+            movingObject.y = y - movingObject.height / 2;
+        }
     }
 
     function updatePhysics() {
         physicsCtx.clearRect(0, 0, physicsCanvas.width, physicsCanvas.height);
-        for (let plank of planks) {
-            plank.velocityY += gravity;
-            plank.y += plank.velocityY;
-            physicsCtx.fillStyle = '#1e90ff';
-            physicsCtx.fillRect(plank.x, plank.y, plank.width, plank.height);
+
+        // Update all objects in the scene
+        for (let obj of objects) {
+            obj.update();
+            obj.draw();
         }
+
         requestAnimationFrame(updatePhysics);
     }
 
-    createPlank(200, 0, 100, 20);  // Example plank
     updatePhysics();
 }
 
-// Combat Game Setup
-function initCombatGame() {
-    // Set up canvas dimensions
-    combatCanvas.width = window.innerWidth;
-    combatCanvas.height = window.innerHeight;
-
-    let player = { x: 100, y: 100, width: 50, height: 50, image: 'hand.png' };
-    let enemies = [];
-    let isPunching = false;
-    let isShooting = false;
-
-    const playerImage = new Image();
-    playerImage.src = player.image;
-
-    function spawnEnemy() {
-        const enemy = { x: Math.random() * combatCanvas.width, y: Math.random() * combatCanvas.height, width: 50, height: 50, image: 'enemy.png' };
-        enemies.push(enemy);
-    }
-
-    function drawCombat() {
-        combatCtx.clearRect(0, 0, combatCanvas.width, combatCanvas.height);
-        combatCtx.drawImage(playerImage, player.x, player.y, player.width, player.height);
-
-        for (let enemy of enemies) {
-            const enemyImage = new Image();
-            enemyImage.src = enemy.image;
-            combatCtx.drawImage(enemyImage, enemy.x, enemy.y, enemy.width, enemy.height);
-        }
-
-        if (isPunching) {
-            // Handle punching logic (e.g., check for collision with enemies)
-        }
-
-        if (isShooting) {
-            // Handle shooting logic (e.g., create projectiles)
-        }
-
-        requestAnimationFrame(drawCombat);
-    }
-
-    // Game control - Punching and Shooting
-    document.addEventListener('keydown', (event) => {
-        if (event.key === 'z') {
-            isPunching = true;
-        }
-        if (event.key === 'x') {
-            isShooting = true;
-        }
-    });
-
-    document.addEventListener('keyup', (event) => {
-        if (event.key === 'z') {
-            isPunching = false;
-        }
-        if (event.key === 'x') {
-            isShooting = false;
-        }
-    });
-
-    setInterval(spawnEnemy, 2000);  // Spawn enemies periodically
-    drawCombat();
-}
