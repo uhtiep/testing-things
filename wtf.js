@@ -8,11 +8,24 @@ const servers = [
 let username = "";
 let currentServer = 0;
 let currentChannel = 0;
+let peers = [];
 
 function joinChat() {
     username = document.getElementById('username').value || "Guest";
     document.getElementById('login-screen').classList.add('hidden');
-    document.getElementById('chat-container').classList.remove('hidden');
+    document.getElementById('chat-app').classList.remove('hidden');
+    loadServers();
+    connectToPeers();
+}
+
+function loadServers() {
+    const serverList = document.getElementById('server-list');
+    servers.forEach((server, i) => {
+        const btn = document.createElement('button');
+        btn.innerText = server.name;
+        btn.onclick = () => switchServer(i);
+        serverList.appendChild(btn);
+    });
     switchServer(0);
 }
 
@@ -31,38 +44,83 @@ function switchServer(index) {
 
 function switchChannel(index) {
     currentChannel = index;
-    document.getElementById('messages').innerHTML = "";
-    sendBotMessage(`Welcome to #${servers[currentServer].channels[index]}!`);
+    document.getElementById('chat-header').innerText = `#${servers[currentServer].channels[index]}`;
+    document.getElementById('message-display').innerHTML = "";
+    sendBotMessage(`Welcome to #${servers[currentServer].channels[index]}`);
 }
 
-function handleInput(event) {
+function sendMessage(event) {
     if (event.key === 'Enter') {
-        const message = event.target.value;
-        if (message.trim() !== "") {
-            addMessage(username, message);
-            sendBotReply(message);
-            event.target.value = "";
+        const input = document.getElementById('message-input');
+        const message = input.value.trim();
+        if (message) {
+            displayMessage(username, message);
+            broadcastMessage({ type: 'chat', user: username, message });
+            input.value = "";
+            handleBotResponse(message);
         }
     }
 }
 
-function addMessage(user, message) {
-    const messageDiv = document.createElement('div');
-    messageDiv.innerHTML = `<strong>${user}:</strong> ${message}`;
-    document.getElementById('messages').appendChild(messageDiv);
-    messageDiv.scrollIntoView();
+function displayMessage(user, message) {
+    const display = document.getElementById('message-display');
+    const msg = document.createElement('div');
+    msg.innerHTML = `<strong>${user}:</strong> ${message}`;
+    display.appendChild(msg);
+    display.scrollTop = display.scrollHeight;
 }
 
 function sendBotMessage(message) {
-    setTimeout(() => addMessage(servers[currentServer].bot, message), 1000);
+    setTimeout(() => displayMessage(servers[currentServer].bot, message), 1000);
 }
 
-function sendBotReply(userMessage) {
-    if (servers[currentServer].bot === "Dank Memer") {
-        if (userMessage.includes("meme")) sendBotMessage("Here's a meme: 🐸");
-    } else if (servers[currentServer].bot === "Dyno") {
-        if (userMessage.includes("help")) sendBotMessage("Need help? Type !commands");
-    } else if (servers[currentServer].bot === "Nekotina") {
-        if (userMessage.includes("play")) sendBotMessage("Playing fire.mp3 🔥");
+function handleBotResponse(message) {
+    const bot = servers[currentServer].bot;
+    if (bot === "Dank Memer" && message.includes("meme")) {
+        sendBotMessage("Here's a meme: 🐸");
+    }
+    if (bot === "Dyno" && message.includes("help")) {
+        sendBotMessage("Type !commands to see a list of available commands.");
+    }
+    if (bot === "Nekotina" && message.includes("play")) {
+        sendBotMessage("Playing fire.mp3 🔥");
     }
 }
+
+// WebRTC Functions
+function connectToPeers() {
+    const peer = new RTCPeerConnection();
+    peers.push(peer);
+    peer.ondatachannel = (event) => setupDataChannel(event.channel);
+
+    const channel = peer.createDataChannel("chat");
+    setupDataChannel(channel);
+
+    peer.createOffer().then((offer) => peer.setLocalDescription(offer));
+
+    // Simulate signaling (for demo purposes, usually a signaling server is needed)
+    setTimeout(() => receiveOffer(peer.localDescription), 2000);
+}
+
+function receiveOffer(offer) {
+    const peer = new RTCPeerConnection();
+    peers.push(peer);
+    peer.ondatachannel = (event) => setupDataChannel(event.channel);
+    peer.setRemoteDescription(offer);
+    peer.createAnswer().then((answer) => peer.setLocalDescription(answer));
+}
+
+function setupDataChannel(channel) {
+    channel.onmessage = (event) => {
+        const { user, message } = JSON.parse(event.data);
+        displayMessage(user, message);
+    };
+}
+
+function broadcastMessage(data) {
+    peers.forEach((peer) => {
+        const channel = peer.createDataChannel("chat");
+        channel.send(JSON.stringify(data));
+    });
+}
+

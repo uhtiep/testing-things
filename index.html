@@ -3,33 +3,30 @@
 
 <head>
     <title>Uhtime Chat</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="fye.css">
 </head>
 
 <body>
     <div id="login-screen">
-        <h1>Welcome to Uhtime</h1>
-        <input type="text" id="username" placeholder="Enter a username" />
+        <h1>Uhtime Chat</h1>
+        <input type="text" id="username" placeholder="Enter your username">
         <button onclick="joinChat()">Join Chat</button>
     </div>
 
-    <div id="chat-container" class="hidden">
-        <div id="server-list">
-            <button onclick="switchServer(1)">Server 1</button>
-            <button onclick="switchServer(2)">Server 2</button>
-            <button onclick="switchServer(3)">Server 3</button>
-            <button onclick="switchServer(4)">Server 4</button>
+    <div id="chat-app" class="hidden">
+        <div id="sidebar">
+            <div id="server-list"></div>
+            <div id="channel-list"></div>
         </div>
 
-        <div id="channel-list"></div>
-
-        <div id="chat-window">
-            <div id="messages"></div>
-            <input type="text" id="message-input" placeholder="Type a message..." onkeydown="handleInput(event)">
+        <div id="chat-container">
+            <div id="chat-header"></div>
+            <div id="message-display"></div>
+            <input id="message-input" placeholder="Message..." onkeydown="sendMessage(event)">
         </div>
     </div>
 
-    <script src="wtf.js"></script>
+    <script src="index.js"></script>
 </body>
 
 </html>
