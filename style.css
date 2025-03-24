@@ -3,6 +3,12 @@ body {
     background-color: #f5f5f5;
     text-align: center;
     padding: 20px;
+    margin: 0;
+}
+
+#game-container {
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 #cookie-container {
@@ -11,15 +17,19 @@ body {
     position: relative;
 }
 
-#cookie {
-    width: 200px;
-    height: 200px;
+#tamia-shame {
+    width: 250px;
+    height: 250px;
     cursor: pointer;
-    animation: spin 3s linear infinite;
+    animation: spin 5s linear infinite;
 }
 
-#cookie-count {
-    font-size: 20px;
+#info-container {
+    margin-top: 20px;
+}
+
+#tamia-count {
+    font-size: 22px;
     margin-top: 20px;
 }
 
@@ -29,8 +39,8 @@ body {
 
 .upgrade {
     margin: 10px;
-    background-color: #eee;
-    padding: 10px;
+    background-color: #e0e0e0;
+    padding: 15px;
     cursor: pointer;
     display: inline-block;
     border-radius: 10px;
