@@ -46,7 +46,7 @@ function switchChannel(index) {
     currentChannel = index;
     document.getElementById('chat-header').innerText = `#${servers[currentServer].channels[index]}`;
     document.getElementById('message-display').innerHTML = "";
-    sendBotMessage(`Welcome to #${servers[currentServer].channels[index]}`);
+    sendBotMessage(`Welcome to the happy palace! im kiddin', yo! wecome to  #${servers[currentServer].channels[index]}`);
 }
 
 function sendMessage(event) {
@@ -77,13 +77,13 @@ function sendBotMessage(message) {
 function handleBotResponse(message) {
     const bot = servers[currentServer].bot;
     if (bot === "Dank Memer" && message.includes("meme")) {
-        sendBotMessage("Here's a meme: 🐸");
+        sendBotMessage("Here's a memity meme!: 🐸");
     }
     if (bot === "Dyno" && message.includes("help")) {
-        sendBotMessage("Type !commands to see a list of available commands.");
+        sendBotMessage("wow buddy!! ya dont need no help!");
     }
     if (bot === "Nekotina" && message.includes("play")) {
-        sendBotMessage("Playing fire.mp3 🔥");
+        sendBotMessage("Playing firey music! 🔥");
     }
 }
 
@@ -123,4 +123,3 @@ function broadcastMessage(data) {
         channel.send(JSON.stringify(data));
     });
 }
-
