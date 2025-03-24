@@ -1,10 +1,9 @@
 let cookieCount = localStorage.getItem("cookieCount") ? parseInt(localStorage.getItem("cookieCount")) : 0;
 let upgrades = [
-    { name: "Upgrade 1", cost: 10, effect: () => { cookieCount += 1; updateGame(); }},
-    { name: "Upgrade 2", cost: 50, effect: () => { cookieCount += 5; updateGame(); }},
-    { name: "Upgrade 3", cost: 100, effect: () => { cookieCount += 10; updateGame(); }},
-    // Add more upgrades to total 25
-    { name: "Upgrade 25", cost: 10000, effect: () => { cookieCount += 100; updateGame(); }},
+    { name: "Upgrade 1", cost: 10, effect: () => { cookieCount += 50; updateGame(); }},
+    { name: "Upgrade 2", cost: 50, effect: () => { cookieCount += 100; updateGame(); }},
+    { name: "Upgrade 3", cost: 100, effect: () => { cookieCount += 1000; updateGame(); }},
+    { name: "Upgrade 25", cost: 10000, effect: () => { cookieCount += 1; updateGame(); }},
 ];
 
 const cookieElement = document.getElementById("cookie");
