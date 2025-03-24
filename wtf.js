@@ -2,7 +2,7 @@ let cookieCount = localStorage.getItem("cookieCount") ? parseInt(localStorage.ge
 let upgrades = [
     { name: "Upgrade 1", cost: 10, effect: () => { cookieCount += 50; updateGame(); }},
     { name: "Upgrade 2", cost: 50, effect: () => { cookieCount += 100; updateGame(); }},
-    { name: "Upgrade 3", cost: 100, effect: () => { cookieCount += 1000; updateGame(); }},
+    { name: "Upgrade 3", cost: 100, effect: () => { cookieCount += 10000; updateGame(); }},
     { name: "Upgrade 25", cost: 10000, effect: () => { cookieCount += 1; updateGame(); }},
 ];
 
