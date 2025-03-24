@@ -2,70 +2,90 @@
 <html lang="en">
 
 <head>
-    <title>Local Mystery Deepens</title>
+    <title>You shouldn't be here</title>
     <meta charset="UTF-8">
     <style>
         body {
-            background: #0d0d0d;
-            color: #d4d4d4;
-            font-family: "Georgia", serif;
-            line-height: 1.8;
-            padding: 40px;
-            max-width: 800px;
-            margin: auto;
+            background: black;
+            color: #9e9e9e;
+            font-family: "Courier New", monospace;
+            text-align: center;
+            margin: 0;
+            overflow: hidden;
+            animation: flicker 3s infinite;
+            height: 200vh; /* Allows scrolling */
         }
 
         h1 {
-            text-align: center;
             font-size: 2em;
-            margin-bottom: 20px;
+            opacity: 0;
+            animation: fadeIn 5s ease-in-out forwards;
+            margin-top: 20%;
         }
 
-        .image-container {
-            text-align: center;
-            margin: 30px 0;
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
         }
 
-        img {
-            max-width: 100%;
+        @keyframes flicker {
+            0% { background: black; }
+            50% { background: #111; }
+            100% { background: black; }
+        }
+
+        #glitch-img {
+            margin-top: 30px;
+            max-width: 300px;
             opacity: 0.7;
+            filter: contrast(1.2) brightness(0.8);
+            transition: filter 0.5s, opacity 1s ease-in-out;
         }
 
-        .byline {
-            font-style: italic;
-            margin-bottom: 40px;
-            text-align: center;
+        #glitch-img.revealed {
+            opacity: 0.7; /* 70% opacity */
+            filter: brightness(1.2) contrast(0.6);
         }
+
+        /* Scroll effect for the image */
+        .scroll-container {
+            margin-top: 150vh;
+            position: relative;
+            height: 50vh;
+        }
+
     </style>
 </head>
 
 <body>
-    <h1>Local Mystery Deepens as Investigation Unfolds</h1>
-    <p class="byline">By Bach Paseri - Updated Recently</p>
+    <h1>You shouldn't be here.</h1>
 
-    <p>Authorities remain baffled by a series of unexplained incidents surrounding the disappearance of a 19-year-old university student last seen leaving her campus late one evening. The missing individual, whose identity is being withheld, had reportedly expressed concerns about feeling "watched" in the weeks leading up to her disappearance.</p>
+    <audio autoplay loop>
+        <source src="welcome.mp3" type="audio/mpeg">
+    </audio>
 
-    <div class="image-container">
-        <img src="girl.png" alt="A missing girl">
+    <!-- Hidden clue -->
+    <!-- [REDACTED] tried to warn you. Find them. /archive.html -->
+
+    <!-- Scrollable Content -->
+    <div class="scroll-container">
+        <img id="glitch-img" src="welcome.png" alt="A broken image">
     </div>
 
-    <p>Local police initially treated the case as a routine missing persons investigation. However, new evidence recovered near an abandoned industrial site has escalated concerns. Investigators discovered personal belongings, including a broken cell phone, and a journal filled with cryptic, seemingly incoherent messages. "It’s unlike anything we've encountered before," said Detective R. Hensley. "The entries reference something—or someone—following her."</p>
+    <script>
+        // Check if the image has been revealed on scroll
+        window.addEventListener('scroll', function () {
+            let image = document.getElementById('glitch-img');
+            let revealPoint = window.innerHeight / 1.5;
+            if (window.scrollY > revealPoint) {
+                image.classList.add('revealed');
+            } else {
+                image.classList.remove('revealed');
+            }
+        });
+    </script>
 
-    <p>Further complicating the case, an untraceable email was sent to local authorities last week containing a single message: "You let it out." The origin of the email remains unknown, and digital forensics teams have been unable to determine its source. The message coincided with the discovery of a body located less than three miles from the victim’s last known location.</p>
-
-    <div class="image-container">
-        <img src="corpse.png" alt="Crime scene evidence">
-    </div>
-
-    <p>The deceased, an unidentified male, was found in a heavily wooded area. Preliminary autopsy reports describe "unusual trauma patterns" inconsistent with known wildlife or criminal activity. Authorities have refused to comment on rumors circulating online about the condition of the remains, though multiple sources suggest evidence of deliberate mutilation.</p>
-
-    <p>Another chilling discovery surfaced when investigators reviewed the victim’s online activity. A private message log revealed an ongoing conversation with an unknown account using the alias “_IT_.” The account appears to have been deleted immediately after the disappearance. Investigators are now attempting to recover deleted exchanges, but so far, only fragments remain—most of which are unreadable due to digital corruption.</p>
-
-    <div class="image-container">
-        <img src="evidence.png" alt="Recovered evidence">
-    </div>
-
-    <p>Officials urge anyone with information to come forward, especially those who may have interacted with the missing person or encountered unusual activity online. “We need answers,” Detective Hensley said. “And right now, there are more questions than anything else.” Despite increased public interest and pressure, authorities have been tight-lipped about whether they believe this case is connected to other recent unsolved disappearances in the region.</p>
 </body>
 
 </html>
