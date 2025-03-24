@@ -1,0 +1,47 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    text-align: center;
+    padding: 20px;
+}
+
+#cookie-container {
+    margin: 20px;
+    display: inline-block;
+    position: relative;
+}
+
+#cookie {
+    width: 200px;
+    height: 200px;
+    cursor: pointer;
+    animation: spin 3s linear infinite;
+}
+
+#cookie-count {
+    font-size: 20px;
+    margin-top: 20px;
+}
+
+#upgrades-container {
+    margin-top: 50px;
+}
+
+.upgrade {
+    margin: 10px;
+    background-color: #eee;
+    padding: 10px;
+    cursor: pointer;
+    display: inline-block;
+    border-radius: 10px;
+    width: 200px;
+}
+
+.upgrade:hover {
+    background-color: #ccc;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
