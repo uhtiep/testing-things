@@ -1,31 +1,173 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Physics and Combat Games</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Uhtime Chat</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            background: #1e1f22;
+            color: white;
+        }
+
+        #sidebar {
+            width: 80px;
+            background: #2b2d31;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+        }
+
+        .server-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin: 10px 0;
+            background: #5865f2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .server-icon:hover {
+            background: #4752c4;
+        }
+
+        #chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #chat-header {
+            padding: 15px;
+            background: #313338;
+            font-weight: bold;
+            border-bottom: 2px solid #2b2d31;
+        }
+
+        #chat-box {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+        }
+
+        #input-container {
+            padding: 10px;
+            border-top: 2px solid #2b2d31;
+            background: #313338;
+            display: flex;
+        }
+
+        #input-box {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            outline: none;
+            font-size: 16px;
+            background: #404249;
+            color: white;
+        }
+
+        #send-btn {
+            margin-left: 10px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background: #5865f2;
+            color: white;
+            transition: 0.3s;
+        }
+
+        #send-btn:hover {
+            background: #4752c4;
+        }
+    </style>
 </head>
+
 <body>
-    <div id="home-screen">
-        <h1>Welcome to the Games!</h1>
-        <p>Select an activity:</p>
-        <button onclick="startPhysicsGame()">Physics Testing Game</button>
-        <button onclick="startCombatGame()">Combat Game</button>
+    <div id="sidebar">
+        <div class="server-icon">💬</div>
+        <div class="server-icon">🎮</div>
+        <div class="server-icon">🔥</div>
     </div>
 
-    <div id="physics-game" style="display:none;">
-        <h2>Physics Testing Game</h2>
-        <canvas id="physicsCanvas"></canvas>
-        <button onclick="goHome()">Go Home</button>
+    <div id="chat-container">
+        <div id="chat-header"># General Chat</div>
+
+        <div id="chat-box"></div>
+
+        <div id="input-container">
+            <input id="input-box" type="text" placeholder="Type a message..." />
+            <button id="send-btn">Send</button>
+        </div>
     </div>
 
-    <div id="combat-game" style="display:none;">
-        <h2>Combat Game</h2>
-        <canvas id="combatCanvas"></canvas>
-        <button onclick="goHome()">Go Home</button>
-    </div>
+    <script>
+        const inputBox = document.getElementById('input-box');
+        const sendBtn = document.getElementById('send-btn');
+        const chatBox = document.getElementById('chat-box');
 
-    <script src="wtf.js"></script>
+        // Local storage for message sync
+        const chatKey = 'uhtime-chat';
+
+        function appendMessage(content, isSelf = false) {
+            const message = document.createElement('div');
+            message.textContent = content;
+            message.style.margin = '5px 0';
+            message.style.padding = '8px 12px';
+            message.style.borderRadius = '10px';
+            message.style.background = isSelf ? '#5865f2' : '#404249';
+            message.style.alignSelf = isSelf ? 'flex-end' : 'flex-start';
+
+            chatBox.appendChild(message);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function sendMessage() {
+            const message = inputBox.value.trim();
+            if (message) {
+                appendMessage(message, true);
+                localStorage.setItem(chatKey, JSON.stringify([...getMessages(), message]));
+                inputBox.value = '';
+            }
+        }
+
+        function getMessages() {
+            return JSON.parse(localStorage.getItem(chatKey)) || [];
+        }
+
+        function loadMessages() {
+            getMessages().forEach(msg => appendMessage(msg));
+        }
+
+        inputBox.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        sendBtn.addEventListener('click', sendMessage);
+
+        window.addEventListener('storage', (e) => {
+            if (e.key === chatKey) {
+                chatBox.innerHTML = '';
+                loadMessages();
+            }
+        });
+
+        loadMessages();
+    </script>
 </body>
+
 </html>
