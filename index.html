@@ -1,53 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Code Templates</title>
-    <link rel="stylesheet" href="fye.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>uhero</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <div class="logo">
-            <h1>Advanced Code Templates</h1>
-        </div>
-        <nav>
-            <ul>
-                <li><a href="#">Home</a></li>
-                <li><a href="#">Templates</a></li>
-            </ul>
-        </nav>
-    </header>
 
-    <div class="content">
-        <section class="templates">
-            <button id="notificationUITemplateBtn">Notification UI</button>
-            <button id="clickerGameTemplateBtn">Clicker Game</button>
-            <button id="randomQuoteTemplateBtn">Random Quote Generator</button>
-            <button id="weatherAppTemplateBtn">Weather App</button>
-            <button id="expenseTrackerTemplateBtn">Expense Tracker</button>
-            <button id="passwordGeneratorTemplateBtn">Password Generator</button>
-            <button id="todoListTemplateBtn">Todo List</button>
-            <button id="pomodoroTimerTemplateBtn">Pomodoro Timer</button>
-            <button id="memoryGameTemplateBtn">Memory Game</button>
-            <button id="imageSliderTemplateBtn">Image Slider</button>
-            <button id="interactiveMapTemplateBtn">Interactive Map</button>
-            <button id="animatedLoaderTemplateBtn">Animated Loader</button>
-            <button id="responsiveNavTemplateBtn">Responsive Navigation</button>
-            <button id="photoEditorTemplateBtn">Photo Editor</button>
-            <button id="quizAppTemplateBtn">Quiz App</button>
-        </section>
-
-        <section id="templateContainer" class="template-container">
-            <p>Select a template to view its content.</p>
-            <div id="previewContainer"></div>
-        </section>
+  <div id="game-container">
+    <canvas id="gameCanvas"></canvas>
+    <div id="game-ui">
+      <p>Score: <span id="score">0</span></p>
+      <p>Health: <span id="health">100</span></p>
+      <p>Stage: <span id="stage">1</span> / <span id="world">1</span></p>
     </div>
+  </div>
 
-    <footer>
-        <p>&copy; 2025 Advanced Code Templates. All Rights Reserved.</p>
-    </footer>
-
-    <script src="wtf.js"></script>
+  <script src="game.js"></script>
 </body>
 </html>
