@@ -1,266 +1,494 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ThreadyPop - The Witness Files</title>
-    <style>
-        body {
-            background-color: #0d0d0d;
-            color: #d4d4d4;
-            font-family: "Courier New", monospace;
-            text-align: center;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Center</title>
+  <style>
+    /* Reset and General Styling */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        .message-container {
-            background-color: #2c2f34;
-            margin: 10px;
-            padding: 10px;
-            border-radius: 10px;
-            display: inline-block;
-            max-width: 80%;
-            text-align: left;
-            position: relative;
-        }
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f0f0f0;
+      color: #333;
+    }
 
-        .message {
-            margin: 10px;
-        }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #1e1e1e;
+      padding: 1rem;
+      color: white;
+    }
 
-        .user-name {
-            color: #f8f8f8;
-            font-weight: bold;
-        }
+    header .logo h1 {
+      font-size: 1.8rem;
+    }
 
-        .message-content {
-            font-size: 1.1em;
-            margin: 10px 0;
-        }
+    nav ul {
+      list-style: none;
+      display: flex;
+    }
 
-        .redacted {
-            color: red;
-            font-style: italic;
-        }
+    nav ul li {
+      margin-left: 1rem;
+    }
 
-        .deleted {
-            color: gray;
-            font-style: italic;
-        }
+    nav ul li a {
+      color: white;
+      text-decoration: none;
+      font-size: 1.2rem;
+    }
 
-        .hidden-text {
-            color: red;
-            font-size: 18px;
-            font-weight: bold;
-            visibility: hidden;
-        }
+    main {
+      padding: 2rem;
+    }
 
-        .lock {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-        }
+    .hero {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
 
-        .avatar {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: gray;
-        }
+    .hero h2 {
+      font-size: 2rem;
+    }
 
-        .seers-avatar {
-            background: url('corrupted-avatar.png');
-        }
+    button {
+      padding: 1rem;
+      border: none;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
 
-        .thread {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        
-        .lock-icon {
-            width: 30px;
-            height: 30px;
-            background-image: url('lock-icon.png');
-            background-size: cover;
-        }
-    </style>
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .games .game-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .game-item {
+      background-color: #fff;
+      border: 1px solid #ccc;
+      padding: 1rem;
+      text-align: center;
+      border-radius: 8px;
+    }
+
+    .game-item h3 {
+      font-size: 1.2rem;
+    }
+
+    .game-container {
+      padding: 2rem;
+      background-color: white;
+      border-radius: 8px;
+      margin-top: 2rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background-color: #1e1e1e;
+      color: white;
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+    }
+
+    @media (max-width: 768px) {
+      .games .game-list {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Tic-Tac-Toe Specific Styles */
+    .ticTacToeBoard {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      width: 200px;
+      margin: 0 auto;
+    }
+
+    .ticTacToeCell {
+      width: 60px;
+      height: 60px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 2rem;
+      cursor: pointer;
+    }
+
+    /* Memory Game Styles */
+    .memory-board {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      max-width: 300px;
+      margin: 0 auto;
+    }
+
+    .memory-card {
+      width: 60px;
+      height: 60px;
+      background-color: #007bff;
+      color: transparent;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 2rem;
+      cursor: pointer;
+    }
+
+    /* Snake Game Styles */
+    .snake-board {
+      width: 300px;
+      height: 300px;
+      background-color: #000;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .snake {
+      background-color: #00ff00;
+      width: 10px;
+      height: 10px;
+      position: absolute;
+    }
+
+    /* Rock Paper Scissors Styles */
+    .rps-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .rps-button {
+      padding: 1rem;
+      font-size: 1.2rem;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+    }
+
+    .rps-button:hover {
+      background-color: #0056b3;
+    }
+  </style>
 </head>
 <body>
-    <h1>ThreadyPop - The Witness Files</h1>
-    <div class="thread">
-        <!-- Messages Before SEER -->
-        <div class="message-container">
-            <div class="message">
-                <div class="user-name">theyluvamb3r</div>
-                <div class="message-content">Has anyone else been hearing stuff at night? My phone keeps glitching and I swear it’s trying to tell me something...</div>
-            </div>
-        </div>
-
-        <div class="message-container">
-            <div class="message">
-                <div class="user-name">xNeon_Storm</div>
-                <div class="message-content">I thought I was going crazy, but same! My phone just *buzzes* for no reason sometimes, even when it's off.</div>
-            </div>
-        </div>
-
-        <div class="message-container">
-            <div class="message">
-                <div class="user-name">JitteryLuke</div>
-                <div class="message-content">Yo, I found a file on my gallery. It’s just static, but there’s a name at the end... "The Witness". What the hell?</div>
-            </div>
-        </div>
-
-        <div class="message-container">
-            <div class="message">
-                <div class="user-name">SilentWatcher_77</div>
-                <div class="message-content">Same. I think my camera's been taking pics by itself. Like, out of nowhere. It’s creeping me out.</div>
-            </div>
-        </div>
-
-        <div class="message-container">
-            <div class="message">
-                <div class="user-name">DarkVoid88</div>
-                <div class="message-content">I found something in my logs. It just says “watching”. Feels like something’s controlling my device...</div>
-            </div>
-        </div>
-
-        <div class="message-container">
-            <div class="message">
-                <div class="user-name">TheGreyGhost</div>
-                <div class="message-content">I was about to say the same thing. There’s something off with all of this. I feel like I’m being watched 24/7.</div>
-            </div>
-        </div>
-
-        <div class="message-container">
-            <div class="message">
-                <div class="user-name">LadyAnomaly</div>
-                <div class="message-content">I don't trust any of you anymore. This data I’m getting is messed up. Not even sure if it’s real anymore.</div>
-            </div>
-        </div>
-
-        <div class="message-container">
-            <div class="message">
-                <div class="user-name">SilentWatcher_77</div>
-                <div class="message-content">I’m telling you, I’ve been hearing voices. And it’s not just random noise... It’s like someone’s trying to say something specific.</div>
-            </div>
-        </div>
-
-        <div class="message-container">
-            <div class="message">
-                <div class="user-name">JitteryLuke</div>
-                <div class="message-content">Yo, I’m freaking out. The file I found? It said "The Witness will be with you soon." What does that even mean?</div>
-            </div>
-        </div>
-
-        <div class="message-container">
-            <div class="message">
-                <div class="user-name">xNeon_Storm</div>
-                <div class="message-content">I keep thinking about that name. I think we’re all connected to something bigger here. This is some deep conspiracy level stuff.</div>
-            </div>
-        </div>
-
-        <div class="message-container">
-            <div class="message">
-                <div class="user-name">TheGreyGhost</div>
-                <div class="message-content">Guys, I just got a text. From an unknown number. It said “Found you.” That’s all.</div>
-            </div>
-        </div>
-
-        <div class="message-container">
-            <div class="message">
-                <div class="user-name">DarkVoid88</div>
-                <div class="message-content">What the actual hell. I got one too. It just said "Witness." That's it. Nothing else.</div>
-            </div>
-        </div>
-
-        <div class="message-container">
-            <div class="message">
-                <div class="user-name">SilentWatcher_77</div>
-                <div class="message-content">This is f*cking me up. Someone’s playing games with us. I’m deleting everything from my phone. F*ck this.</div>
-            </div>
-        </div>
-
-        <div class="message-container">
-            <div class="message">
-                <div class="user-name">LadyAnomaly</div>
-                <div class="message-content">I just keep thinking I’m being followed. Someone’s in control of my phone. I don’t know who, but it’s not *me* anymore.</div>
-            </div>
-        </div>
-
-        <div class="message-container">
-            <div class="message">
-                <div class="user-name">TheLastWatcher</div>
-                <div class="message-content">We’re not crazy, right? Like, something’s going down, and we’re all gonna be in the middle of it. I can feel it.</div>
-            </div>
-        </div>
-
-        <div class="message-container">
-            <div class="message">
-                <div class="user-name">LadyAnomaly</div>
-                <div class="message-content">This feels like a trap. I’m scared of what happens next.</div>
-            </div>
-        </div>
-
-        <div class="message-container">
-            <div class="message">
-                <div class="user-name">xNeon_Storm</div>
-                <div class="message-content">I think we're all connected. We’ve been marked by something. I don’t know if it’s good or bad, but it’s real.</div>
-            </div>
-        </div>
-
-        <div class="message-container">
-            <div class="message">
-                <div class="user-name">TheGreyGhost</div>
-                <div class="message-content">Whatever this thing is, it knows everything about us. It’s watching us. We need to stop it.</div>
-            </div>
-        </div>
-
-        <!-- Messages from SEER -->
-        <div class="message-container">
-            <div class="message">
-                <div class="user-name">_SEER_</div>
-                <div class="message-content">You think you’re safe, don’t you? You haven’t even seen it yet. But you will. Soon enough. <span class="hidden-text">witnessdomain.vercel.app</span></div>
-            </div>
-        </div>
-
-        <div class="message-container">
-            <div class="message">
-                <div class="user-name">xNeon_Storm</div>
-                <div class="message-content">Who are you, _SEER_? What do you know about us?</div>
-            </div>
-        </div>
-
-        <div class="message-container">
-            <div class="message">
-                <div class="user-name">_SEER_</div>
-                <div class="message-content">You should’ve never found this place. The truth is now yours to carry. I hope you're ready. <span class="hidden-text">witnessdomain.vercel.app</span></div>
-            </div>
-        </div>
-
-        <div class="message-container">
-            <div class="message">
-                <div class="user-name">SilentWatcher_77</div>
-                <div class="message-content">What the hell do you mean by that? What truth?</div>
-            </div>
-        </div>
-
-        <div class="message-container">
-            <div class="message">
-                <div class="user-name">_SEER_</div>
-                <div class="message-content">Everything you thought you knew is a lie. I see you, I know you. You can’t escape what you’ve found. <span class="hidden-text">witnessdomain.vercel.app</span></div>
-            </div>
-        </div>
-
-        <div class="message-container">
-            <div class="message">
-                <div class="user-name">LadyAnomaly</div>
-                <div class="message-content">Who is this person? What are they talking about? I don’t want to know anymore.</div>
-            </div>
-        </div>
-
-        <div class="message-container lock">
-            <div class="lock-icon"></div>
-        </div>
-
+  <header>
+    <div class="logo">
+      <h1>Game Center</h1>
     </div>
+    <nav>
+      <ul>
+        <li><a href="#home">Home</a></li>
+        <li><a href="#games">Games</a></li>
+        <li><a href="#about">About</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h2>Welcome to Game Center</h2>
+      <p>Enjoy the best games!</p>
+      <button id="playNowBtn">Play Now</button>
+    </section>
+
+    <section id="games" class="games">
+      <h2>Featured Games</h2>
+      <div class="game-list">
+        <div class="game-item">
+          <h3>Tic-Tac-Toe</h3>
+          <button class="game-btn" id="ticTacToeBtn">Play</button>
+        </div>
+        <div class="game-item">
+          <h3>Memory Game</h3>
+          <button class="game-btn" id="memoryGameBtn">Play</button>
+        </div>
+        <div class="game-item">
+          <h3>Snake</h3>
+          <button class="game-btn" id="snakeGameBtn">Play</button>
+        </div>
+        <div class="game-item">
+          <h3>Rock Paper Scissors</h3>
+          <button class="game-btn" id="rockPaperScissorsBtn">Play</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="gameContainer" class="game-container">
+      <button id="backToHomeBtn">Back to Home</button>
+      <!-- Tic-Tac-Toe Game -->
+      <div id="ticTacToeGame" class="game"></div>
+      <!-- Memory Game -->
+      <div id="memoryGameContainer" class="game"></div>
+      <!-- Snake Game -->
+      <div id="snakeGameContainer" class="game"></div>
+      <!-- Rock Paper Scissors Game -->
+      <div id="rockPaperScissorsGame" class="game"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Game Center. All Rights Reserved.</p>
+  </footer>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const playNowBtn = document.getElementById('playNowBtn');
+      const ticTacToeBtn = document.getElementById('ticTacToeBtn');
+      const memoryGameBtn = document.getElementById('memoryGameBtn');
+      const snakeGameBtn = document.getElementById('snakeGameBtn');
+      const rockPaperScissorsBtn = document.getElementById('rockPaperScissorsBtn');
+      const backToHomeBtn = document.getElementById('backToHomeBtn');
+      const gameContainer = document.getElementById('gameContainer');
+      const heroSection = document.querySelector('.hero');
+
+      const showGame = (game) => {
+        gameContainer.style.display = 'block';
+        heroSection.style.display = 'none';
+
+        // Hide all game containers
+        const games = document.querySelectorAll('.game');
+        games.forEach(gameContainer => gameContainer.style.display = 'none');
+
+        // Show the selected game
+        document.getElementById(game).style.display = 'block';
+      };
+
+      // Game Navigation
+      ticTacToeBtn.addEventListener('click', () => showGame('ticTacToeGame'));
+      memoryGameBtn.addEventListener('click', () => showGame('memoryGameContainer'));
+      snakeGameBtn.addEventListener('click', () => showGame('snakeGameContainer'));
+      rockPaperScissorsBtn.addEventListener('click', () => showGame('rockPaperScissorsGame'));
+
+      backToHomeBtn.addEventListener('click', () => {
+        gameContainer.style.display = 'none';
+        heroSection.style.display = 'block';
+      });
+
+      // --- Tic-Tac-Toe Game ---
+      const renderTicTacToe = () => {
+        const ticTacToe = document.getElementById('ticTacToeGame');
+        ticTacToe.innerHTML = `
+          <h3>Tic-Tac-Toe</h3>
+          <div id="ticTacToeBoard" class="ticTacToeBoard">
+            <div class="ticTacToeCell" data-index="0"></div>
+            <div class="ticTacToeCell" data-index="1"></div>
+            <div class="ticTacToeCell" data-index="2"></div>
+            <div class="ticTacToeCell" data-index="3"></div>
+            <div class="ticTacToeCell" data-index="4"></div>
+            <div class="ticTacToeCell" data-index="5"></div>
+            <div class="ticTacToeCell" data-index="6"></div>
+            <div class="ticTacToeCell" data-index="7"></div>
+            <div class="ticTacToeCell" data-index="8"></div>
+          </div>
+        `;
+        let turn = 'X';
+        const board = document.getElementById('ticTacToeBoard');
+        const cells = board.getElementsByClassName('ticTacToeCell');
+        let gameState = ['', '', '', '', '', '', '', '', ''];
+        
+        [...cells].forEach(cell => {
+          cell.addEventListener('click', (e) => {
+            if (!e.target.textContent) {
+              e.target.textContent = turn;
+              gameState[e.target.dataset.index] = turn;
+              if (checkWinner(gameState)) {
+                alert(turn + ' Wins!');
+                resetGame();
+              }
+              turn = turn === 'X' ? 'O' : 'X';
+            }
+          });
+        });
+
+        const checkWinner = (state) => {
+          const winPatterns = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
+          ];
+          return winPatterns.some(pattern => 
+            state[pattern[0]] && state[pattern[0]] === state[pattern[1]] && state[pattern[0]] === state[pattern[2]]
+          );
+        };
+
+        const resetGame = () => {
+          gameState = ['', '', '', '', '', '', '', '', ''];
+          [...cells].forEach(cell => cell.textContent = '');
+        };
+      };
+
+      // --- Memory Game ---
+      const renderMemoryGame = () => {
+        const memoryGameContainer = document.getElementById('memoryGameContainer');
+        memoryGameContainer.innerHTML = `
+          <h3>Memory Game</h3>
+          <div id="memoryBoard" class="memory-board"></div>
+        `;
+        const cards = ['A', 'B', 'C', 'D', 'A', 'B', 'C', 'D'];
+        let flippedCards = [];
+        let matchedPairs = 0;
+
+        cards.sort(() => 0.5 - Math.random());
+
+        const memoryBoard = document.getElementById('memoryBoard');
+        cards.forEach(card => {
+          const cardElement = document.createElement('div');
+          cardElement.classList.add('memory-card');
+          cardElement.textContent = card;
+          memoryBoard.appendChild(cardElement);
+
+          cardElement.addEventListener('click', () => {
+            if (flippedCards.length < 2 && !cardElement.classList.contains('flipped')) {
+              cardElement.classList.add('flipped');
+              flippedCards.push(cardElement);
+
+              if (flippedCards.length === 2) {
+                setTimeout(() => {
+                  if (flippedCards[0].textContent === flippedCards[1].textContent) {
+                    flippedCards[0].classList.add('matched');
+                    flippedCards[1].classList.add('matched');
+                    matchedPairs++;
+                    if (matchedPairs === 4) {
+                      alert('You win!');
+                    }
+                  } else {
+                    flippedCards[0].classList.remove('flipped');
+                    flippedCards[1].classList.remove('flipped');
+                  }
+                  flippedCards = [];
+                }, 1000);
+              }
+            }
+          });
+        });
+      };
+
+      // --- Snake Game ---
+      const renderSnakeGame = () => {
+        const snakeGameContainer = document.getElementById('snakeGameContainer');
+        snakeGameContainer.innerHTML = `
+          <h3>Snake Game</h3>
+          <div id="snakeBoard" class="snake-board"></div>
+        `;
+        const board = document.getElementById('snakeBoard');
+        let snake = [{ x: 5, y: 5 }];
+        let direction = 'RIGHT';
+        let food = { x: 8, y: 8 };
+        let gameInterval;
+
+        const drawSnake = () => {
+          board.innerHTML = '';
+          snake.forEach(segment => {
+            const snakeSegment = document.createElement('div');
+            snakeSegment.classList.add('snake');
+            snakeSegment.style.top = `${segment.y * 10}px`;
+            snakeSegment.style.left = `${segment.x * 10}px`;
+            board.appendChild(snakeSegment);
+          });
+        };
+
+        const drawFood = () => {
+          const foodElement = document.createElement('div');
+          foodElement.style.backgroundColor = 'red';
+          foodElement.classList.add('snake');
+          foodElement.style.top = `${food.y * 10}px`;
+          foodElement.style.left = `${food.x * 10}px`;
+          board.appendChild(foodElement);
+        };
+
+        const moveSnake = () => {
+          let newHead = { ...snake[0] };
+
+          if (direction === 'UP') newHead.y--;
+          if (direction === 'DOWN') newHead.y++;
+          if (direction === 'LEFT') newHead.x--;
+          if (direction === 'RIGHT') newHead.x++;
+
+          snake.unshift(newHead);
+
+          if (newHead.x === food.x && newHead.y === food.y) {
+            food = { x: Math.floor(Math.random() * 29), y: Math.floor(Math.random() * 29) };
+          } else {
+            snake.pop();
+          }
+
+          drawSnake();
+          drawFood();
+        };
+
+        const changeDirection = (event) => {
+          if (event.key === 'ArrowUp' && direction !== 'DOWN') direction = 'UP';
+          if (event.key === 'ArrowDown' && direction !== 'UP') direction = 'DOWN';
+          if (event.key === 'ArrowLeft' && direction !== 'RIGHT') direction = 'LEFT';
+          if (event.key === 'ArrowRight' && direction !== 'LEFT') direction = 'RIGHT';
+        };
+
+        window.addEventListener('keydown', changeDirection);
+
+        gameInterval = setInterval(moveSnake, 100);
+      };
+
+      // --- Rock Paper Scissors ---
+      const renderRockPaperScissors = () => {
+        const rockPaperScissorsGame = document.getElementById('rockPaperScissorsGame');
+        rockPaperScissorsGame.innerHTML = `
+          <h3>Rock Paper Scissors</h3>
+          <div class="rps-buttons">
+            <button class="rps-button" id="rockBtn">Rock</button>
+            <button class="rps-button" id="paperBtn">Paper</button>
+            <button class="rps-button" id="scissorsBtn">Scissors</button>
+          </div>
+          <p id="rpsResult"></p>
+        `;
+        const rpsResult = document.getElementById('rpsResult');
+        const choices = ['Rock', 'Paper', 'Scissors'];
+
+        const getComputerChoice = () => {
+          return choices[Math.floor(Math.random() * 3)];
+        };
+
+        const playRPS = (playerChoice) => {
+          const computerChoice = getComputerChoice();
+          if (playerChoice === computerChoice) {
+            rpsResult.textContent = `It's a tie! Both chose ${computerChoice}`;
+          } else if (
+            (playerChoice === 'Rock' && computerChoice === 'Scissors') ||
+            (playerChoice === 'Paper' && computerChoice === 'Rock') ||
+            (playerChoice === 'Scissors' && computerChoice === 'Paper')
+          ) {
+            rpsResult.textContent = `You win! ${playerChoice} beats ${computerChoice}`;
+          } else {
+            rpsResult.textContent = `You lose! ${computerChoice} beats ${playerChoice}`;
+          }
+        };
+
+        document.getElementById('rockBtn').addEventListener('click', () => playRPS('Rock'));
+        document.getElementById('paperBtn').addEventListener('click', () => playRPS('Paper'));
+        document.getElementById('scissorsBtn').addEventListener('click', () => playRPS('Scissors'));
+      };
+    });
+  </script>
 </body>
 </html>
