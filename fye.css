@@ -2,39 +2,33 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-  }
-  
-  body, html {
-    font-family: Arial, sans-serif;
+}
+
+body, html {
     height: 100%;
+    font-family: Arial, sans-serif;
+    background-color: #121212;
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #202020;
-    color: #fff;
-  }
-  
-  #game-container {
+}
+
+#game-container {
     position: relative;
     width: 800px;
     height: 600px;
-  }
-  
-  canvas {
-    background-color: #121212;
+}
+
+canvas {
+    background-color: #1a1a1a;
     width: 100%;
     height: 100%;
-  }
-  
-  #game-ui {
+}
+
+#game-ui {
     position: absolute;
     top: 20px;
     left: 20px;
     color: white;
     font-size: 18px;
-  }
-  
-  #game-ui p {
-    margin: 5px 0;
-  }
-  
+}
