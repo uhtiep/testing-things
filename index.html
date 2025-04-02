@@ -95,66 +95,46 @@
       margin-top: 2rem;
     }
 
-    .template-container iframe {
+    pre {
+      background-color: #333;
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      color: #ddd;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .code-button {
+      padding: 0.5rem 1rem;
+      background-color: #28a745;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin-top: 1rem;
+    }
+
+    .code-button:hover {
+      background-color: #218838;
+    }
+
+    .preview {
+      margin-top: 1.5rem;
+      background-color: #1c1c1c;
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    iframe {
       width: 100%;
       height: 500px;
       border: none;
       border-radius: 8px;
     }
 
-    .clicker-game, .weather-app, .quiz-app {
-      text-align: center;
-    }
-
-    .clicker-button {
-      background-color: #28a745;
-      color: white;
-      padding: 1rem;
-      border: none;
-      font-size: 1.5rem;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-
-    .clicker-button:hover {
-      background-color: #218838;
-    }
-
-    .clicker-count {
-      margin-top: 1rem;
-      font-size: 2rem;
-    }
-
-    /* More advanced styles for specific templates */
-    .weather-app {
-      font-size: 1.1rem;
-      padding: 1rem;
-      background: #444;
-      border-radius: 10px;
-      margin-top: 20px;
-    }
-
-    .quiz-question {
-      font-size: 1.5rem;
-      margin-bottom: 1rem;
-    }
-
-    .quiz-option {
-      padding: 1rem;
-      background: #333;
-      color: white;
-      border: none;
-      margin-top: 1rem;
-      width: 100%;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .quiz-option:hover {
-      background: #555;
-    }
   </style>
 </head>
 <body>
@@ -164,8 +144,8 @@
     </div>
     <nav>
       <ul>
-        <li><a href="#" id="homeBtn">Home</a></li>
-        <li><a href="#" id="templatesBtn">Templates</a></li>
+        <li><a href="#">Home</a></li>
+        <li><a href="#">Templates</a></li>
       </ul>
     </nav>
   </header>
@@ -190,7 +170,7 @@
     </section>
 
     <section id="templateContainer" class="template-container">
-      <!-- Template content will be injected here -->
+      <p>Select a template to view its content.</p>
     </section>
   </div>
 
@@ -201,7 +181,8 @@
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const templates = {
-        notificationUI: `
+        notificationUI: {
+          code: `
           <div class="notification" id="notification">
             <p>This is a notification!</p>
           </div>
@@ -214,9 +195,24 @@
                 notification.classList.remove('show');
               }, 3000);
             }
-          </script>
-        `,
-        clickerGame: `
+          </script>`,
+          preview: `
+          <div class="notification" id="notification">
+            <p>This is a notification!</p>
+          </div>
+          <button onclick="showNotification()">Show Notification</button>
+          <script>
+            function showNotification() {
+              const notification = document.getElementById('notification');
+              notification.classList.add('show');
+              setTimeout(() => {
+                notification.classList.remove('show');
+              }, 3000);
+            }
+          </script>`
+        },
+        clickerGame: {
+          code: `
           <div class="clicker-game">
             <button class="clicker-button" id="clickerBtn">Click Me!</button>
             <p class="clicker-count" id="clickerCount">Clicks: 0</p>
@@ -229,9 +225,24 @@
               count++;
               clickerCount.textContent = 'Clicks: ' + count;
             });
-          </script>
-        `,
-        randomQuoteGenerator: `
+          </script>`,
+          preview: `
+          <div class="clicker-game">
+            <button class="clicker-button" id="clickerBtn">Click Me!</button>
+            <p class="clicker-count" id="clickerCount">Clicks: 0</p>
+          </div>
+          <script>
+            let count = 0;
+            const clickerBtn = document.getElementById('clickerBtn');
+            const clickerCount = document.getElementById('clickerCount');
+            clickerBtn.addEventListener('click', () => {
+              count++;
+              clickerCount.textContent = 'Clicks: ' + count;
+            });
+          </script>`
+        },
+        randomQuoteGenerator: {
+          code: `
           <div class="quote-generator">
             <button id="generateQuoteBtn">Generate Random Quote</button>
             <p id="quoteText">Click to generate a quote!</p>
@@ -247,52 +258,61 @@
               const randomIndex = Math.floor(Math.random() * quotes.length);
               document.getElementById('quoteText').textContent = quotes[randomIndex];
             });
-          </script>
-        `,
-        weatherApp: `
-          <div class="weather-app">
-            <h2>Weather App</h2>
-            <input type="text" id="cityInput" placeholder="Enter city">
-            <button id="getWeatherBtn">Get Weather</button>
-            <div id="weatherDetails"></div>
+          </script>`,
+          preview: `
+          <div class="quote-generator">
+            <button id="generateQuoteBtn">Generate Random Quote</button>
+            <p id="quoteText">Click to generate a quote!</p>
           </div>
           <script>
-            const apiKey = 'your_api_key'; // Replace with a valid OpenWeatherMap API key
-            document.getElementById('getWeatherBtn').addEventListener('click', () => {
-              const city = document.getElementById('cityInput').value;
-              fetch(\`https://api.openweathermap.org/data/2.5/weather?q=\${city}&appid=\${apiKey}\`)
-                .then(response => response.json())
-                .then(data => {
-                  if (data.cod === '404') {
-                    document.getElementById('weatherDetails').textContent = 'City not found.';
-                  } else {
-                    document.getElementById('weatherDetails').innerHTML = 
-                      \`<p>Temperature: \${(data.main.temp - 273.15).toFixed(2)}°C</p><p>Weather: \${data.weather[0].description}</p>\`;
-                  }
-                });
+            const quotes = [
+              'Life is 10% what happens to us and 90% how we react to it.',
+              'Success is not the key to happiness. Happiness is the key to success.',
+              'The purpose of life is not to be happy. It is to be useful, to be honorable, to be compassionate.',
+              'Don’t count the days, make the days count.',
+            ];
+            document.getElementById('generateQuoteBtn').addEventListener('click', () => {
+              const randomIndex = Math.floor(Math.random() * quotes.length);
+              document.getElementById('quoteText').textContent = quotes[randomIndex];
             });
-          </script>
-        `,
-        // ... Add the rest of the templates (Expense Tracker, Password Generator, etc.) here.
+          </script>`
+        },
+        // Other advanced templates should be added here similarly...
       };
 
-      // Add event listeners for each template button
+      function updateTemplate(template) {
+        const templateContainer = document.getElementById('templateContainer');
+        templateContainer.innerHTML = `
+          <h2>Preview:</h2>
+          <div class="preview">${template.preview}</div>
+          <h2>Code:</h2>
+          <pre>${template.code}</pre>
+          <button class="code-button" onclick="copyCode('${template.code}')">Copy Code</button>
+        `;
+      }
+
+      function copyCode(code) {
+        const textArea = document.createElement('textarea');
+        textArea.value = code;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        alert('Code copied to clipboard!');
+      }
+
+      // Add event listeners for all templates
       document.getElementById('notificationUITemplateBtn').addEventListener('click', () => {
-        document.getElementById('templateContainer').innerHTML = templates.notificationUI;
+        updateTemplate(templates.notificationUI);
       });
       document.getElementById('clickerGameTemplateBtn').addEventListener('click', () => {
-        document.getElementById('templateContainer').innerHTML = templates.clickerGame;
+        updateTemplate(templates.clickerGame);
       });
       document.getElementById('randomQuoteTemplateBtn').addEventListener('click', () => {
-        document.getElementById('templateContainer').innerHTML = templates.randomQuoteGenerator;
+        updateTemplate(templates.randomQuoteGenerator);
       });
-      document.getElementById('weatherAppTemplateBtn').addEventListener('click', () => {
-        document.getElementById('templateContainer').innerHTML = templates.weatherApp;
-      });
-      // Continue with the rest of the templates...
 
-      // Initial view
-      document.getElementById('templateContainer').innerHTML = '<p>Select a template to view its content.</p>';
+      // Add similar event listeners for other buttons here...
     });
   </script>
 </body>
