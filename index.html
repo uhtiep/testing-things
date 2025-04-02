@@ -1,319 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Advanced Code Templates</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Arial', sans-serif;
-      background-color: #121212;
-      color: #ddd;
-      line-height: 1.6;
-      overflow-x: hidden;
-      padding: 0 20px;
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: #1f1f1f;
-      padding: 1rem;
-      color: white;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    }
-
-    header .logo h1 {
-      font-size: 1.8rem;
-    }
-
-    nav ul {
-      list-style: none;
-      display: flex;
-    }
-
-    nav ul li {
-      margin-left: 1rem;
-    }
-
-    nav ul li a {
-      color: white;
-      text-decoration: none;
-      font-size: 1.2rem;
-      transition: color 0.3s;
-    }
-
-    nav ul li a:hover {
-      color: #007bff;
-    }
-
-    .content {
-      padding: 2rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .templates {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-
-    button {
-      padding: 1rem 2rem;
-      border: none;
-      background-color: #007bff;
-      color: white;
-      cursor: pointer;
-      font-size: 1rem;
-      border-radius: 5px;
-      transition: background-color 0.3s;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-
-    .template-container {
-      width: 100%;
-      max-width: 900px;
-      background-color: #1e1e1e;
-      padding: 2rem;
-      border-radius: 10px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-      overflow: hidden;
-      margin-top: 2rem;
-    }
-
-    pre {
-      background-color: #333;
-      padding: 1rem;
-      border-radius: 8px;
-      overflow-x: auto;
-      color: #ddd;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-    }
-
-    .code-button {
-      padding: 0.5rem 1rem;
-      background-color: #28a745;
-      border: none;
-      border-radius: 5px;
-      color: white;
-      cursor: pointer;
-      transition: background-color 0.3s;
-      margin-top: 1rem;
-    }
-
-    .code-button:hover {
-      background-color: #218838;
-    }
-
-    .preview {
-      margin-top: 1.5rem;
-      background-color: #1c1c1c;
-      padding: 1rem;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    }
-
-    iframe {
-      width: 100%;
-      height: 500px;
-      border: none;
-      border-radius: 8px;
-    }
-
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Code Templates</title>
+    <link rel="stylesheet" href="fye.css">
 </head>
 <body>
-  <header>
-    <div class="logo">
-      <h1>Advanced Code Templates</h1>
+    <header>
+        <div class="logo">
+            <h1>Advanced Code Templates</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Templates</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="content">
+        <section class="templates">
+            <button id="notificationUITemplateBtn">Notification UI</button>
+            <button id="clickerGameTemplateBtn">Clicker Game</button>
+            <button id="randomQuoteTemplateBtn">Random Quote Generator</button>
+            <button id="weatherAppTemplateBtn">Weather App</button>
+            <button id="expenseTrackerTemplateBtn">Expense Tracker</button>
+            <button id="passwordGeneratorTemplateBtn">Password Generator</button>
+            <button id="todoListTemplateBtn">Todo List</button>
+            <button id="pomodoroTimerTemplateBtn">Pomodoro Timer</button>
+            <button id="memoryGameTemplateBtn">Memory Game</button>
+            <button id="imageSliderTemplateBtn">Image Slider</button>
+            <button id="interactiveMapTemplateBtn">Interactive Map</button>
+            <button id="animatedLoaderTemplateBtn">Animated Loader</button>
+            <button id="responsiveNavTemplateBtn">Responsive Navigation</button>
+            <button id="photoEditorTemplateBtn">Photo Editor</button>
+            <button id="quizAppTemplateBtn">Quiz App</button>
+        </section>
+
+        <section id="templateContainer" class="template-container">
+            <p>Select a template to view its content.</p>
+            <div id="previewContainer"></div>
+        </section>
     </div>
-    <nav>
-      <ul>
-        <li><a href="#">Home</a></li>
-        <li><a href="#">Templates</a></li>
-      </ul>
-    </nav>
-  </header>
 
-  <div class="content">
-    <section class="templates">
-      <button id="notificationUITemplateBtn">Notification UI</button>
-      <button id="clickerGameTemplateBtn">Clicker Game</button>
-      <button id="randomQuoteTemplateBtn">Random Quote Generator</button>
-      <button id="weatherAppTemplateBtn">Weather App</button>
-      <button id="expenseTrackerTemplateBtn">Expense Tracker</button>
-      <button id="passwordGeneratorTemplateBtn">Password Generator</button>
-      <button id="todoListTemplateBtn">Todo List</button>
-      <button id="pomodoroTimerTemplateBtn">Pomodoro Timer</button>
-      <button id="memoryGameTemplateBtn">Memory Game</button>
-      <button id="imageSliderTemplateBtn">Image Slider</button>
-      <button id="interactiveMapTemplateBtn">Interactive Map</button>
-      <button id="animatedLoaderTemplateBtn">Animated Loader</button>
-      <button id="responsiveNavTemplateBtn">Responsive Navigation</button>
-      <button id="photoEditorTemplateBtn">Photo Editor</button>
-      <button id="quizAppTemplateBtn">Quiz App</button>
-    </section>
+    <footer>
+        <p>&copy; 2025 Advanced Code Templates. All Rights Reserved.</p>
+    </footer>
 
-    <section id="templateContainer" class="template-container">
-      <p>Select a template to view its content.</p>
-    </section>
-  </div>
-
-  <footer style="background-color: #1e1e1e; color: white; text-align: center; padding: 1rem;">
-    <p>&copy; 2025 Advanced Code Templates. All Rights Reserved.</p>
-  </footer>
-
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const templates = {
-        notificationUI: {
-          code: `
-          <div class="notification" id="notification">
-            <p>This is a notification!</p>
-          </div>
-          <button onclick="showNotification()">Show Notification</button>
-          <script>
-            function showNotification() {
-              const notification = document.getElementById('notification');
-              notification.classList.add('show');
-              setTimeout(() => {
-                notification.classList.remove('show');
-              }, 3000);
-            }
-          </script>`,
-          preview: `
-          <div class="notification" id="notification">
-            <p>This is a notification!</p>
-          </div>
-          <button onclick="showNotification()">Show Notification</button>
-          <script>
-            function showNotification() {
-              const notification = document.getElementById('notification');
-              notification.classList.add('show');
-              setTimeout(() => {
-                notification.classList.remove('show');
-              }, 3000);
-            }
-          </script>`
-        },
-        clickerGame: {
-          code: `
-          <div class="clicker-game">
-            <button class="clicker-button" id="clickerBtn">Click Me!</button>
-            <p class="clicker-count" id="clickerCount">Clicks: 0</p>
-          </div>
-          <script>
-            let count = 0;
-            const clickerBtn = document.getElementById('clickerBtn');
-            const clickerCount = document.getElementById('clickerCount');
-            clickerBtn.addEventListener('click', () => {
-              count++;
-              clickerCount.textContent = 'Clicks: ' + count;
-            });
-          </script>`,
-          preview: `
-          <div class="clicker-game">
-            <button class="clicker-button" id="clickerBtn">Click Me!</button>
-            <p class="clicker-count" id="clickerCount">Clicks: 0</p>
-          </div>
-          <script>
-            let count = 0;
-            const clickerBtn = document.getElementById('clickerBtn');
-            const clickerCount = document.getElementById('clickerCount');
-            clickerBtn.addEventListener('click', () => {
-              count++;
-              clickerCount.textContent = 'Clicks: ' + count;
-            });
-          </script>`
-        },
-        randomQuoteGenerator: {
-          code: `
-          <div class="quote-generator">
-            <button id="generateQuoteBtn">Generate Random Quote</button>
-            <p id="quoteText">Click to generate a quote!</p>
-          </div>
-          <script>
-            const quotes = [
-              'Life is 10% what happens to us and 90% how we react to it.',
-              'Success is not the key to happiness. Happiness is the key to success.',
-              'The purpose of life is not to be happy. It is to be useful, to be honorable, to be compassionate.',
-              'Don’t count the days, make the days count.',
-            ];
-            document.getElementById('generateQuoteBtn').addEventListener('click', () => {
-              const randomIndex = Math.floor(Math.random() * quotes.length);
-              document.getElementById('quoteText').textContent = quotes[randomIndex];
-            });
-          </script>`,
-          preview: `
-          <div class="quote-generator">
-            <button id="generateQuoteBtn">Generate Random Quote</button>
-            <p id="quoteText">Click to generate a quote!</p>
-          </div>
-          <script>
-            const quotes = [
-              'Life is 10% what happens to us and 90% how we react to it.',
-              'Success is not the key to happiness. Happiness is the key to success.',
-              'The purpose of life is not to be happy. It is to be useful, to be honorable, to be compassionate.',
-              'Don’t count the days, make the days count.',
-            ];
-            document.getElementById('generateQuoteBtn').addEventListener('click', () => {
-              const randomIndex = Math.floor(Math.random() * quotes.length);
-              document.getElementById('quoteText').textContent = quotes[randomIndex];
-            });
-          </script>`
-        },
-        // Other advanced templates should be added here similarly...
-      };
-
-      function updateTemplate(template) {
-        const templateContainer = document.getElementById('templateContainer');
-        templateContainer.innerHTML = `
-          <h2>Preview:</h2>
-          <div class="preview">${template.preview}</div>
-          <h2>Code:</h2>
-          <pre>${template.code}</pre>
-          <button class="code-button" onclick="copyCode('${template.code}')">Copy Code</button>
-        `;
-      }
-
-      function copyCode(code) {
-        const textArea = document.createElement('textarea');
-        textArea.value = code;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
-        alert('Code copied to clipboard!');
-      }
-
-      // Add event listeners for all templates
-      document.getElementById('notificationUITemplateBtn').addEventListener('click', () => {
-        updateTemplate(templates.notificationUI);
-      });
-      document.getElementById('clickerGameTemplateBtn').addEventListener('click', () => {
-        updateTemplate(templates.clickerGame);
-      });
-      document.getElementById('randomQuoteTemplateBtn').addEventListener('click', () => {
-        updateTemplate(templates.randomQuoteGenerator);
-      });
-
-      // Add similar event listeners for other buttons here...
-    });
-  </script>
+    <script src="wtf.js"></script>
 </body>
 </html>
