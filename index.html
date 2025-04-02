@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Game Center</title>
+  <title>Advanced Code Templates</title>
   <style>
-    /* Reset and General Styling */
     * {
       margin: 0;
       padding: 0;
@@ -14,17 +13,21 @@
 
     body {
       font-family: 'Arial', sans-serif;
-      background-color: #f0f0f0;
-      color: #333;
+      background-color: #121212;
+      color: #ddd;
+      line-height: 1.6;
+      overflow-x: hidden;
+      padding: 0 20px;
     }
 
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background-color: #1e1e1e;
+      background-color: #1f1f1f;
       padding: 1rem;
       color: white;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     }
 
     header .logo h1 {
@@ -44,450 +47,252 @@
       color: white;
       text-decoration: none;
       font-size: 1.2rem;
+      transition: color 0.3s;
     }
 
-    main {
+    nav ul li a:hover {
+      color: #007bff;
+    }
+
+    .content {
       padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
-    .hero {
-      text-align: center;
+    .templates {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
       margin-bottom: 2rem;
     }
 
-    .hero h2 {
-      font-size: 2rem;
-    }
-
     button {
-      padding: 1rem;
+      padding: 1rem 2rem;
       border: none;
       background-color: #007bff;
       color: white;
       cursor: pointer;
+      font-size: 1rem;
+      border-radius: 5px;
+      transition: background-color 0.3s;
     }
 
     button:hover {
       background-color: #0056b3;
     }
 
-    .games .game-list {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
-
-    .game-item {
-      background-color: #fff;
-      border: 1px solid #ccc;
-      padding: 1rem;
-      text-align: center;
-      border-radius: 8px;
-    }
-
-    .game-item h3 {
-      font-size: 1.2rem;
-    }
-
-    .game-container {
+    .template-container {
+      width: 100%;
+      max-width: 900px;
+      background-color: #1e1e1e;
       padding: 2rem;
-      background-color: white;
-      border-radius: 8px;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
       margin-top: 2rem;
     }
 
-    footer {
-      text-align: center;
-      padding: 1rem;
-      background-color: #1e1e1e;
-      color: white;
-      position: absolute;
-      bottom: 0;
+    .template-container iframe {
       width: 100%;
-    }
-
-    @media (max-width: 768px) {
-      .games .game-list {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    /* Tic-Tac-Toe Specific Styles */
-    .ticTacToeBoard {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      width: 200px;
-      margin: 0 auto;
-    }
-
-    .ticTacToeCell {
-      width: 60px;
-      height: 60px;
-      background-color: #fff;
-      border: 1px solid #ccc;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 2rem;
-      cursor: pointer;
-    }
-
-    /* Memory Game Styles */
-    .memory-board {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      max-width: 300px;
-      margin: 0 auto;
-    }
-
-    .memory-card {
-      width: 60px;
-      height: 60px;
-      background-color: #007bff;
-      color: transparent;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 2rem;
-      cursor: pointer;
-    }
-
-    /* Snake Game Styles */
-    .snake-board {
-      width: 300px;
-      height: 300px;
-      background-color: #000;
-      margin: 0 auto;
-      position: relative;
-    }
-
-    .snake {
-      background-color: #00ff00;
-      width: 10px;
-      height: 10px;
-      position: absolute;
-    }
-
-    /* Rock Paper Scissors Styles */
-    .rps-buttons {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-    }
-
-    .rps-button {
-      padding: 1rem;
-      font-size: 1.2rem;
-      cursor: pointer;
-      background-color: #007bff;
-      color: white;
+      height: 500px;
       border: none;
       border-radius: 8px;
     }
 
-    .rps-button:hover {
-      background-color: #0056b3;
+    .clicker-game, .weather-app, .quiz-app {
+      text-align: center;
+    }
+
+    .clicker-button {
+      background-color: #28a745;
+      color: white;
+      padding: 1rem;
+      border: none;
+      font-size: 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .clicker-button:hover {
+      background-color: #218838;
+    }
+
+    .clicker-count {
+      margin-top: 1rem;
+      font-size: 2rem;
+    }
+
+    /* More advanced styles for specific templates */
+    .weather-app {
+      font-size: 1.1rem;
+      padding: 1rem;
+      background: #444;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+
+    .quiz-question {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .quiz-option {
+      padding: 1rem;
+      background: #333;
+      color: white;
+      border: none;
+      margin-top: 1rem;
+      width: 100%;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .quiz-option:hover {
+      background: #555;
     }
   </style>
 </head>
 <body>
   <header>
     <div class="logo">
-      <h1>Game Center</h1>
+      <h1>Advanced Code Templates</h1>
     </div>
     <nav>
       <ul>
-        <li><a href="#home">Home</a></li>
-        <li><a href="#games">Games</a></li>
-        <li><a href="#about">About</a></li>
+        <li><a href="#" id="homeBtn">Home</a></li>
+        <li><a href="#" id="templatesBtn">Templates</a></li>
       </ul>
     </nav>
   </header>
 
-  <main>
-    <section class="hero">
-      <h2>Welcome to Game Center</h2>
-      <p>Enjoy the best games!</p>
-      <button id="playNowBtn">Play Now</button>
+  <div class="content">
+    <section class="templates">
+      <button id="notificationUITemplateBtn">Notification UI</button>
+      <button id="clickerGameTemplateBtn">Clicker Game</button>
+      <button id="randomQuoteTemplateBtn">Random Quote Generator</button>
+      <button id="weatherAppTemplateBtn">Weather App</button>
+      <button id="expenseTrackerTemplateBtn">Expense Tracker</button>
+      <button id="passwordGeneratorTemplateBtn">Password Generator</button>
+      <button id="todoListTemplateBtn">Todo List</button>
+      <button id="pomodoroTimerTemplateBtn">Pomodoro Timer</button>
+      <button id="memoryGameTemplateBtn">Memory Game</button>
+      <button id="imageSliderTemplateBtn">Image Slider</button>
+      <button id="interactiveMapTemplateBtn">Interactive Map</button>
+      <button id="animatedLoaderTemplateBtn">Animated Loader</button>
+      <button id="responsiveNavTemplateBtn">Responsive Navigation</button>
+      <button id="photoEditorTemplateBtn">Photo Editor</button>
+      <button id="quizAppTemplateBtn">Quiz App</button>
     </section>
 
-    <section id="games" class="games">
-      <h2>Featured Games</h2>
-      <div class="game-list">
-        <div class="game-item">
-          <h3>Tic-Tac-Toe</h3>
-          <button class="game-btn" id="ticTacToeBtn">Play</button>
-        </div>
-        <div class="game-item">
-          <h3>Memory Game</h3>
-          <button class="game-btn" id="memoryGameBtn">Play</button>
-        </div>
-        <div class="game-item">
-          <h3>Snake</h3>
-          <button class="game-btn" id="snakeGameBtn">Play</button>
-        </div>
-        <div class="game-item">
-          <h3>Rock Paper Scissors</h3>
-          <button class="game-btn" id="rockPaperScissorsBtn">Play</button>
-        </div>
-      </div>
+    <section id="templateContainer" class="template-container">
+      <!-- Template content will be injected here -->
     </section>
+  </div>
 
-    <section id="gameContainer" class="game-container">
-      <button id="backToHomeBtn">Back to Home</button>
-      <!-- Tic-Tac-Toe Game -->
-      <div id="ticTacToeGame" class="game"></div>
-      <!-- Memory Game -->
-      <div id="memoryGameContainer" class="game"></div>
-      <!-- Snake Game -->
-      <div id="snakeGameContainer" class="game"></div>
-      <!-- Rock Paper Scissors Game -->
-      <div id="rockPaperScissorsGame" class="game"></div>
-    </section>
-  </main>
-
-  <footer>
-    <p>&copy; 2025 Game Center. All Rights Reserved.</p>
+  <footer style="background-color: #1e1e1e; color: white; text-align: center; padding: 1rem;">
+    <p>&copy; 2025 Advanced Code Templates. All Rights Reserved.</p>
   </footer>
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      const playNowBtn = document.getElementById('playNowBtn');
-      const ticTacToeBtn = document.getElementById('ticTacToeBtn');
-      const memoryGameBtn = document.getElementById('memoryGameBtn');
-      const snakeGameBtn = document.getElementById('snakeGameBtn');
-      const rockPaperScissorsBtn = document.getElementById('rockPaperScissorsBtn');
-      const backToHomeBtn = document.getElementById('backToHomeBtn');
-      const gameContainer = document.getElementById('gameContainer');
-      const heroSection = document.querySelector('.hero');
-
-      const showGame = (game) => {
-        gameContainer.style.display = 'block';
-        heroSection.style.display = 'none';
-
-        // Hide all game containers
-        const games = document.querySelectorAll('.game');
-        games.forEach(gameContainer => gameContainer.style.display = 'none');
-
-        // Show the selected game
-        document.getElementById(game).style.display = 'block';
-      };
-
-      // Game Navigation
-      ticTacToeBtn.addEventListener('click', () => showGame('ticTacToeGame'));
-      memoryGameBtn.addEventListener('click', () => showGame('memoryGameContainer'));
-      snakeGameBtn.addEventListener('click', () => showGame('snakeGameContainer'));
-      rockPaperScissorsBtn.addEventListener('click', () => showGame('rockPaperScissorsGame'));
-
-      backToHomeBtn.addEventListener('click', () => {
-        gameContainer.style.display = 'none';
-        heroSection.style.display = 'block';
-      });
-
-      // --- Tic-Tac-Toe Game ---
-      const renderTicTacToe = () => {
-        const ticTacToe = document.getElementById('ticTacToeGame');
-        ticTacToe.innerHTML = `
-          <h3>Tic-Tac-Toe</h3>
-          <div id="ticTacToeBoard" class="ticTacToeBoard">
-            <div class="ticTacToeCell" data-index="0"></div>
-            <div class="ticTacToeCell" data-index="1"></div>
-            <div class="ticTacToeCell" data-index="2"></div>
-            <div class="ticTacToeCell" data-index="3"></div>
-            <div class="ticTacToeCell" data-index="4"></div>
-            <div class="ticTacToeCell" data-index="5"></div>
-            <div class="ticTacToeCell" data-index="6"></div>
-            <div class="ticTacToeCell" data-index="7"></div>
-            <div class="ticTacToeCell" data-index="8"></div>
+      const templates = {
+        notificationUI: `
+          <div class="notification" id="notification">
+            <p>This is a notification!</p>
           </div>
-        `;
-        let turn = 'X';
-        const board = document.getElementById('ticTacToeBoard');
-        const cells = board.getElementsByClassName('ticTacToeCell');
-        let gameState = ['', '', '', '', '', '', '', '', ''];
-        
-        [...cells].forEach(cell => {
-          cell.addEventListener('click', (e) => {
-            if (!e.target.textContent) {
-              e.target.textContent = turn;
-              gameState[e.target.dataset.index] = turn;
-              if (checkWinner(gameState)) {
-                alert(turn + ' Wins!');
-                resetGame();
-              }
-              turn = turn === 'X' ? 'O' : 'X';
+          <button onclick="showNotification()">Show Notification</button>
+          <script>
+            function showNotification() {
+              const notification = document.getElementById('notification');
+              notification.classList.add('show');
+              setTimeout(() => {
+                notification.classList.remove('show');
+              }, 3000);
             }
-          });
-        });
-
-        const checkWinner = (state) => {
-          const winPatterns = [
-            [0, 1, 2], [3, 4, 5], [6, 7, 8],
-            [0, 3, 6], [1, 4, 7], [2, 5, 8],
-            [0, 4, 8], [2, 4, 6]
-          ];
-          return winPatterns.some(pattern => 
-            state[pattern[0]] && state[pattern[0]] === state[pattern[1]] && state[pattern[0]] === state[pattern[2]]
-          );
-        };
-
-        const resetGame = () => {
-          gameState = ['', '', '', '', '', '', '', '', ''];
-          [...cells].forEach(cell => cell.textContent = '');
-        };
-      };
-
-      // --- Memory Game ---
-      const renderMemoryGame = () => {
-        const memoryGameContainer = document.getElementById('memoryGameContainer');
-        memoryGameContainer.innerHTML = `
-          <h3>Memory Game</h3>
-          <div id="memoryBoard" class="memory-board"></div>
-        `;
-        const cards = ['A', 'B', 'C', 'D', 'A', 'B', 'C', 'D'];
-        let flippedCards = [];
-        let matchedPairs = 0;
-
-        cards.sort(() => 0.5 - Math.random());
-
-        const memoryBoard = document.getElementById('memoryBoard');
-        cards.forEach(card => {
-          const cardElement = document.createElement('div');
-          cardElement.classList.add('memory-card');
-          cardElement.textContent = card;
-          memoryBoard.appendChild(cardElement);
-
-          cardElement.addEventListener('click', () => {
-            if (flippedCards.length < 2 && !cardElement.classList.contains('flipped')) {
-              cardElement.classList.add('flipped');
-              flippedCards.push(cardElement);
-
-              if (flippedCards.length === 2) {
-                setTimeout(() => {
-                  if (flippedCards[0].textContent === flippedCards[1].textContent) {
-                    flippedCards[0].classList.add('matched');
-                    flippedCards[1].classList.add('matched');
-                    matchedPairs++;
-                    if (matchedPairs === 4) {
-                      alert('You win!');
-                    }
+          </script>
+        `,
+        clickerGame: `
+          <div class="clicker-game">
+            <button class="clicker-button" id="clickerBtn">Click Me!</button>
+            <p class="clicker-count" id="clickerCount">Clicks: 0</p>
+          </div>
+          <script>
+            let count = 0;
+            const clickerBtn = document.getElementById('clickerBtn');
+            const clickerCount = document.getElementById('clickerCount');
+            clickerBtn.addEventListener('click', () => {
+              count++;
+              clickerCount.textContent = 'Clicks: ' + count;
+            });
+          </script>
+        `,
+        randomQuoteGenerator: `
+          <div class="quote-generator">
+            <button id="generateQuoteBtn">Generate Random Quote</button>
+            <p id="quoteText">Click to generate a quote!</p>
+          </div>
+          <script>
+            const quotes = [
+              'Life is 10% what happens to us and 90% how we react to it.',
+              'Success is not the key to happiness. Happiness is the key to success.',
+              'The purpose of life is not to be happy. It is to be useful, to be honorable, to be compassionate.',
+              'Don’t count the days, make the days count.',
+            ];
+            document.getElementById('generateQuoteBtn').addEventListener('click', () => {
+              const randomIndex = Math.floor(Math.random() * quotes.length);
+              document.getElementById('quoteText').textContent = quotes[randomIndex];
+            });
+          </script>
+        `,
+        weatherApp: `
+          <div class="weather-app">
+            <h2>Weather App</h2>
+            <input type="text" id="cityInput" placeholder="Enter city">
+            <button id="getWeatherBtn">Get Weather</button>
+            <div id="weatherDetails"></div>
+          </div>
+          <script>
+            const apiKey = 'your_api_key'; // Replace with a valid OpenWeatherMap API key
+            document.getElementById('getWeatherBtn').addEventListener('click', () => {
+              const city = document.getElementById('cityInput').value;
+              fetch(\`https://api.openweathermap.org/data/2.5/weather?q=\${city}&appid=\${apiKey}\`)
+                .then(response => response.json())
+                .then(data => {
+                  if (data.cod === '404') {
+                    document.getElementById('weatherDetails').textContent = 'City not found.';
                   } else {
-                    flippedCards[0].classList.remove('flipped');
-                    flippedCards[1].classList.remove('flipped');
+                    document.getElementById('weatherDetails').innerHTML = 
+                      \`<p>Temperature: \${(data.main.temp - 273.15).toFixed(2)}°C</p><p>Weather: \${data.weather[0].description}</p>\`;
                   }
-                  flippedCards = [];
-                }, 1000);
-              }
-            }
-          });
-        });
+                });
+            });
+          </script>
+        `,
+        // ... Add the rest of the templates (Expense Tracker, Password Generator, etc.) here.
       };
 
-      // --- Snake Game ---
-      const renderSnakeGame = () => {
-        const snakeGameContainer = document.getElementById('snakeGameContainer');
-        snakeGameContainer.innerHTML = `
-          <h3>Snake Game</h3>
-          <div id="snakeBoard" class="snake-board"></div>
-        `;
-        const board = document.getElementById('snakeBoard');
-        let snake = [{ x: 5, y: 5 }];
-        let direction = 'RIGHT';
-        let food = { x: 8, y: 8 };
-        let gameInterval;
+      // Add event listeners for each template button
+      document.getElementById('notificationUITemplateBtn').addEventListener('click', () => {
+        document.getElementById('templateContainer').innerHTML = templates.notificationUI;
+      });
+      document.getElementById('clickerGameTemplateBtn').addEventListener('click', () => {
+        document.getElementById('templateContainer').innerHTML = templates.clickerGame;
+      });
+      document.getElementById('randomQuoteTemplateBtn').addEventListener('click', () => {
+        document.getElementById('templateContainer').innerHTML = templates.randomQuoteGenerator;
+      });
+      document.getElementById('weatherAppTemplateBtn').addEventListener('click', () => {
+        document.getElementById('templateContainer').innerHTML = templates.weatherApp;
+      });
+      // Continue with the rest of the templates...
 
-        const drawSnake = () => {
-          board.innerHTML = '';
-          snake.forEach(segment => {
-            const snakeSegment = document.createElement('div');
-            snakeSegment.classList.add('snake');
-            snakeSegment.style.top = `${segment.y * 10}px`;
-            snakeSegment.style.left = `${segment.x * 10}px`;
-            board.appendChild(snakeSegment);
-          });
-        };
-
-        const drawFood = () => {
-          const foodElement = document.createElement('div');
-          foodElement.style.backgroundColor = 'red';
-          foodElement.classList.add('snake');
-          foodElement.style.top = `${food.y * 10}px`;
-          foodElement.style.left = `${food.x * 10}px`;
-          board.appendChild(foodElement);
-        };
-
-        const moveSnake = () => {
-          let newHead = { ...snake[0] };
-
-          if (direction === 'UP') newHead.y--;
-          if (direction === 'DOWN') newHead.y++;
-          if (direction === 'LEFT') newHead.x--;
-          if (direction === 'RIGHT') newHead.x++;
-
-          snake.unshift(newHead);
-
-          if (newHead.x === food.x && newHead.y === food.y) {
-            food = { x: Math.floor(Math.random() * 29), y: Math.floor(Math.random() * 29) };
-          } else {
-            snake.pop();
-          }
-
-          drawSnake();
-          drawFood();
-        };
-
-        const changeDirection = (event) => {
-          if (event.key === 'ArrowUp' && direction !== 'DOWN') direction = 'UP';
-          if (event.key === 'ArrowDown' && direction !== 'UP') direction = 'DOWN';
-          if (event.key === 'ArrowLeft' && direction !== 'RIGHT') direction = 'LEFT';
-          if (event.key === 'ArrowRight' && direction !== 'LEFT') direction = 'RIGHT';
-        };
-
-        window.addEventListener('keydown', changeDirection);
-
-        gameInterval = setInterval(moveSnake, 100);
-      };
-
-      // --- Rock Paper Scissors ---
-      const renderRockPaperScissors = () => {
-        const rockPaperScissorsGame = document.getElementById('rockPaperScissorsGame');
-        rockPaperScissorsGame.innerHTML = `
-          <h3>Rock Paper Scissors</h3>
-          <div class="rps-buttons">
-            <button class="rps-button" id="rockBtn">Rock</button>
-            <button class="rps-button" id="paperBtn">Paper</button>
-            <button class="rps-button" id="scissorsBtn">Scissors</button>
-          </div>
-          <p id="rpsResult"></p>
-        `;
-        const rpsResult = document.getElementById('rpsResult');
-        const choices = ['Rock', 'Paper', 'Scissors'];
-
-        const getComputerChoice = () => {
-          return choices[Math.floor(Math.random() * 3)];
-        };
-
-        const playRPS = (playerChoice) => {
-          const computerChoice = getComputerChoice();
-          if (playerChoice === computerChoice) {
-            rpsResult.textContent = `It's a tie! Both chose ${computerChoice}`;
-          } else if (
-            (playerChoice === 'Rock' && computerChoice === 'Scissors') ||
-            (playerChoice === 'Paper' && computerChoice === 'Rock') ||
-            (playerChoice === 'Scissors' && computerChoice === 'Paper')
-          ) {
-            rpsResult.textContent = `You win! ${playerChoice} beats ${computerChoice}`;
-          } else {
-            rpsResult.textContent = `You lose! ${computerChoice} beats ${playerChoice}`;
-          }
-        };
-
-        document.getElementById('rockBtn').addEventListener('click', () => playRPS('Rock'));
-        document.getElementById('paperBtn').addEventListener('click', () => playRPS('Paper'));
-        document.getElementById('scissorsBtn').addEventListener('click', () => playRPS('Scissors'));
-      };
+      // Initial view
+      document.getElementById('templateContainer').innerHTML = '<p>Select a template to view its content.</p>';
     });
   </script>
 </body>
