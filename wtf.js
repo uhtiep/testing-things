@@ -5,6 +5,9 @@ const ctx = canvas.getContext('2d');
 const playerSpeed = 5;
 const bulletSpeed = 6;
 const enemySpeed = 2;
+const bulletCooldown = 1000; // 1 second between shots (in ms)
+let lastShotTime = 0; // Track last shot time
+
 let currentStage = 1;
 let stageEnemiesKilled = 0;
 let score = 0;
@@ -12,7 +15,7 @@ let coins = 0;
 
 // Game state variables
 let gameRunning = false;
-let player, bullets, enemies;
+let player, bullets, enemies, abilities;
 
 // Initialize game
 function startGame() {
@@ -23,6 +26,8 @@ function startGame() {
     player = createPlayer();
     bullets = [];
     enemies = [];
+    abilities = [];
+    generateEnemies();
     update();
 }
 
@@ -37,6 +42,7 @@ function createPlayer() {
         dx: 0,
         dy: 0,
         health: 3,
+        fireRate: bulletCooldown // Start with base fire rate (1 shot per second)
     };
 }
 
@@ -78,7 +84,7 @@ function getNearestEnemy() {
 // Shoot bullet towards nearest enemy
 function shootBulletTowardsEnemy() {
     const nearestEnemy = getNearestEnemy();
-    if (nearestEnemy) {
+    if (nearestEnemy && (Date.now() - lastShotTime >= player.fireRate)) {
         const angle = Math.atan2(nearestEnemy.y - player.y, nearestEnemy.x - player.x);
         const bullet = {
             x: player.x + player.width / 2 - 5,
@@ -89,6 +95,7 @@ function shootBulletTowardsEnemy() {
             angle: angle,
         };
         bullets.push(bullet);
+        lastShotTime = Date.now(); // Update last shot time
     }
 }
 
@@ -113,9 +120,35 @@ function checkCollisions() {
                 bullets.splice(bulletIndex, 1); // Remove bullet
                 score += 10; // Add score for killing an enemy
                 stageEnemiesKilled++;
+                checkForAbility(); // Check if an ability should be rewarded
             }
         });
     });
+}
+
+// Ability system - Random ability after every 3 kills
+function checkForAbility() {
+    if (stageEnemiesKilled % 3 === 0) {
+        selectAbility();
+    }
+}
+
+// Random ability selection (150 abilities)
+function selectAbility() {
+    const abilitiesList = [
+        { name: "Increase Fire Rate", effect: () => { player.fireRate = 500; } },  // Faster firing (0.5 sec cooldown)
+        { name: "Double Damage", effect: () => { player.damage = 2; } },  // Double damage
+        { name: "Speed Boost", effect: () => { player.speed = 8; } },  // Increase player speed
+        { name: "Triple Shot", effect: () => { player.fireRate = 333; } },  // Triple shot (0.33 sec cooldown)
+        { name: "Piercing Bullets", effect: () => { bulletSpeed = 8; } },  // Increase bullet speed
+        // Add more abilities here (up to 150)
+    ];
+
+    const randomAbility = abilitiesList[Math.floor(Math.random() * abilitiesList.length)];
+    abilities.push(randomAbility);
+    randomAbility.effect(); // Apply the selected ability effect
+
+    console.log(`New ability acquired: ${randomAbility.name}`);
 }
 
 // Update game state
@@ -180,6 +213,43 @@ document.addEventListener('keyup', (e) => {
     if (e.key === 'ArrowUp' || e.key === 'ArrowDown') player.dy = 0;
 });
 
-// Start the game
+// Select Map button click handler
+function showMaps() {
+    document.getElementById('mainMenu').style.display = 'none';
+    document.getElementById('mapSelectionMenu').style.display = 'block';
+    const mapList = document.getElementById('mapList');
+    mapList.innerHTML = ''; // clear list
+    maps.forEach((map, index) => {
+        let li = document.createElement('li');
+        li.textContent = map.name;
+        li.onclick = () => startGame(index + 1);
+        mapList.appendChild(li);
+    });
+}
+
+// Map and main menu switch
+function goBackToMainMenu() {
+    document.getElementById('mapSelectionMenu').style.display = 'none';
+    document.getElementById('mainMenu').style.display = 'block';
+}
+
+const maps = [
+    { name: "Forest of Shadows", stages: 60 },
+    { name: "Desert of Doom", stages: 60 },
+    { name: "Frozen Peaks", stages: 60 },
+    { name: "Volcanic Abyss", stages: 60 },
+    { name: "Cavern of Chaos", stages: 60 },
+    { name: "Temple of Time", stages: 60 },
+    { name: "Skylands", stages: 60 },
+    { name: "Dark Rift", stages: 60 },
+    { name: "Ancient Tombs", stages: 60 },
+    { name: "Mystic Woods", stages: 60 },
+    { name: "The Abyss", stages: 60 },
+    { name: "Celestial Realm", stages: 60 },
+    { name: "The Forgotten City", stages: 60 },
+    { name: "Blood Marsh", stages: 60 },
+    { name: "Storm Fortress", stages: 60 }
+];
+
+// Start the game (initially)
 startGame();
- 
