@@ -1,139 +1,153 @@
-// game.js
+// wtf.js
+const rollBtn = document.getElementById('roll-btn');
+const autoRollBtn = document.getElementById('auto-roll-btn');
+const rebirthBtn = document.getElementById('rebirth-btn');
+const auraName = document.getElementById('aura-name');
+const rollCountDisplay = document.getElementById('roll-count');
+const currencyDisplay = document.getElementById('currency');
+const logList = document.getElementById('log-list');
+const luckDisplay = document.getElementById('luck-value');
 
-// Canvas setup for displaying auras
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+let rolls = 0;
+let currency = 0;
+let rebirths = 0;
+let autoRolling = false;
+let currentAura = null;
 
-// List of auras (for brevity, I'll define a few here but can be expanded)
-const auras = [
-    { name: "Grey Aura", color: "#808080", rarity: 2, effect: "greyEffect" },
-    { name: "Red Aura", color: "#FF0000", rarity: 2, effect: "redEffect" },
-    { name: "Blue Aura", color: "#0000FF", rarity: 2, effect: "blueEffect" },
-    { name: "Green Aura", color: "#008000", rarity: 2, effect: "greenEffect" },
-    { name: "Sun & Moon Eclipse Aura", color: "#FFFF00", rarity: 1000, effect: "eclipseEffect" },
-    // Add more unique aura effects here
+const rarities = [
+  { name: 'common', chance: 0.7 },
+  { name: 'uncommon', chance: 0.2 },
+  { name: 'rare', chance: 0.07 },
+  { name: 'epic', chance: 0.02 },
+  { name: 'legendary', chance: 0.009 },
+  { name: 'mythical', chance: 0.0009 },
+  { name: 'godly', chance: 0.0001 },
 ];
 
-// Generate 1000 unique auras with random names and effects
-function generateAuras() {
-    const auraNames = [
-        "Grey Aura", "Red Aura", "Blue Aura", "Green Aura", "Sun & Moon Eclipse Aura",
-        "Flame Aura", "Mystic Aura", "Shadow Aura", "Frost Aura", "Electric Aura", // Add more here
-        // ...repeat or make more names for a total of 1000
-    ];
+// Generate 10k+ auras
+const auras = [];
+const adjectives = ['Frozen', 'Shimmering', 'Dark', 'Radiant', 'Burning', 'Silent', 'Infinite', 'Mystic', 'Twisted', 'Quantum'];
+const elements = ['Flame', 'Void', 'Light', 'Storm', 'Frost', 'Time', 'Shadow', 'Soul', 'Nebula', 'Echo'];
 
-    const auraEffects = [
-        "greyEffect", "redEffect", "blueEffect", "greenEffect", "eclipseEffect",
-        "flameEffect", "mysticEffect", "shadowEffect", "frostEffect", "electricEffect", // Add more effects
-        // ... add random or unique effects here
-    ];
-
-    for (let i = 0; i < 1000; i++) {
-        const randomAura = {
-            name: auraNames[i % auraNames.length],
-            color: getRandomColor(),
-            rarity: Math.floor(Math.random() * 1000) + 1, // Rarity ranges from 1 to 1000
-            effect: auraEffects[i % auraEffects.length],
-        };
-        auras.push(randomAura);
-    }
+for (let i = 0; i < 10000; i++) {
+  const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
+  const ele = elements[Math.floor(Math.random() * elements.length)];
+  const rarity = weightedRandomRarity();
+  auras.push({
+    id: i,
+    name: `${adj} ${ele} #${i}`,
+    rarity,
+  });
 }
 
-// Random color generator for aura names
-function getRandomColor() {
-    const letters = '0123456789ABCDEF';
-    let color = '#';
-    for (let i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
+function weightedRandomRarity() {
+  let roll = Math.random();
+  let total = 0;
+  for (let r of rarities) {
+    total += r.chance;
+    if (roll <= total) return r.name;
+  }
+  return 'common';
 }
 
-// Randomly select an aura based on rarity
 function getRandomAura() {
-    const randomValue = Math.random() * 1000;
-    let selectedAura = null;
-
-    // Apply rarity system (less rare auras will be selected more often)
-    for (let i = 0; i < auras.length; i++) {
-        if (randomValue < auras[i].rarity) {
-            selectedAura = auras[i];
-            break;
-        }
-    }
-
-    // If no aura found (extremely rare), pick a random aura
-    if (!selectedAura) {
-        selectedAura = auras[Math.floor(Math.random() * auras.length)];
-    }
-
-    return selectedAura;
+  const index = Math.floor(Math.random() * auras.length);
+  return auras[index];
 }
 
-// Display selected aura on screen with its effect
-function displayAura(aura) {
-    const effect = aura.effect;
+function updateUI(aura) {
+  auraName.textContent = aura.name;
+  auraName.className = aura.rarity;
+  rollCountDisplay.textContent = rolls;
+  currencyDisplay.textContent = currency;
+  luckDisplay.textContent = `${(1 + rebirths * 0.05).toFixed(2)}x`;
 
-    // Display aura name and rarity in the UI
-    document.getElementById('auraName').innerText = `Aura: ${aura.name}`;
-    document.getElementById('auraInfo').innerText = `Rarity: 1 in ${aura.rarity}`;
+  const logItem = document.createElement('li');
+  logItem.textContent = `Rolled ${aura.name}`;
+  logItem.className = aura.rarity;
+  logList.prepend(logItem);
 
-    // Display visual effect based on aura's type
-    if (effect === "greyEffect") {
-        greyEffect(aura);
-    } else if (effect === "redEffect") {
-        redEffect(aura);
-    } else if (effect === "blueEffect") {
-        blueEffect(aura);
-    } else if (effect === "greenEffect") {
-        greenEffect(aura);
-    } else if (effect === "eclipseEffect") {
-        eclipseEffect(aura);
-    }
-    // Add more effect cases as needed
+  while (logList.childNodes.length > 20) {
+    logList.removeChild(logList.lastChild);
+  }
 }
 
-// Example visual effect: Grey Aura
-function greyEffect(aura) {
-    ctx.fillStyle = aura.color;
-    ctx.beginPath();
-    ctx.arc(canvas.width / 2, canvas.height / 2, 100, 0, Math.PI * 2);
-    ctx.fill();
+function rollAura() {
+  const luck = 1 + rebirths * 0.05;
+  let aura = getRandomAura();
+
+  // Luck bonus
+  if (Math.random() < 0.1 * luck) {
+    aura = { ...aura, rarity: upgradeRarity(aura.rarity) };
+  }
+
+  currentAura = aura;
+  rolls++;
+  currency += 1;
+  updateUI(aura);
+  saveGame();
 }
 
-// Example visual effect: Red Aura
-function redEffect(aura) {
-    ctx.fillStyle = aura.color;
-    ctx.beginPath();
-    ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, 80, 0, Math.PI * 2);
-    ctx.fill();
+function upgradeRarity(rarity) {
+  const index = rarities.findIndex(r => r.name === rarity);
+  if (index < rarities.length - 1) {
+    return rarities[index + 1].name;
+  }
+  return rarity;
 }
 
-// Example visual effect: Eclipse Aura
-function eclipseEffect(aura) {
-    // Draw Sun (Yellow Circle)
-    ctx.fillStyle = '#FFFF00';
-    ctx.beginPath();
-    ctx.arc(canvas.width / 2, canvas.height / 2, 100, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Draw Moon (Black Circle) over the Sun to create an eclipse
-    ctx.fillStyle = '#000000';
-    ctx.beginPath();
-    ctx.arc(canvas.width / 2 + 50, canvas.height / 2, 60, 0, Math.PI * 2);
-    ctx.fill();
+function saveGame() {
+  const data = {
+    rolls,
+    currency,
+    rebirths,
+  };
+  localStorage.setItem('solsrng_clone_save', JSON.stringify(data));
 }
 
-// Call this function to initiate the aura system
-function generateAndDisplayAura() {
-    const randomAura = getRandomAura();
-    displayAura(randomAura);
+function loadGame() {
+  const data = JSON.parse(localStorage.getItem('solsrng_clone_save'));
+  if (data) {
+    rolls = data.rolls || 0;
+    currency = data.currency || 0;
+    rebirths = data.rebirths || 0;
+    rollCountDisplay.textContent = rolls;
+    currencyDisplay.textContent = currency;
+    luckDisplay.textContent = `${(1 + rebirths * 0.05).toFixed(2)}x`;
+  }
 }
 
-// Call generateAuras() to create the full aura pool
-generateAuras();
+function toggleAutoRoll() {
+  autoRolling = !autoRolling;
+  autoRollBtn.textContent = `Auto Roll: ${autoRolling ? 'ON' : 'OFF'}`;
+  if (autoRolling) {
+    autoRollLoop();
+  }
+}
 
-// Start the game by showing an aura every 3 seconds (for testing)
-setInterval(generateAndDisplayAura, 3000);
+function autoRollLoop() {
+  if (!autoRolling) return;
+  rollAura();
+  setTimeout(autoRollLoop, 100);
+}
+
+function rebirth() {
+  if (rolls >= 100) {
+    rolls = 0;
+    currency = 0;
+    rebirths++;
+    alert("You have been reborn. Luck increased!");
+    saveGame();
+    rollCountDisplay.textContent = rolls;
+    currencyDisplay.textContent = currency;
+    luckDisplay.textContent = `${(1 + rebirths * 0.05).toFixed(2)}x`;
+  } else {
+    alert("You need 100 rolls to rebirth!");
+  }
+}
+
+rollBtn.addEventListener('click', rollAura);
+autoRollBtn.addEventListener('click', toggleAutoRoll);
+rebirthBtn.addEventListener('click', rebirth);
+
+loadGame();

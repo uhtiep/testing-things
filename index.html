@@ -1,20 +1,43 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RNG Auras Game</title>
-    <link rel="stylesheet" href="fye.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sol's RNG Clone</title>
+  <link rel="stylesheet" href="fye.css" />
 </head>
 <body>
-    <div id="gameContainer">
-        <canvas id="gameCanvas"></canvas>
-        <div id="auraDisplay">
-            <h2>Selected Aura</h2>
-            <div id="auraName"></div>
-            <div id="auraInfo">Generating Aura...</div>
-        </div>
+  <div id="app">
+    <h1>🌌 Sol's RNG</h1>
+
+    <div id="aura-display">
+      <div id="aura-name">No Aura</div>
     </div>
-    <script src="wtf.js"></script>
+
+    <div id="roll-info">
+      <p><span id="roll-count">0</span> rolls</p>
+      <p>Luck: <span id="luck-value">1x</span></p>
+    </div>
+
+    <div id="buttons">
+      <button id="roll-btn">Roll</button>
+      <button id="auto-roll-btn">Auto Roll: OFF</button>
+      <button id="rebirth-btn">Rebirth</button>
+    </div>
+
+    <div id="currency-display">
+      💰 <span id="currency">0</span> Credits
+    </div>
+
+    <div id="aura-log">
+      <h2>Recent Auras</h2>
+      <ul id="log-list"></ul>
+    </div>
+  </div>
+
+  <canvas id="aura-effects"></canvas>
+
+  <script src="wtf.js"></script>
 </body>
 </html>
