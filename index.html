@@ -7,14 +7,18 @@
     <link rel="stylesheet" href="fye.css">
 </head>
 <body>
+    <div class="game-container">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+    </div>
 
-    <div id="game-container">
-        <canvas id="gameCanvas"></canvas>
-        <div id="game-ui">
-            <p>Score: <span id="score">0</span></p>
-            <p>Health: <span id="health">100</span></p>
-            <p>Stage: <span id="stage">1</span></p>
-        </div>
+    <div id="mainMenu" class="menu">
+        <h1>Archero-like Game</h1>
+        <button onclick="startGame()">Start Game</button>
+    </div>
+
+    <div id="gameOverMenu" class="menu">
+        <h1>Game Over</h1>
+        <button onclick="restartGame()">Restart Game</button>
     </div>
 
     <script src="wtf.js"></script>
