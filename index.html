@@ -3,41 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Archero-like Game</title>
+    <title>RNG Auras Game</title>
     <link rel="stylesheet" href="fye.css">
 </head>
 <body>
-    <!-- Main Menu -->
-    <div id="mainMenu" class="menu">
-        <h1>Archero-like Game</h1>
-        <button onclick="showMaps()">Select Map</button>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+        <div id="auraDisplay">
+            <h2>Selected Aura</h2>
+            <div id="auraName"></div>
+            <div id="auraInfo">Generating Aura...</div>
+        </div>
     </div>
-
-    <!-- Map Selection Menu -->
-    <div id="mapSelectionMenu" class="menu" style="display:none;">
-        <h2>Select a Map</h2>
-        <ul id="mapList"></ul>
-        <button onclick="goBackToMainMenu()">Back to Main Menu</button>
-    </div>
-
-    <!-- Game Over Menu -->
-    <div id="gameOverMenu" class="menu" style="display:none;">
-        <h1>Game Over</h1>
-        <button onclick="restartGame()">Restart Game</button>
-    </div>
-
-    <!-- Shop Menu -->
-    <div id="shopMenu" class="menu" style="display:none;">
-        <h2>Shop</h2>
-        <ul id="shopList"></ul>
-        <button onclick="closeShop()">Close Shop</button>
-    </div>
-
-    <!-- Game Container -->
-    <div class="game-container">
-        <canvas id="gameCanvas" width="800" height="600"></canvas>
-    </div>
-
     <script src="wtf.js"></script>
 </body>
 </html>
