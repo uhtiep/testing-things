@@ -3,80 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Physics Builder</title>
+    <title>Physics Building Site</title>
     <style>
-        canvas {
-            border: 1px solid black;
-            background-color: #f0f0f0;
-        }
+        body { margin: 0; overflow: hidden; }
+        canvas { background: #f0f0f0; display: block; }
     </style>
 </head>
 <body>
-    <canvas id="canvas" width="800" height="600"></canvas>
+    <canvas id="canvas"></canvas>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p2.js/0.7.0/p2.min.js"></script>
     <script>
         const canvas = document.getElementById('canvas');
         const context = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
         const world = new p2.World({
-            gravity: [0, 9.82]
+            gravity: [0, -9.82]
         });
 
-        const floor = new p2.Body({
-            position: [400, 580],
-            type: p2.Body.STATIC
-        });
-        const floorShape = new p2.Plane();
-        floor.addShape(floorShape);
+        const floor = new p2.Plane();
         world.addBody(floor);
 
+        const planks = [];
+        const wheels = [];
+
         function createPlank(x, y) {
-            const plank = new p2.Body({
-                mass: 1,
-                position: [x, y]
-            });
-            const plankShape = new p2.Box({ width: 100, height: 20 });
-            plank.addShape(plankShape);
+            const plank = new p2.Box({ width: 100, height: 20 });
+            plank.position[0] = x;
+            plank.position[1] = y;
             world.addBody(plank);
-            return plank;
+            planks.push(plank);
         }
 
         function createWheel(x, y) {
-            const wheel = new p2.Body({
-                mass: 1,
-                position: [x, y]
-            });
-            const wheelShape = new p2.Circle({ radius: 15 });
-            wheel.addShape(wheelShape);
+            const wheel = new p2.Circle({ radius: 15 });
+            wheel.position[0] = x;
+            wheel.position[1] = y;
             world.addBody(wheel);
-            return wheel;
+            wheels.push(wheel);
         }
 
         function update() {
             world.step(1 / 60);
             context.clearRect(0, 0, canvas.width, canvas.height);
-            world.bodies.forEach(body => {
-                context.save();
-                context.translate(body.position[0], body.position[1]);
-                context.rotate(body.angle);
-                if (body.shapes[0] instanceof p2.Box) {
-                    context.fillStyle = 'brown';
-                    context.fillRect(-50, -10, 100, 20);
-                } else if (body.shapes[0] instanceof p2.Circle) {
-                    context.fillStyle = 'black';
-                    context.beginPath();
-                    context.arc(0, 0, 15, 0, Math.PI * 2);
-                    context.fill();
-                }
-                context.restore();
+            context.fillStyle = 'black';
+            planks.forEach(plank => {
+                context.fillRect(plank.position[0] - 50, plank.position[1] - 10, 100, 20);
+            });
+            wheels.forEach(wheel => {
+                context.beginPath();
+                context.arc(wheel.position[0], wheel.position[1], 15, 0, Math.PI * 2);
+                context.fill();
             });
             requestAnimationFrame(update);
         }
 
-        createPlank(200, 300);
-        createPlank(400, 200);
-        createWheel(300, 400);
-        createWheel(500, 400);
+        canvas.addEventListener('click', (event) => {
+            const x = event.clientX;
+            const y = canvas.height - event.clientY;
+            createPlank(x, y);
+        });
+
+        canvas.addEventListener('contextmenu', (event) => {
+            event.preventDefault();
+            const x = event.clientX;
+            const y = canvas.height - event.clientY;
+            createWheel(x, y);
+        });
+
         update();
     </script>
 </body>
