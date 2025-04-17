@@ -1,43 +1,57 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sol's RNG Clone</title>
-  <link rel="stylesheet" href="fye.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics Builder</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+            background-color: #f0f0f0;
+        }
+    </style>
 </head>
 <body>
-  <div id="app">
-    <h1>🌌 Sol's RNG</h1>
+    <h1>Physics Builder</h1>
+    <canvas id="canvas" width="800" height="600"></canvas>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p2.js/0.7.0/p2.min.js"></script>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+        const world = new p2.World({
+            gravity: [0, 9.82]
+        });
 
-    <div id="aura-display">
-      <div id="aura-name">No Aura</div>
-    </div>
+        const shapes = [];
 
-    <div id="roll-info">
-      <p><span id="roll-count">0</span> rolls</p>
-      <p>Luck: <span id="luck-value">1x</span></p>
-    </div>
+        function createShape(x, y, width, height) {
+            const boxShape = new p2.Box({ width: width, height: height });
+            const body = new p2.Body({
+                mass: 1,
+                position: [x, y]
+            });
+            body.addShape(boxShape);
+            world.addBody(body);
+            shapes.push(body);
+        }
 
-    <div id="buttons">
-      <button id="roll-btn">Roll</button>
-      <button id="auto-roll-btn">Auto Roll: OFF</button>
-      <button id="rebirth-btn">Rebirth</button>
-    </div>
+        function update() {
+            world.step(1 / 60);
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            shapes.forEach(shape => {
+                context.fillRect(shape.position[0] - 25, canvas.height - shape.position[1] - 25, 50, 50);
+            });
+            requestAnimationFrame(update);
+        }
 
-    <div id="currency-display">
-      💰 <span id="currency">0</span> Credits
-    </div>
+        canvas.addEventListener('click', (event) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = canvas.height - (event.clientY - rect.top);
+            createShape(x, y, 50, 50);
+        });
 
-    <div id="aura-log">
-      <h2>Recent Auras</h2>
-      <ul id="log-list"></ul>
-    </div>
-  </div>
-
-  <canvas id="aura-effects"></canvas>
-
-  <script src="wtf.js"></script>
+        update();
+    </script>
 </body>
 </html>
