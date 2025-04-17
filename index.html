@@ -12,45 +12,71 @@
     </style>
 </head>
 <body>
-    <h1>Physics Builder</h1>
     <canvas id="canvas" width="800" height="600"></canvas>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p2.js/0.7.0/p2.min.js"></script>
     <script>
         const canvas = document.getElementById('canvas');
         const context = canvas.getContext('2d');
+
         const world = new p2.World({
             gravity: [0, 9.82]
         });
 
-        const shapes = [];
+        const floor = new p2.Body({
+            position: [400, 580],
+            type: p2.Body.STATIC
+        });
+        const floorShape = new p2.Plane();
+        floor.addShape(floorShape);
+        world.addBody(floor);
 
-        function createShape(x, y, width, height) {
-            const boxShape = new p2.Box({ width: width, height: height });
-            const body = new p2.Body({
+        function createPlank(x, y) {
+            const plank = new p2.Body({
                 mass: 1,
                 position: [x, y]
             });
-            body.addShape(boxShape);
-            world.addBody(body);
-            shapes.push(body);
+            const plankShape = new p2.Box({ width: 100, height: 20 });
+            plank.addShape(plankShape);
+            world.addBody(plank);
+            return plank;
+        }
+
+        function createWheel(x, y) {
+            const wheel = new p2.Body({
+                mass: 1,
+                position: [x, y]
+            });
+            const wheelShape = new p2.Circle({ radius: 15 });
+            wheel.addShape(wheelShape);
+            world.addBody(wheel);
+            return wheel;
         }
 
         function update() {
             world.step(1 / 60);
             context.clearRect(0, 0, canvas.width, canvas.height);
-            shapes.forEach(shape => {
-                context.fillRect(shape.position[0] - 25, canvas.height - shape.position[1] - 25, 50, 50);
+            world.bodies.forEach(body => {
+                context.save();
+                context.translate(body.position[0], body.position[1]);
+                context.rotate(body.angle);
+                if (body.shapes[0] instanceof p2.Box) {
+                    context.fillStyle = 'brown';
+                    context.fillRect(-50, -10, 100, 20);
+                } else if (body.shapes[0] instanceof p2.Circle) {
+                    context.fillStyle = 'black';
+                    context.beginPath();
+                    context.arc(0, 0, 15, 0, Math.PI * 2);
+                    context.fill();
+                }
+                context.restore();
             });
             requestAnimationFrame(update);
         }
 
-        canvas.addEventListener('click', (event) => {
-            const rect = canvas.getBoundingClientRect();
-            const x = event.clientX - rect.left;
-            const y = canvas.height - (event.clientY - rect.top);
-            createShape(x, y, 50, 50);
-        });
-
+        createPlank(200, 300);
+        createPlank(400, 200);
+        createWheel(300, 400);
+        createWheel(500, 400);
         update();
     </script>
 </body>
