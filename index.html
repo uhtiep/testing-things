@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>osu! Web Game</title>
     <style>
-        /* General Reset */
+        /* Reset Styles */
         * {
             margin: 0;
             padding: 0;
@@ -20,6 +20,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            overflow: hidden;
         }
 
         .container {
@@ -105,7 +106,7 @@
             text-shadow: 2px 2px 10px rgba(255, 103, 171, 0.8);
         }
 
-        /* Animation */
+        /* Circle Animations */
         .hit-circle {
             position: absolute;
             width: 70px;
@@ -149,6 +150,32 @@
             width: 100%;
             border-radius: 5px;
         }
+
+        /* Beatmap Editor */
+        .beatmap-editor {
+            background-color: #333;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+            color: #fff;
+        }
+
+        .beatmap-editor input {
+            margin: 5px;
+        }
+
+        .beatmap-editor button {
+            background-color: #ff67ab;
+            padding: 10px 15px;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .beatmap-editor button:hover {
+            background-color: #f15d94;
+        }
     </style>
 </head>
 <body>
@@ -172,6 +199,13 @@
             </div>
 
             <div id="game-play-area"></div>
+
+            <div class="beatmap-editor">
+                <h3>Create Custom Beatmap</h3>
+                <label for="circle-timing">Circle Timing (seconds):</label>
+                <input type="number" id="circle-timing" min="0" max="30" step="0.1" value="5">
+                <button onclick="generateCustomBeatmap()">Generate Beatmap</button>
+            </div>
         </main>
 
         <footer>
@@ -181,8 +215,8 @@
 
     <script>
         let currentMode = 'osu'; // Default mode is osu!
-        let beatmapData = []; // Placeholder for beatmap data (e.g., timing for hits)
         let hitCircles = [];
+        let musicPlaying = false;
 
         // Function to change between modes
         function changeMode(mode) {
@@ -197,8 +231,6 @@
 
             gameHeader.querySelector("h2").innerText = `Game Mode: ${currentMode}`;
             gamePlayArea.innerHTML = "";
-
-            // Clear hit circles
             hitCircles = [];
 
             // Render the appropriate game mode
@@ -232,33 +264,32 @@
             generateHitCircles(); // Simulate drum hits
         }
 
-        // Simulate hit circles
-        function generateHitCircles() {
+        // Function to generate custom beatmap
+        function generateCustomBeatmap() {
+            const timing = parseFloat(document.getElementById("circle-timing").value);
+            generateHitCircles(timing);
+        }
+
+        // Simulate hit circles based on the generated beatmap
+        function generateHitCircles(timing = 5) {
             const gamePlayArea = document.getElementById("game-play-area");
 
-            // Example: Random hit circles at different positions
-            for (let i = 0; i < 5; i++) {
-                const hitCircle = document.createElement("div");
-                hitCircle.classList.add("hit-circle");
-                hitCircle.style.top = `${Math.random() * 80 + 10}%`;
-                hitCircle.style.left = `${Math.random() * 80 + 10}%`;
-                gamePlayArea.appendChild(hitCircle);
+            // Example: Create a hit circle at the specified time
+            const hitCircle = document.createElement("div");
+            hitCircle.classList.add("hit-circle");
+            hitCircle.style.top = `${Math.random() * 80 + 10}%`;
+            hitCircle.style.left = `${Math.random() * 80 + 10}%`;
 
-                hitCircles.push(hitCircle);
-            }
+            gamePlayArea.appendChild(hitCircle);
+            hitCircles.push(hitCircle);
 
-            // Animate circles
-            animateHitCircles();
+            // Simulate hit circle disappearance after a certain time
+            setTimeout(() => {
+                hitCircle.style.opacity = 0;
+            }, timing * 1000);
         }
 
-        // Function to animate hit circles
-        function animateHitCircles() {
-            hitCircles.forEach(circle => {
-                circle.style.animationDuration = `${Math.random() * 1.5 + 1}s`;
-            });
-        }
-
-        // Initial game setup
+        // Initial setup
         window.onload = function() {
             updateGameUI();
         };
