@@ -3,76 +3,265 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Physics Building Site</title>
+    <title>osu! Web Game</title>
     <style>
-        body { margin: 0; overflow: hidden; }
-        canvas { background: #f0f0f0; display: block; }
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #141414;
+            font-family: 'Arial', sans-serif;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            background-color: #222;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Header */
+        header {
+            background-color: #1e1e1e;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #333;
+        }
+
+        header .logo {
+            font-size: 36px;
+            font-weight: bold;
+            color: #ff67ab;
+            text-shadow: 2px 2px 10px rgba(255, 103, 171, 0.8);
+        }
+
+        header .game-mode {
+            display: flex;
+        }
+
+        header .game-mode button {
+            background-color: #333;
+            border: none;
+            color: #fff;
+            padding: 12px 18px;
+            margin-left: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        header .game-mode button:hover {
+            background-color: #444;
+        }
+
+        /* Main Game Area */
+        main {
+            padding: 20px;
+        }
+
+        #game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        #game-header h2 {
+            font-size: 28px;
+            margin-right: 20px;
+        }
+
+        #game-play-area {
+            position: relative;
+            height: 600px;
+            background-color: #111;
+            border: 2px solid #555;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        /* Game Mode Styles */
+        .osu-play, .mania-play, .drum-play {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            color: #ff67ab;
+            text-shadow: 2px 2px 10px rgba(255, 103, 171, 0.8);
+        }
+
+        /* Animation */
+        .hit-circle {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background-color: #ff67ab;
+            opacity: 0;
+            animation: circle-animation 1.5s linear infinite;
+        }
+
+        @keyframes circle-animation {
+            0% {
+                transform: scale(0);
+                opacity: 0.8;
+            }
+            50% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(0);
+                opacity: 0;
+            }
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #1e1e1e;
+            color: white;
+        }
+
+        footer p {
+            font-size: 14px;
+        }
+
+        /* Music Controls */
+        audio {
+            margin-top: 20px;
+            width: 100%;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
-    <canvas id="canvas"></canvas>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p2.js/0.7.0/p2.min.js"></script>
+    <div class="container">
+        <header>
+            <div class="logo">osu!</div>
+            <div class="game-mode">
+                <button onclick="changeMode('osu')">osu!</button>
+                <button onclick="changeMode('mania')">osu!mania</button>
+                <button onclick="changeMode('drum')">osu!drum</button>
+            </div>
+        </header>
+
+        <main id="game-area">
+            <div id="game-header">
+                <h2>Game Mode: osu!</h2>
+                <audio id="game-music" controls>
+                    <source src="test.mp4" type="video/mp4">
+                    Your browser does not support the audio element.
+                </audio>
+            </div>
+
+            <div id="game-play-area"></div>
+        </main>
+
+        <footer>
+            <p>&copy; osu! Web Version</p>
+        </footer>
+    </div>
+
     <script>
-        const canvas = document.getElementById('canvas');
-        const context = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        let currentMode = 'osu'; // Default mode is osu!
+        let beatmapData = []; // Placeholder for beatmap data (e.g., timing for hits)
+        let hitCircles = [];
 
-        const world = new p2.World({
-            gravity: [0, -9.82]
-        });
-
-        const floor = new p2.Plane();
-        world.addBody(floor);
-
-        const planks = [];
-        const wheels = [];
-
-        function createPlank(x, y) {
-            const plank = new p2.Box({ width: 100, height: 20 });
-            plank.position[0] = x;
-            plank.position[1] = y;
-            world.addBody(plank);
-            planks.push(plank);
+        // Function to change between modes
+        function changeMode(mode) {
+            currentMode = mode;
+            updateGameUI();
         }
 
-        function createWheel(x, y) {
-            const wheel = new p2.Circle({ radius: 15 });
-            wheel.position[0] = x;
-            wheel.position[1] = y;
-            world.addBody(wheel);
-            wheels.push(wheel);
+        // Function to update game UI based on selected mode
+        function updateGameUI() {
+            const gameHeader = document.getElementById("game-header");
+            const gamePlayArea = document.getElementById("game-play-area");
+
+            gameHeader.querySelector("h2").innerText = `Game Mode: ${currentMode}`;
+            gamePlayArea.innerHTML = "";
+
+            // Clear hit circles
+            hitCircles = [];
+
+            // Render the appropriate game mode
+            if (currentMode === 'osu') {
+                renderOsu();
+            } else if (currentMode === 'mania') {
+                renderMania();
+            } else if (currentMode === 'drum') {
+                renderDrum();
+            }
         }
 
-        function update() {
-            world.step(1 / 60);
-            context.clearRect(0, 0, canvas.width, canvas.height);
-            context.fillStyle = 'black';
-            planks.forEach(plank => {
-                context.fillRect(plank.position[0] - 50, plank.position[1] - 10, 100, 20);
+        // Function to render osu! gameplay
+        function renderOsu() {
+            const gamePlayArea = document.getElementById("game-play-area");
+            gamePlayArea.innerHTML = "<div class='osu-play'>osu! Gameplay</div>";
+            generateHitCircles(); // Simulate circles for osu!
+        }
+
+        // Function to render osu!mania gameplay
+        function renderMania() {
+            const gamePlayArea = document.getElementById("game-play-area");
+            gamePlayArea.innerHTML = "<div class='mania-play'>osu!mania Gameplay</div>";
+            generateHitCircles(); // Simulate keys for osu!mania
+        }
+
+        // Function to render osu!drum gameplay
+        function renderDrum() {
+            const gamePlayArea = document.getElementById("game-play-area");
+            gamePlayArea.innerHTML = "<div class='drum-play'>osu!drum Gameplay</div>";
+            generateHitCircles(); // Simulate drum hits
+        }
+
+        // Simulate hit circles
+        function generateHitCircles() {
+            const gamePlayArea = document.getElementById("game-play-area");
+
+            // Example: Random hit circles at different positions
+            for (let i = 0; i < 5; i++) {
+                const hitCircle = document.createElement("div");
+                hitCircle.classList.add("hit-circle");
+                hitCircle.style.top = `${Math.random() * 80 + 10}%`;
+                hitCircle.style.left = `${Math.random() * 80 + 10}%`;
+                gamePlayArea.appendChild(hitCircle);
+
+                hitCircles.push(hitCircle);
+            }
+
+            // Animate circles
+            animateHitCircles();
+        }
+
+        // Function to animate hit circles
+        function animateHitCircles() {
+            hitCircles.forEach(circle => {
+                circle.style.animationDuration = `${Math.random() * 1.5 + 1}s`;
             });
-            wheels.forEach(wheel => {
-                context.beginPath();
-                context.arc(wheel.position[0], wheel.position[1], 15, 0, Math.PI * 2);
-                context.fill();
-            });
-            requestAnimationFrame(update);
         }
 
-        canvas.addEventListener('click', (event) => {
-            const x = event.clientX;
-            const y = canvas.height - event.clientY;
-            createPlank(x, y);
-        });
-
-        canvas.addEventListener('contextmenu', (event) => {
-            event.preventDefault();
-            const x = event.clientX;
-            const y = canvas.height - event.clientY;
-            createWheel(x, y);
-        });
-
-        update();
+        // Initial game setup
+        window.onload = function() {
+            updateGameUI();
+        };
     </script>
 </body>
 </html>
