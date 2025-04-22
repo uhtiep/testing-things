@@ -31,7 +31,6 @@
             overflow: hidden;
         }
 
-        /* Game Header */
         header {
             background-color: #1e1e1e;
             padding: 10px;
@@ -46,7 +45,6 @@
             color: #ff67ab;
         }
 
-        /* The main game play area */
         #game-area {
             position: relative;
             height: 100%;
@@ -58,43 +56,22 @@
             overflow: hidden;
         }
 
-        /* Hit Circles */
         .hit-circle {
             position: absolute;
             width: 80px;
             height: 80px;
             border-radius: 50%;
             background-color: #ff67ab;
-            border: 3px solid #ff5a87; /* Outline */
+            border: 3px solid #ff5a87;
             opacity: 0;
             transition: all 0.1s ease-out;
             pointer-events: none;
-        }
-
-        /* Pulse effect for hit circles */
-        .hit-circle.active {
-            animation: pulse 0.4s ease-out infinite;
         }
 
         .hit-circle.hit {
             background-color: #00ff00;
             opacity: 0.5;
             transform: scale(0);
-        }
-
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-                opacity: 0.8;
-            }
-            50% {
-                transform: scale(1.2);
-                opacity: 0.5;
-            }
-            100% {
-                transform: scale(1);
-                opacity: 0.8;
-            }
         }
 
         footer {
@@ -124,7 +101,6 @@
     </audio>
 
     <script>
-        // Game and Beatmap Logic
         const gameArea = document.getElementById("game-area");
         const audio = document.getElementById("game-music");
 
@@ -133,16 +109,19 @@
         let score = 0;
         let hitCircles = [];
 
-        // Example beatmap with circle positions (timing in seconds)
+        // Define hit circle data (timing in seconds, x, y)
         const beatmap = [
-            { time: 1, x: 350, y: 250 },
-            { time: 3, x: 450, y: 250 },
-            { time: 5, x: 550, y: 250 },
-            { time: 7, x: 400, y: 350 },
+            { time: 2, x: 350, y: 250 },
+            { time: 4, x: 450, y: 250 },
+            { time: 6, x: 550, y: 250 },
+            { time: 8, x: 400, y: 350 },
             { time: 10, x: 600, y: 350 },
         ];
 
-        // Create hit circle with visual effects
+        // Hit window (ms)
+        const hitWindow = 200;  // 200ms for hit accuracy
+
+        // Create hit circle with timing
         function createHitCircle(timeOffset, x, y) {
             const circle = document.createElement("div");
             circle.classList.add("hit-circle");
@@ -150,38 +129,40 @@
             circle.style.top = `${y}px`;
             gameArea.appendChild(circle);
 
-            // Show the circle at the right time
             setTimeout(() => {
                 circle.style.opacity = 1;
                 circle.classList.add("active");
+                circle.dataset.time = timeOffset; // Store the time for hit detection
+                hitCircles.push(circle);
 
-                // Add click event listener for player interaction
                 circle.addEventListener("click", () => hitCircle(circle));
             }, timeOffset * 1000);
-
-            // Remove the circle after a certain time
-            setTimeout(() => {
-                if (!circle.classList.contains("hit")) {
-                    circle.remove(); // Remove circle if not hit
-                }
-            }, 1500);
         }
 
-        // Handle player hit on the circle
+        // Handle click on hit circle (hit detection)
         function hitCircle(circle) {
-            circle.classList.add("hit");
-            score++;
-            console.log("Score:", score);  // Display current score
+            const hitTime = audio.currentTime * 1000;  // Get the current time in ms
+            const targetTime = circle.dataset.time * 1000; // Get the hit circle time in ms
+
+            // Check if the hit time is within the acceptable hit window
+            const timeDifference = Math.abs(hitTime - targetTime);
+            if (timeDifference <= hitWindow) {
+                circle.classList.add("hit");
+                score += Math.max(0, 100 - Math.floor(timeDifference)); // Calculate score based on timing
+                console.log("Hit! Score:", score);
+            } else {
+                console.log("Miss!");
+            }
         }
 
-        // Generate the beatmap circles
+        // Generate the beatmap hit circles
         function generateBeatmap() {
             beatmap.forEach(pos => {
                 createHitCircle(pos.time, pos.x, pos.y);
             });
         }
 
-        // Start the game when the music starts
+        // Start the game when the music plays
         audio.onplay = () => {
             if (!gameStart) {
                 startTime = audio.currentTime;
@@ -190,7 +171,7 @@
             }
         };
 
-        // Game loop to synchronize with music
+        // Game loop to sync with music
         setInterval(() => {
             if (gameStart) {
                 const currentTime = audio.currentTime - startTime;
