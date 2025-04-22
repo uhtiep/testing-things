@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vanity Jason Rhythm Game (osu!-like)</title>
+    <title>osu! Rhythm Game</title>
     <style>
         * {
             margin: 0;
@@ -46,7 +46,7 @@
             color: #ff67ab;
         }
 
-        /* Game area to show hit circles */
+        /* The main game play area */
         #game-area {
             position: relative;
             height: 100%;
@@ -58,7 +58,7 @@
             overflow: hidden;
         }
 
-        /* Hit Circles and their outlines */
+        /* Hit Circles */
         .hit-circle {
             position: absolute;
             width: 80px;
@@ -71,6 +71,7 @@
             pointer-events: none;
         }
 
+        /* Pulse effect for hit circles */
         .hit-circle.active {
             animation: pulse 0.4s ease-out infinite;
         }
@@ -107,13 +108,13 @@
 <body>
     <div class="container">
         <header>
-            <h1>Vanity Jason Rhythm Game</h1>
+            <h1>osu! Rhythm Game</h1>
         </header>
 
         <div id="game-area"></div>
 
         <footer>
-            <p>&copy; Forsaken Rhythm Game</p>
+            <p>&copy; Rhythm Game (osu!-like)</p>
         </footer>
     </div>
 
@@ -123,25 +124,25 @@
     </audio>
 
     <script>
-        // Game variables
+        // Game and Beatmap Logic
         const gameArea = document.getElementById("game-area");
         const audio = document.getElementById("game-music");
 
-        let circles = [];
         let startTime = 0;
         let gameStart = false;
         let score = 0;
-        
-        // Circle positions
-        const hitCirclePositions = [
-            { time: 2, x: 300, y: 250 }, // Circle at 2 seconds
-            { time: 4, x: 500, y: 250 }, // Circle at 4 seconds
-            { time: 6, x: 700, y: 250 }, // Circle at 6 seconds
-            { time: 8, x: 400, y: 350 }, // Circle at 8 seconds
-            { time: 10, x: 600, y: 350 }, // Circle at 10 seconds
+        let hitCircles = [];
+
+        // Example beatmap with circle positions (timing in seconds)
+        const beatmap = [
+            { time: 1, x: 350, y: 250 },
+            { time: 3, x: 450, y: 250 },
+            { time: 5, x: 550, y: 250 },
+            { time: 7, x: 400, y: 350 },
+            { time: 10, x: 600, y: 350 },
         ];
 
-        // Create hit circle
+        // Create hit circle with visual effects
         function createHitCircle(timeOffset, x, y) {
             const circle = document.createElement("div");
             circle.classList.add("hit-circle");
@@ -149,38 +150,38 @@
             circle.style.top = `${y}px`;
             gameArea.appendChild(circle);
 
-            // Make the circle visible at the right time
+            // Show the circle at the right time
             setTimeout(() => {
                 circle.style.opacity = 1;
                 circle.classList.add("active");
 
-                // Check for player interaction
+                // Add click event listener for player interaction
                 circle.addEventListener("click", () => hitCircle(circle));
             }, timeOffset * 1000);
-            
-            // Remove the circle after a certain amount of time
+
+            // Remove the circle after a certain time
             setTimeout(() => {
                 if (!circle.classList.contains("hit")) {
-                    circle.remove();
+                    circle.remove(); // Remove circle if not hit
                 }
             }, 1500);
         }
 
-        // Player hit the circle
+        // Handle player hit on the circle
         function hitCircle(circle) {
             circle.classList.add("hit");
             score++;
-            console.log("Score:", score);
+            console.log("Score:", score);  // Display current score
         }
 
-        // Generate beatmap
+        // Generate the beatmap circles
         function generateBeatmap() {
-            hitCirclePositions.forEach(pos => {
+            beatmap.forEach(pos => {
                 createHitCircle(pos.time, pos.x, pos.y);
             });
         }
 
-        // Start the game when the music starts playing
+        // Start the game when the music starts
         audio.onplay = () => {
             if (!gameStart) {
                 startTime = audio.currentTime;
@@ -189,13 +190,13 @@
             }
         };
 
-        // Game loop to sync with the music
+        // Game loop to synchronize with music
         setInterval(() => {
             if (gameStart) {
                 const currentTime = audio.currentTime - startTime;
-                // Additional game logic or scoring can be added here
+                // Logic to track time, score, and update gameplay
             }
-        }, 100); // Checks every 100ms
+        }, 100); // Update every 100ms
     </script>
 </body>
 </html>
