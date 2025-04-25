@@ -52,6 +52,7 @@
     let puzzleSet = [], connections = [], dragging = false, startDot = null, lastSnap = null;
     let active = false, puzzleIndex = 0, maxPuzzles = 4;
 
+    // Create the grid and handle drawing of lines
     function drawGrid() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -70,7 +71,7 @@
         ctx.stroke();
       }
 
-      // connections
+      // Draw connections
       ctx.lineWidth = 6;
       for (let c of connections) {
         ctx.strokeStyle = c.color;
@@ -80,7 +81,7 @@
         ctx.stroke();
       }
 
-      // current line
+      // Draw current dragging line
       if (dragging && currentLine) {
         ctx.strokeStyle = currentLine.color;
         ctx.lineWidth = 4;
@@ -90,7 +91,7 @@
         ctx.stroke();
       }
 
-      // dots
+      // Draw dots with labels
       for (let i = 0; i < puzzleSet.length; i++) {
         const dot = puzzleSet[i];
         const [x, y] = dot.pos;
@@ -106,6 +107,7 @@
       }
     }
 
+    // Generate a random puzzle with 3 pairs of dots
     function randomPuzzle() {
       puzzleSet = [];
       const used = new Set();
@@ -128,6 +130,7 @@
       connections = [];
     }
 
+    // Get the grid tile under the mouse position
     function getTile(e) {
       const rect = canvas.getBoundingClientRect();
       return [
@@ -136,16 +139,14 @@
       ];
     }
 
+    // Find dot by position
     function findDotAt(x, y) {
       return puzzleSet.find(dot => dot.pos[0] === x && dot.pos[1] === y);
     }
 
-    function isCardinalMove(a, b) {
-      return (a[0] === b[0] || a[1] === b[1]) && !(a[0] === b[0] && a[1] === b[1]);
-    }
-
     let currentLine = null;
 
+    // Handle mouse down event (start line)
     canvas.onmousedown = e => {
       if (!active) return;
       const [x, y] = getTile(e);
@@ -157,24 +158,41 @@
       }
     };
 
+    // Handle mouse move event (draw line while dragging)
     canvas.onmousemove = e => {
       if (!dragging || !startDot) return;
       const [x, y] = getTile(e);
-      if ((x !== lastSnap[0] || y !== lastSnap[1]) && isCardinalMove(startDot.pos, [x, y])) {
+
+      // Ensure movement is strictly vertical or horizontal
+      if (startDot.pos[0] === x) {
+        currentLine = {
+          color: startDot.color,
+          fromX: startDot.pos[0] * tileSize + tileSize / 2,
+          fromY: startDot.pos[1] * tileSize + tileSize / 2,
+          toX: x * tileSize + tileSize / 2,
+          toY: y * tileSize + tileSize / 2
+        };
+      } else if (startDot.pos[1] === y) {
+        currentLine = {
+          color: startDot.color,
+          fromX: startDot.pos[0] * tileSize + tileSize / 2,
+          fromY: startDot.pos[1] * tileSize + tileSize / 2,
+          toX: x * tileSize + tileSize / 2,
+          toY: y * tileSize + tileSize / 2
+        };
+      }
+
+      // Snapping behavior
+      if ((x !== lastSnap[0] || y !== lastSnap[1])) {
         snapSound.currentTime = 0;
         snapSound.play();
         lastSnap = [x, y];
       }
-      currentLine = {
-        color: startDot.color,
-        fromX: startDot.pos[0] * tileSize + tileSize / 2,
-        fromY: startDot.pos[1] * tileSize + tileSize / 2,
-        toX: x * tileSize + tileSize / 2,
-        toY: y * tileSize + tileSize / 2
-      };
+
       drawGrid();
     };
 
+    // Handle mouse up event (complete line)
     canvas.onmouseup = e => {
       if (!dragging || !startDot) return;
       const [x, y] = getTile(e);
@@ -204,6 +222,7 @@
       checkSolved();
     };
 
+    // Check if the puzzle is solved
     function checkSolved() {
       if (connections.length === 3) {
         puzzleIndex++;
@@ -220,6 +239,7 @@
       }
     }
 
+    // Start a new puzzle on button click
     genBtn.onclick = () => {
       active = true;
       puzzleIndex = 0;
