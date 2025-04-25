@@ -1,183 +1,236 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>osu! Rhythm Game</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background-color: #141414;
-            font-family: Arial, sans-serif;
-            color: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        .container {
-            position: relative;
-            width: 800px;
-            height: 600px;
-            background-color: #222;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        header {
-            background-color: #1e1e1e;
-            padding: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 3px solid #333;
-        }
-
-        header h1 {
-            font-size: 24px;
-            color: #ff67ab;
-        }
-
-        #game-area {
-            position: relative;
-            height: 100%;
-            background-color: #111;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .hit-circle {
-            position: absolute;
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background-color: #ff67ab;
-            border: 3px solid #ff5a87;
-            opacity: 0;
-            transition: all 0.1s ease-out;
-            pointer-events: none;
-        }
-
-        .hit-circle.hit {
-            background-color: #00ff00;
-            opacity: 0.5;
-            transform: scale(0);
-        }
-
-        footer {
-            text-align: center;
-            padding: 10px;
-            background-color: #1e1e1e;
-            color: white;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Forsaken Generator Puzzle</title>
+  <style>
+    body {
+      background: #111;
+      color: #fff;
+      font-family: sans-serif;
+      text-align: center;
+      padding-top: 40px;
+    }
+    #getBtn {
+      padding: 12px 24px;
+      font-size: 18px;
+      background: #22cc88;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(6, 60px);
+      grid-gap: 4px;
+      justify-content: center;
+      margin: 30px auto;
+      width: max-content;
+    }
+    .cell {
+      width: 60px;
+      height: 60px;
+      background: #333;
+      border-radius: 8px;
+      position: relative;
+      cursor: pointer;
+    }
+    .dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 2;
+    }
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>osu! Rhythm Game</h1>
-        </header>
+  <button id="getBtn">Get New Generator</button>
+  <div id="gridWrapper" style="position:relative;" class="hidden">
+    <canvas id="canvas" width="384" height="384"></canvas>
+    <div id="grid"></div>
+  </div>
+  <audio id="completeSound" src="rblx-complete.mp3"></audio>
 
-        <div id="game-area"></div>
+  <script>
+    const getBtn = document.getElementById('getBtn');
+    const gridWrapper = document.getElementById('gridWrapper');
+    const gridEl = document.getElementById('grid');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const sound = document.getElementById('completeSound');
 
-        <footer>
-            <p>&copy; Rhythm Game (osu!-like)</p>
-        </footer>
-    </div>
+    const gridSize = 6;
+    const totalPuzzles = 4;
+    let activePuzzle = 0;
+    let grid = [];
+    let paths = {};
+    let dotPairs = [];
+    let currentColor = null;
+    let drawing = false;
+    let pathCoords = [];
+    const colors = ['red', 'lime', 'yellow', 'cyan', 'orange', 'violet'];
 
-    <audio id="game-music" controls autoplay>
-        <source src="test.mp4" type="video/mp4">
-        Your browser does not support the audio element.
-    </audio>
+    function createGrid() {
+      grid = [];
+      paths = {};
+      dotPairs = [];
+      gridEl.innerHTML = '';
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      let used = Array(gridSize * gridSize).fill(false);
+      let usedColors = [];
 
-    <script>
-        const gameArea = document.getElementById("game-area");
-        const audio = document.getElementById("game-music");
+      for (let i = 0; i < 4; i++) {
+        let color = colors[i % colors.length];
+        usedColors.push(color);
+        let pos1, pos2;
+        do {
+          pos1 = Math.floor(Math.random() * gridSize * gridSize);
+        } while (used[pos1]);
+        used[pos1] = true;
+        do {
+          pos2 = Math.floor(Math.random() * gridSize * gridSize);
+        } while (used[pos2] || pos2 === pos1);
+        used[pos2] = true;
+        dotPairs.push({ color, indexes: [pos1, pos2] });
+        paths[color] = [];
+      }
 
-        let startTime = 0;
-        let gameStart = false;
-        let score = 0;
-        let hitCircles = [];
+      for (let i = 0; i < gridSize * gridSize; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.dataset.index = i;
+        gridEl.appendChild(cell);
+        grid.push(cell);
+      }
 
-        // Define hit circle data (timing in seconds, x, y)
-        const beatmap = [
-            { time: 2, x: 350, y: 250 },
-            { time: 4, x: 450, y: 250 },
-            { time: 6, x: 550, y: 250 },
-            { time: 8, x: 400, y: 350 },
-            { time: 10, x: 600, y: 350 },
-        ];
-
-        // Hit window (ms)
-        const hitWindow = 200;  // 200ms for hit accuracy
-
-        // Create hit circle with timing
-        function createHitCircle(timeOffset, x, y) {
-            const circle = document.createElement("div");
-            circle.classList.add("hit-circle");
-            circle.style.left = `${x}px`;
-            circle.style.top = `${y}px`;
-            gameArea.appendChild(circle);
-
-            setTimeout(() => {
-                circle.style.opacity = 1;
-                circle.classList.add("active");
-                circle.dataset.time = timeOffset; // Store the time for hit detection
-                hitCircles.push(circle);
-
-                circle.addEventListener("click", () => hitCircle(circle));
-            }, timeOffset * 1000);
+      for (const pair of dotPairs) {
+        for (let idx of pair.indexes) {
+          const dot = document.createElement('div');
+          dot.className = 'dot';
+          dot.style.background = pair.color;
+          grid[idx].appendChild(dot);
         }
+      }
+    }
 
-        // Handle click on hit circle (hit detection)
-        function hitCircle(circle) {
-            const hitTime = audio.currentTime * 1000;  // Get the current time in ms
-            const targetTime = circle.dataset.time * 1000; // Get the hit circle time in ms
+    function getCoords(index) {
+      const row = Math.floor(index / gridSize);
+      const col = index % gridSize;
+      return [col * 64 + 32, row * 64 + 32];
+    }
 
-            // Check if the hit time is within the acceptable hit window
-            const timeDifference = Math.abs(hitTime - targetTime);
-            if (timeDifference <= hitWindow) {
-                circle.classList.add("hit");
-                score += Math.max(0, 100 - Math.floor(timeDifference)); // Calculate score based on timing
-                console.log("Hit! Score:", score);
-            } else {
-                console.log("Miss!");
-            }
+    function handleMouseDown(e) {
+      if (e.target.classList.contains('dot')) {
+        const parent = e.target.parentElement;
+        const index = parseInt(parent.dataset.index);
+        currentColor = e.target.style.background;
+        drawing = true;
+        pathCoords = [index];
+        drawPaths();
+      }
+    }
+
+    function handleMouseMove(e) {
+      if (!drawing || currentColor === null) return;
+      const rect = gridEl.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const col = Math.floor(x / 64);
+      const row = Math.floor(y / 64);
+      const idx = row * gridSize + col;
+      if (idx >= 0 && idx < gridSize * gridSize && !pathCoords.includes(idx)) {
+        pathCoords.push(idx);
+        drawPaths();
+      }
+    }
+
+    function handleMouseUp() {
+      if (drawing && currentColor !== null) {
+        paths[currentColor] = [...pathCoords];
+        drawing = false;
+        pathCoords = [];
+        currentColor = null;
+        drawPaths();
+        checkCompletion();
+      }
+    }
+
+    function drawPaths() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let color in paths) {
+        const path = paths[color];
+        if (path.length < 2) continue;
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 8;
+        ctx.beginPath();
+        const [x0, y0] = getCoords(path[0]);
+        ctx.moveTo(x0, y0);
+        for (let i = 1; i < path.length; i++) {
+          const [x, y] = getCoords(path[i]);
+          ctx.lineTo(x, y);
         }
+        ctx.stroke();
+      }
 
-        // Generate the beatmap hit circles
-        function generateBeatmap() {
-            beatmap.forEach(pos => {
-                createHitCircle(pos.time, pos.x, pos.y);
-            });
+      // draw current in-progress path
+      if (drawing && pathCoords.length > 1) {
+        ctx.strokeStyle = currentColor;
+        ctx.lineWidth = 8;
+        ctx.beginPath();
+        const [x0, y0] = getCoords(pathCoords[0]);
+        ctx.moveTo(x0, y0);
+        for (let i = 1; i < pathCoords.length; i++) {
+          const [x, y] = getCoords(pathCoords[i]);
+          ctx.lineTo(x, y);
         }
+        ctx.stroke();
+      }
+    }
 
-        // Start the game when the music plays
-        audio.onplay = () => {
-            if (!gameStart) {
-                startTime = audio.currentTime;
-                gameStart = true;
-                generateBeatmap();
-            }
-        };
+    function checkCompletion() {
+      for (let { color, indexes } of dotPairs) {
+        const path = paths[color];
+        if (!path || path.length < 2) return;
+        if (!(path[0] === indexes[0] && path[path.length - 1] === indexes[1]) &&
+            !(path[0] === indexes[1] && path[path.length - 1] === indexes[0])) {
+          return;
+        }
+      }
 
-        // Game loop to sync with music
-        setInterval(() => {
-            if (gameStart) {
-                const currentTime = audio.currentTime - startTime;
-                // Logic to track time, score, and update gameplay
-            }
-        }, 100); // Update every 100ms
-    </script>
+      sound.play();
+      activePuzzle++;
+      if (activePuzzle < totalPuzzles) {
+        setTimeout(() => {
+          createGrid();
+        }, 700);
+      } else {
+        setTimeout(() => {
+          gridWrapper.classList.add('hidden');
+          getBtn.classList.remove('hidden');
+        }, 700);
+      }
+    }
+
+    getBtn.addEventListener('click', () => {
+      activePuzzle = 0;
+      getBtn.classList.add('hidden');
+      gridWrapper.classList.remove('hidden');
+      createGrid();
+    });
+
+    gridEl.addEventListener('mousedown', handleMouseDown);
+    gridEl.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  </script>
 </body>
 </html>
