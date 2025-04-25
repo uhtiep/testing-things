@@ -5,24 +5,27 @@
   <title>Forsaken Generator</title>
   <style>
     body {
-      background: #111;
+      background: #0c0c0c;
       color: white;
-      font-family: sans-serif;
+      font-family: 'Segoe UI', sans-serif;
       text-align: center;
     }
     #genBtn {
       margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 18px;
-      background: #222;
+      padding: 12px 24px;
+      font-size: 20px;
+      background: #1f1f1f;
       color: white;
-      border: 2px solid white;
+      border: 2px solid #555;
+      border-radius: 8px;
       cursor: pointer;
     }
     canvas {
       display: block;
-      margin: 30px auto;
-      background: #222;
+      margin: 40px auto;
+      background: #151515;
+      box-shadow: 0 0 20px #00f5ff33;
+      border: 2px solid #00f5ff55;
     }
   </style>
 </head>
@@ -45,36 +48,16 @@
     const connectSound = document.getElementById('connect');
     const completeSound = document.getElementById('complete');
 
-    let currentPuzzle = 0;
-    let totalPuzzles = 4;
-    let active = false;
-
-    const grids = Array.from({ length: 24 }, () => {
-      const pairs = [];
-      const used = new Set();
-      while (pairs.length < 6) {
-        let a = [Math.floor(Math.random() * size), Math.floor(Math.random() * size)];
-        let b = [Math.floor(Math.random() * size), Math.floor(Math.random() * size)];
-        const hash = (p) => p[0] + "," + p[1];
-        if (hash(a) !== hash(b) && !used.has(hash(a)) && !used.has(hash(b))) {
-          used.add(hash(a));
-          used.add(hash(b));
-          pairs.push([a, b]);
-        }
-      }
-      return pairs;
-    });
-
-    let currentDots = [];
-    let connections = [];
-    let dragging = false;
-    let startDot = null;
-    let currentLine = null;
-    let lastSnapPos = null;
+    const colors = ['#FF5C5C', '#5CFFB0', '#5CC7FF', '#FFCA5C', '#D85CFF', '#5CFFEC'];
+    let puzzleSet = [], connections = [], dragging = false, startDot = null, lastSnap = null;
+    let active = false, puzzleIndex = 0, maxPuzzles = 4;
 
     function drawGrid() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.strokeStyle = "#444";
+
+      // grid lines
+      ctx.strokeStyle = "#333";
+      ctx.lineWidth = 1;
       for (let i = 0; i <= size; i++) {
         ctx.beginPath();
         ctx.moveTo(i * tileSize, 0);
@@ -87,140 +70,162 @@
         ctx.stroke();
       }
 
-      // Draw connections
-      ctx.strokeStyle = "cyan";
-      ctx.lineWidth = 4;
-      for (let [a, b] of connections) {
+      // connections
+      ctx.lineWidth = 6;
+      for (let c of connections) {
+        ctx.strokeStyle = c.color;
         ctx.beginPath();
-        ctx.moveTo(a[0] * tileSize + tileSize / 2, a[1] * tileSize + tileSize / 2);
-        ctx.lineTo(b[0] * tileSize + tileSize / 2, b[1] * tileSize + tileSize / 2);
+        ctx.moveTo(c.from[0] * tileSize + tileSize / 2, c.from[1] * tileSize + tileSize / 2);
+        ctx.lineTo(c.to[0] * tileSize + tileSize / 2, c.to[1] * tileSize + tileSize / 2);
         ctx.stroke();
       }
 
-      // Draw dots
-      for (let [a, b] of currentDots) {
-        for (let [x, y] of [a, b]) {
-          ctx.beginPath();
-          ctx.fillStyle = "white";
-          ctx.arc(x * tileSize + tileSize / 2, y * tileSize + tileSize / 2, 8, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-
-      // Draw current dragging line
+      // current line
       if (dragging && currentLine) {
-        ctx.strokeStyle = "yellow";
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = currentLine.color;
+        ctx.lineWidth = 4;
         ctx.beginPath();
-        ctx.moveTo(currentLine[0], currentLine[1]);
-        ctx.lineTo(currentLine[2], currentLine[3]);
+        ctx.moveTo(currentLine.fromX, currentLine.fromY);
+        ctx.lineTo(currentLine.toX, currentLine.toY);
         ctx.stroke();
       }
-    }
 
-    function getTile(x, y) {
-      return [Math.floor(x / tileSize), Math.floor(y / tileSize)];
-    }
-
-    function isDot(x, y) {
-      return currentDots.flat().some(([dx, dy]) => dx === x && dy === y);
-    }
-
-    function getDot(x, y) {
-      return currentDots.flat().find(([dx, dy]) => dx === x && dy === y);
-    }
-
-    function dotEqual(a, b) {
-      return a[0] === b[0] && a[1] === b[1];
-    }
-
-    function dotHash(a) {
-      return a[0] + ',' + a[1];
-    }
-
-    canvas.addEventListener('mousedown', (e) => {
-      const rect = canvas.getBoundingClientRect();
-      const [x, y] = getTile(e.clientX - rect.left, e.clientY - rect.top);
-      if (isDot(x, y)) {
-        dragging = true;
-        startDot = [x, y];
-        lastSnapPos = [x, y];
+      // dots
+      for (let i = 0; i < puzzleSet.length; i++) {
+        const dot = puzzleSet[i];
+        const [x, y] = dot.pos;
+        ctx.fillStyle = dot.color;
+        ctx.beginPath();
+        ctx.arc(x * tileSize + tileSize / 2, y * tileSize + tileSize / 2, 14, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#000";
+        ctx.font = "bold 16px sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(dot.label, x * tileSize + tileSize / 2, y * tileSize + tileSize / 2);
       }
-    });
+    }
 
-    canvas.addEventListener('mousemove', (e) => {
-      if (dragging) {
-        const rect = canvas.getBoundingClientRect();
-        const [x, y] = getTile(e.clientX - rect.left, e.clientY - rect.top);
-        if (x !== lastSnapPos[0] || y !== lastSnapPos[1]) {
-          snapSound.currentTime = 0;
-          snapSound.play();
-          lastSnapPos = [x, y];
-        }
-        currentLine = [
-          startDot[0] * tileSize + tileSize / 2,
-          startDot[1] * tileSize + tileSize / 2,
-          x * tileSize + tileSize / 2,
-          y * tileSize + tileSize / 2
-        ];
-        drawGrid();
-      }
-    });
-
-    canvas.addEventListener('mouseup', (e) => {
-      if (dragging) {
-        const rect = canvas.getBoundingClientRect();
-        const [x, y] = getTile(e.clientX - rect.left, e.clientY - rect.top);
-        const endDot = [x, y];
-        if (isDot(x, y) && !dotEqual(startDot, endDot)) {
-          const pair = [startDot, endDot];
-          const pairRev = [endDot, startDot];
-          for (let [a, b] of currentDots) {
-            if ((dotEqual(a, startDot) && dotEqual(b, endDot)) || (dotEqual(a, endDot) && dotEqual(b, startDot))) {
-              if (!connections.some(([c1, c2]) =>
-                  (dotEqual(c1, startDot) && dotEqual(c2, endDot)) ||
-                  (dotEqual(c1, endDot) && dotEqual(c2, startDot))
-              )) {
-                connections.push([startDot, endDot]);
-                connectSound.currentTime = 0;
-                connectSound.play();
-              }
-            }
+    function randomPuzzle() {
+      puzzleSet = [];
+      const used = new Set();
+      const taken = new Set();
+      for (let i = 0; i < 3; i++) {
+        let label = i + 1;
+        let color = colors[i];
+        let pair = [];
+        while (pair.length < 2) {
+          let x = Math.floor(Math.random() * size);
+          let y = Math.floor(Math.random() * size);
+          let key = x + "," + y;
+          if (!taken.has(key)) {
+            pair.push({ pos: [x, y], label, color });
+            taken.add(key);
           }
         }
-        dragging = false;
-        currentLine = null;
-        drawGrid();
-        checkSolved();
+        puzzleSet.push(...pair);
       }
-    });
+      connections = [];
+    }
+
+    function getTile(e) {
+      const rect = canvas.getBoundingClientRect();
+      return [
+        Math.floor((e.clientX - rect.left) / tileSize),
+        Math.floor((e.clientY - rect.top) / tileSize)
+      ];
+    }
+
+    function findDotAt(x, y) {
+      return puzzleSet.find(dot => dot.pos[0] === x && dot.pos[1] === y);
+    }
+
+    function isCardinalMove(a, b) {
+      return (a[0] === b[0] || a[1] === b[1]) && !(a[0] === b[0] && a[1] === b[1]);
+    }
+
+    let currentLine = null;
+
+    canvas.onmousedown = e => {
+      if (!active) return;
+      const [x, y] = getTile(e);
+      const dot = findDotAt(x, y);
+      if (dot) {
+        dragging = true;
+        startDot = dot;
+        lastSnap = [x, y];
+      }
+    };
+
+    canvas.onmousemove = e => {
+      if (!dragging || !startDot) return;
+      const [x, y] = getTile(e);
+      if ((x !== lastSnap[0] || y !== lastSnap[1]) && isCardinalMove(startDot.pos, [x, y])) {
+        snapSound.currentTime = 0;
+        snapSound.play();
+        lastSnap = [x, y];
+      }
+      currentLine = {
+        color: startDot.color,
+        fromX: startDot.pos[0] * tileSize + tileSize / 2,
+        fromY: startDot.pos[1] * tileSize + tileSize / 2,
+        toX: x * tileSize + tileSize / 2,
+        toY: y * tileSize + tileSize / 2
+      };
+      drawGrid();
+    };
+
+    canvas.onmouseup = e => {
+      if (!dragging || !startDot) return;
+      const [x, y] = getTile(e);
+      const endDot = findDotAt(x, y);
+      if (
+        endDot &&
+        endDot.label === startDot.label &&
+        !(endDot.pos[0] === startDot.pos[0] && endDot.pos[1] === startDot.pos[1])
+      ) {
+        if (!connections.some(c =>
+          (c.from[0] === startDot.pos[0] && c.from[1] === startDot.pos[1]) ||
+          (c.to[0] === startDot.pos[0] && c.to[1] === startDot.pos[1])
+        )) {
+          connections.push({
+            from: startDot.pos,
+            to: endDot.pos,
+            color: startDot.color
+          });
+          connectSound.currentTime = 0;
+          connectSound.play();
+        }
+      }
+      dragging = false;
+      currentLine = null;
+      startDot = null;
+      drawGrid();
+      checkSolved();
+    };
 
     function checkSolved() {
-      if (connections.length === currentDots.length) {
-        currentPuzzle++;
-        if (currentPuzzle >= totalPuzzles) {
+      if (connections.length === 3) {
+        puzzleIndex++;
+        if (puzzleIndex >= maxPuzzles) {
           completeSound.play();
           active = false;
           genBtn.style.display = "inline-block";
         } else {
-          setTimeout(startPuzzle, 500);
+          setTimeout(() => {
+            randomPuzzle();
+            drawGrid();
+          }, 500);
         }
       }
     }
 
-    function startPuzzle() {
-      currentDots = grids[Math.floor(Math.random() * grids.length)];
-      connections = [];
-      currentLine = null;
-      dragging = false;
-      drawGrid();
-    }
-
     genBtn.onclick = () => {
-      currentPuzzle = 0;
       active = true;
+      puzzleIndex = 0;
       genBtn.style.display = "none";
-      startPuzzle();
+      randomPuzzle();
+      drawGrid();
     };
 
     drawGrid();
