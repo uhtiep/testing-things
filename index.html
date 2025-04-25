@@ -163,24 +163,23 @@
       if (!dragging || !startDot) return;
       const [x, y] = getTile(e);
 
-      // Ensure movement is strictly vertical or horizontal
-      if (startDot.pos[0] === x) {
-        currentLine = {
-          color: startDot.color,
-          fromX: startDot.pos[0] * tileSize + tileSize / 2,
-          fromY: startDot.pos[1] * tileSize + tileSize / 2,
-          toX: x * tileSize + tileSize / 2,
-          toY: y * tileSize + tileSize / 2
-        };
-      } else if (startDot.pos[1] === y) {
-        currentLine = {
-          color: startDot.color,
-          fromX: startDot.pos[0] * tileSize + tileSize / 2,
-          fromY: startDot.pos[1] * tileSize + tileSize / 2,
-          toX: x * tileSize + tileSize / 2,
-          toY: y * tileSize + tileSize / 2
-        };
+      // Ensure movement is either horizontal or vertical
+      let endX = startDot.pos[0] * tileSize + tileSize / 2;
+      let endY = startDot.pos[1] * tileSize + tileSize / 2;
+      if (x !== startDot.pos[0]) {
+        endX = x * tileSize + tileSize / 2;
       }
+      if (y !== startDot.pos[1]) {
+        endY = y * tileSize + tileSize / 2;
+      }
+
+      currentLine = {
+        color: startDot.color,
+        fromX: startDot.pos[0] * tileSize + tileSize / 2,
+        fromY: startDot.pos[1] * tileSize + tileSize / 2,
+        toX: endX,
+        toY: endY
+      };
 
       // Snapping behavior
       if ((x !== lastSnap[0] || y !== lastSnap[1])) {
@@ -239,16 +238,18 @@
       }
     }
 
-    // Start a new puzzle on button click
-    genBtn.onclick = () => {
+    // Set up a new puzzle
+    function startNewGenerator() {
       active = true;
-      puzzleIndex = 0;
       genBtn.style.display = "none";
       randomPuzzle();
       drawGrid();
-    };
+    }
 
-    drawGrid();
+    // Button event
+    genBtn.onclick = startNewGenerator;
+
+    startNewGenerator(); // Start with a random generator
   </script>
 </body>
 </html>
