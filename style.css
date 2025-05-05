@@ -1,57 +1,50 @@
 body {
-    margin: 0;
-    font-family: sans-serif;
-    background-color: #111;
-    color: #fff;
-    text-align: center;
-  }
-  
-  #gameArea {
-    position: relative;
-    width: 100vw;
-    height: 80vh;
-    background: #222;
-    overflow: hidden;
-    margin-top: 20px;
-  }
-  
-  .shape {
-    position: absolute;
-    width: 50px;
-    height: 50px;
-    opacity: 0;
-    transition: all 0.3s ease;
-  }
-  
-  .circle {
-    border-radius: 50%;
-    background: #FF3C3C;
-  }
-  
-  .square {
-    background: #3CFF3C;
-  }
-  
-  .triangle {
-    width: 0;
-    height: 0;
-    border-left: 25px solid transparent;
-    border-right: 25px solid transparent;
-    border-bottom: 50px solid #3C3CFF;
-  }
-  
-  /* Animations */
-  .animate {
-    opacity: 1;
-    animation: fall 2s linear;
-  }
-  
-  @keyframes fall {
-    0% {
-      top: -60px;
-    }
-    100% {
-      top: 100%;
-    }
-  }
-  
+  margin: 0;
+  font-family: sans-serif;
+  background-color: #111;
+  color: white;
+  text-align: center;
+}
+
+#gameArea {
+  position: relative;
+  width: 100vw;
+  height: 80vh;
+  background-color: #222;
+  overflow: hidden;
+  cursor: none;
+}
+
+#player {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.shape {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  opacity: 1;
+}
+
+.circle {
+  border-radius: 50%;
+  background-color: #FF3C3C;
+}
+
+.square {
+  background-color: #3CFF3C;
+}
+
+.triangle {
+  width: 0;
+  height: 0;
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-bottom: 30px solid #3C3CFF;
+}
