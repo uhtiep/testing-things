@@ -1,21 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>JSAB Bullet Hell – Close to Me</title>
-  <link rel="stylesheet" href="style.css">
-</head>
 <body>
   <h1>JSAB Bullet Hell – Close to Me</h1>
   <button id="startBtn">Start</button>
   <audio id="bgm" src="close_to_me.mp3" preload="auto"></audio>
+
+  <!-- Boss Health Bar -->
+  <div id="bossHealthBarContainer">
+    <div id="bossHealthBar"></div>
+  </div>
 
   <div id="gameArea">
     <div id="enemy"></div>
     <div id="player"></div>
   </div>
 
+  <!-- Player Health Bar -->
+  <div id="playerHealthBarContainer">
+    <div id="playerHealthBar"></div>
+  </div>
+
   <script src="script.js"></script>
 </body>
-</html>

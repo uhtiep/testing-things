@@ -3,17 +3,49 @@ const startBtn = document.getElementById("startBtn");
 const gameArea = document.getElementById("gameArea");
 const player = document.getElementById("player");
 const enemy = document.getElementById("enemy");
+const playerHealthBar = document.getElementById("playerHealthBar");
+const bossHealthBar = document.getElementById("bossHealthBar");
 
 let keys = {};
 let dashCooldown = true;
 let canBlock = true;
+let invincibleDuringDash = false;
+
+let playerHP = 100;
+let bossHP = 100;
+
+function updateHealthBars() {
+  playerHealthBar.style.width = `${Math.max(0, playerHP)}%`;
+  bossHealthBar.style.width = `${Math.max(0, bossHP)}%`;
+}
+
+function takeDamage(amount) {
+  if (!invincibleDuringDash) {
+    playerHP -= amount;
+    updateHealthBars();
+    if (playerHP <= 0) {
+      alert("You died!");
+      location.reload();
+    }
+  }
+}
+
+function damageBoss(amount) {
+  bossHP -= amount;
+  updateHealthBars();
+  if (bossHP <= 0) {
+    alert("You win!");
+    location.reload();
+  }
+}
 
 let playerState = {
   x: window.innerWidth / 2,
   y: window.innerHeight / 2,
   speed: 3,
   blocking: false,
-  blockDir: null
+  blockDir: null,
+  isDashing: false
 };
 
 // Input Handling
@@ -44,8 +76,10 @@ document.addEventListener("keydown", e => {
     const dir = getHeldDirection();
     if (dir) {
       dashCooldown = false;
-      let dashX = 0, dashY = 0;
+      invincibleDuringDash = true;
+      playerState.isDashing = true;
 
+      let dashX = 0, dashY = 0;
       if (dir === "up") dashY = -1;
       if (dir === "down") dashY = 1;
       if (dir === "left") dashX = -1;
@@ -58,9 +92,11 @@ document.addEventListener("keydown", e => {
       player.style.background = "#aaa";
       setTimeout(() => {
         player.style.background = "white";
+        playerState.isDashing = false;
+        invincibleDuringDash = false;
       }, 200);
 
-      setTimeout(() => dashCooldown = true, 1500); // cooldown
+      setTimeout(() => dashCooldown = true, 2000); // 2s cooldown
     }
   }
 });
@@ -75,7 +111,7 @@ function getHeldDirection() {
   return null;
 }
 
-// Movement loop
+// Movement
 function movePlayer() {
   if (keys["ArrowLeft"]) playerState.x -= playerState.speed;
   if (keys["ArrowRight"]) playerState.x += playerState.speed;
@@ -94,7 +130,7 @@ function updatePlayerPos() {
   player.style.top = `${playerState.y}px`;
 }
 
-// Attacks
+// Spawn Attacks
 function spawnAttack(x, y, dx, dy) {
   const shape = document.createElement("div");
   shape.classList.add("shape");
@@ -117,6 +153,7 @@ function spawnAttack(x, y, dx, dy) {
     const playerRect = player.getBoundingClientRect();
 
     if (
+      !playerState.isDashing &&
       rect.top < playerRect.bottom &&
       rect.bottom > playerRect.top &&
       rect.left < playerRect.right &&
@@ -129,7 +166,7 @@ function spawnAttack(x, y, dx, dy) {
       } else {
         shape.remove();
         clearInterval(interval);
-        console.log("Player hit!");
+        takeDamage(10);
       }
     }
 
@@ -138,11 +175,6 @@ function spawnAttack(x, y, dx, dy) {
       clearInterval(interval);
     }
   }, 16);
-}
-
-function getRandomColor() {
-  const colors = ["cyan", "magenta", "yellow", "lime", "orange", "aqua"];
-  return colors[Math.floor(Math.random() * colors.length)];
 }
 
 function matchDirection(dx, dy, dir) {
@@ -176,40 +208,49 @@ function reflectToEnemy(shape, x, y) {
       rect.left < enemyRect.right &&
       rect.right > enemyRect.left
     ) {
-      console.log("Enemy hit!");
       shape.remove();
       clearInterval(interval);
+      damageBoss(5);
     }
   }, 16);
 }
 
-// Attack patterns
+function getRandomColor() {
+  const colors = ["cyan", "magenta", "yellow", "lime", "orange", "aqua"];
+  return colors[Math.floor(Math.random() * colors.length)];
+}
+
+// Chaotic Attack Patterns
 function randomPattern() {
-  const type = Math.floor(Math.random() * 3);
+  const type = Math.floor(Math.random() * 4);
 
   switch (type) {
     case 0:
       for (let i = 0; i < 7; i++) {
         setTimeout(() => {
-          spawnAttack(enemy.offsetLeft + 30, 70, (Math.random() - 0.5) * 4, 3 + Math.random() * 2);
-        }, i * 100);
+          spawnAttack(enemy.offsetLeft + 30, 70, (Math.random() - 0.5) * 6, 4 + Math.random() * 3);
+        }, i * 50);
       }
       break;
-
     case 1:
-      for (let angle = 0; angle < 360; angle += 20) {
+      for (let angle = 0; angle < 360; angle += 10) {
         const rad = angle * Math.PI / 180;
-        spawnAttack(enemy.offsetLeft + 30, 70, Math.cos(rad) * 2.5, Math.sin(rad) * 2.5);
+        spawnAttack(enemy.offsetLeft + 30, 70, Math.cos(rad) * 3, Math.sin(rad) * 3);
       }
       break;
-
     case 2:
       for (let i = 0; i < 6; i++) {
-        spawnAttack(80 + i * 100, 70, 0, 4 + Math.random());
+        spawnAttack(80 + i * 100, 70, 0, 6 + Math.random() * 3);
       }
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; i < 5; i++) {
         const randX = Math.random() * window.innerWidth;
-        spawnAttack(randX, 70, (Math.random() - 0.5) * 6, 2 + Math.random());
+        spawnAttack(randX, 70, (Math.random() - 0.5) * 8, 2 + Math.random());
+      }
+      break;
+    case 3:
+      for (let angle = 0; angle < 360; angle += 15) {
+        const rad = angle * Math.PI / 180;
+        spawnAttack(enemy.offsetLeft + 30, 70, Math.cos(rad) * 3, Math.sin(rad) * 3);
       }
       break;
   }
@@ -218,6 +259,7 @@ function randomPattern() {
 // Start game
 startBtn.addEventListener("click", () => {
   audio.play();
-  setInterval(() => randomPattern(), 1500);
+  updateHealthBars();
+  setInterval(() => randomPattern(), 800);
   movePlayer();
 });
