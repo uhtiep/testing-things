@@ -1,177 +1,138 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Forsaken Flow Puzzle</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      background-color: #111;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-    }
-    h1 {
-      margin-bottom: 10px;
-    }
-    #grid {
-      display: grid;
-      grid-template-columns: repeat(5, 60px);
-      grid-template-rows: repeat(5, 60px);
-      gap: 3px;
-    }
-    .cell {
-      width: 60px;
-      height: 60px;
-      background-color: #222;
-      border: 1px solid #444;
-      box-sizing: border-box;
-    }
-    .cell[data-type="dot"] {
-      border-radius: 50%;
-    }
-    .red { background-color: red !important; }
-    .blue { background-color: blue !important; }
-    .path-red { background-color: #aa0000; }
-    .path-blue { background-color: #0000aa; }
-    #message {
-      margin-top: 20px;
-      font-size: 1.2em;
-      color: lime;
-    }
-    button {
-      margin-top: 15px;
-      padding: 8px 12px;
-      background: #444;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #666;
-    }
-  </style>
-</head>
-<body>
-  <h1>Forsaken Flow Puzzle</h1>
-  <div id="grid"></div>
-  <div id="message"></div>
-  <button onclick="init()">Restart</button>
-
-  <script>
-    const size = 5;
-    let grid = [];
-    let currentColor = null;
-    let isDrawing = false;
-    let pathCells = [];
-    
-    const pairs = {
-      red: [[0,0], [4,4]],
-      blue: [[0,4], [4,0]]
-    };
-
-    function createCell(x, y) {
-      const div = document.createElement('div');
-      div.className = 'cell';
-      div.dataset.x = x;
-      div.dataset.y = y;
-      div.dataset.type = 'empty';
-      div.onmousedown = onMouseDown;
-      div.onmouseover = onMouseOver;
-      div.onmouseup = onMouseUp;
-      return div;
-    }
-
-    function onMouseDown(e) {
-      const cell = e.target;
-      const color = getColorClass(cell.classList);
-      if (color && cell.dataset.type === 'dot') {
-        isDrawing = true;
-        currentColor = color;
-        pathCells = [];
+<html>
+  <head>
+    <title>Block Grab & Place</title>
+    <style>
+      body { margin: 0; overflow: hidden; }
+      canvas { display: block; }
+      #cursor {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 24px;
+        color: white;
+        z-index: 1;
+        pointer-events: none;
+        user-select: none;
       }
-    }
+    </style>
+  </head>
+  <body>
+    <div id="cursor">.</div>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/controls/PointerLockControls.js"></script>
+    <script>
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
 
-    function onMouseOver(e) {
-      if (!isDrawing || !currentColor) return;
-      const cell = e.target;
-      const x = parseInt(cell.dataset.x);
-      const y = parseInt(cell.dataset.y);
-      if (cell.dataset.type === 'empty') {
-        cell.classList.add(`path-${currentColor}`);
-        cell.dataset.type = `path-${currentColor}`;
-        pathCells.push(cell);
-      }
-    }
+      const textureLoader = new THREE.TextureLoader();
+      const dirtTexture = textureLoader.load('dirt.png');
+      const oakTexture = textureLoader.load('oak.png');
 
-    function onMouseUp(e) {
-      if (!isDrawing || !currentColor) return;
-      const cell = e.target;
-      const [goalX, goalY] = pairs[currentColor][1];
-      if (parseInt(cell.dataset.x) === goalX && parseInt(cell.dataset.y) === goalY) {
-        checkWin();
-      } else {
-        // Clear the path
-        pathCells.forEach(c => {
-          c.className = 'cell';
-          c.dataset.type = 'empty';
-        });
-      }
-      pathCells = [];
-      isDrawing = false;
-      currentColor = null;
-    }
+      const dirtMaterial = new THREE.MeshBasicMaterial({ map: dirtTexture });
+      const oakMaterial = new THREE.MeshBasicMaterial({ map: oakTexture });
 
-    function getColorClass(classes) {
-      for (let c of classes) {
-        if (["red", "blue"].includes(c)) return c;
-      }
-      return null;
-    }
+      const blocks = [];
 
-    function checkWin() {
-      let win = true;
-      for (let color in pairs) {
-        let hasPath = false;
-        document.querySelectorAll(`.path-${color}`).forEach(cell => {
-          hasPath = true;
-        });
-        if (!hasPath) win = false;
-      }
-      if (win) document.getElementById("message").textContent = "Puzzle Complete!";
-    }
-
-    function init() {
-      const container = document.getElementById("grid");
-      container.innerHTML = '';
-      grid = [];
-      document.getElementById("message").textContent = "";
-
-      for (let y = 0; y < size; y++) {
-        const row = [];
-        for (let x = 0; x < size; x++) {
-          const cell = createCell(x, y);
-          container.appendChild(cell);
-          row.push(cell);
-        }
-        grid.push(row);
+      function createBlock(material, x, y, z) {
+        const geometry = new THREE.BoxGeometry(1, 1, 1);
+        const cube = new THREE.Mesh(geometry, material.clone());
+        cube.position.set(x, y, z);
+        scene.add(cube);
+        blocks.push(cube);
+        return cube;
       }
 
-      // Place dots
-      for (let color in pairs) {
-        for (let [x, y] of pairs[color]) {
-          const cell = grid[y][x];
-          cell.classList.add(color);
-          cell.dataset.type = 'dot';
+      // Create dirt ground
+      for (let x = -5; x <= 5; x++) {
+        for (let z = -5; z <= 5; z++) {
+          createBlock(dirtMaterial, x, -1, z);
         }
       }
-    }
 
-    window.onload = init;
-  </script>
-</body>
+      // Oak pillar
+      for (let y = 0; y < 3; y++) {
+        createBlock(oakMaterial, 0, y, 0);
+      }
+
+      // Lighting
+      const light = new THREE.AmbientLight(0xffffff);
+      scene.add(light);
+
+      // Controls
+      const controls = new THREE.PointerLockControls(camera, document.body);
+      document.body.addEventListener('click', () => controls.lock());
+
+      const velocity = new THREE.Vector3();
+      const direction = new THREE.Vector3();
+      const keys = {};
+
+      document.addEventListener('keydown', e => keys[e.code] = true);
+      document.addEventListener('keyup', e => keys[e.code] = false);
+
+      // Raycaster for interacting
+      const raycaster = new THREE.Raycaster();
+      let heldMaterial = null;
+
+      function grabBlock() {
+        raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+        const intersects = raycaster.intersectObjects(blocks);
+        if (intersects.length > 0) {
+          const target = intersects[0].object;
+          heldMaterial = target.material.clone();
+          scene.remove(target);
+          blocks.splice(blocks.indexOf(target), 1);
+        }
+      }
+
+      function placeBlock() {
+        if (!heldMaterial) return;
+        raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+        const intersects = raycaster.intersectObjects(blocks);
+        if (intersects.length > 0) {
+          const point = intersects[0].point;
+          const normal = intersects[0].face.normal;
+          const pos = intersects[0].object.position.clone().add(normal);
+          pos.x = Math.round(pos.x);
+          pos.y = Math.round(pos.y);
+          pos.z = Math.round(pos.z);
+          createBlock(heldMaterial, pos.x, pos.y, pos.z);
+          heldMaterial = null;
+        }
+      }
+
+      document.addEventListener('keydown', e => {
+        if (e.code === 'KeyF') grabBlock();
+        if (e.code === 'KeyG') placeBlock();
+      });
+
+      // Game loop
+      camera.position.y = 2;
+      const clock = new THREE.Clock();
+
+      function animate() {
+        requestAnimationFrame(animate);
+        const delta = clock.getDelta();
+
+        direction.set(0, 0, 0);
+        if (keys['KeyW']) direction.z -= 1;
+        if (keys['KeyS']) direction.z += 1;
+        if (keys['KeyA']) direction.x -= 1;
+        if (keys['KeyD']) direction.x += 1;
+
+        direction.normalize();
+        direction.applyQuaternion(camera.quaternion);
+        velocity.copy(direction).multiplyScalar(5 * delta);
+
+        controls.getObject().position.add(velocity);
+        renderer.render(scene, camera);
+      }
+
+      animate();
+    </script>
+  </body>
 </html>
