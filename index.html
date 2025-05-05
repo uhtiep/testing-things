@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>3D Block Test</title>
+  <meta charset="UTF-8">
+  <title>Horror Game</title>
   <style>
-    body { margin: 0; overflow: hidden; }
+    body { margin: 0; overflow: hidden; background: black; }
     canvas { display: block; }
     #cursor {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      font-size: 24px;
-      color: white;
+      font-size: 18px;
+      color: red;
       z-index: 10;
       pointer-events: none;
     }
@@ -20,11 +20,15 @@
 </head>
 <body>
   <div id="cursor">.</div>
+  <audio id="scare" src="scare.mp3"></audio>
+
   <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/controls/PointerLockControls.js"></script>
   <script>
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+    scene.fog = new THREE.FogExp2(0x000000, 0.08);
+
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
@@ -32,76 +36,74 @@
     const controls = new THREE.PointerLockControls(camera, document.body);
     document.body.addEventListener('click', () => controls.lock());
 
+    const light = new THREE.PointLight(0xffffff, 1, 10);
+    light.position.set(0, 2, 0);
+    scene.add(light);
+
+    const ambient = new THREE.AmbientLight(0x111111);
+    scene.add(ambient);
+
     const loader = new THREE.TextureLoader();
-    const dirtTexture = loader.load('dirt.png');
-    const oakTexture = loader.load('oak.png');
+    const dirtTex = loader.load('dirt.png');
+    const oakTex = loader.load('oak.png');
+    const dirtMat = new THREE.MeshBasicMaterial({ map: dirtTex });
+    const oakMat = new THREE.MeshBasicMaterial({ map: oakTex });
 
-    const dirtMaterial = new THREE.MeshBasicMaterial({ map: dirtTexture });
-    const oakMaterial = new THREE.MeshBasicMaterial({ map: oakTexture });
-
-    const blocks = [];
-
-    function createBlock(material, x, y, z) {
-      const geometry = new THREE.BoxGeometry(1, 1, 1);
-      const mesh = new THREE.Mesh(geometry, material.clone());
-      mesh.position.set(x, y, z);
-      scene.add(mesh);
-      blocks.push(mesh);
-      return mesh;
-    }
-
-    // Place dirt ground
-    for (let x = -5; x <= 5; x++) {
-      for (let z = -5; z <= 5; z++) {
-        createBlock(dirtMaterial, x, -1, z);
+    // Floor
+    for (let x = -10; x < 10; x++) {
+      for (let z = -10; z < 10; z++) {
+        const floor = new THREE.Mesh(new THREE.BoxGeometry(1, 0.1, 1), dirtMat);
+        floor.position.set(x, -0.5, z);
+        scene.add(floor);
       }
     }
 
-    // Place a few oak standing
-    for (let y = 0; y < 3; y++) {
-      createBlock(oakMaterial, 0, y, 0);
+    // Walls
+    for (let x = -10; x < 10; x++) {
+      for (let y = 0; y < 3; y++) {
+        const wall1 = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 0.1), oakMat);
+        const wall2 = wall1.clone();
+        wall1.position.set(x, y, -10);
+        wall2.position.set(x, y, 9);
+        scene.add(wall1);
+        scene.add(wall2);
+      }
     }
 
-    camera.position.y = 2;
-    const keys = {};
+    for (let z = -10; z < 10; z++) {
+      for (let y = 0; y < 3; y++) {
+        const wall1 = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1, 1), oakMat);
+        const wall2 = wall1.clone();
+        wall1.position.set(-10, y, z);
+        wall2.position.set(9, y, z);
+        scene.add(wall1);
+        scene.add(wall2);
+      }
+    }
 
+    // "Ghost"
+    const ghost = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+    ghost.visible = false;
+    scene.add(ghost);
+
+    // Flashlight flicker
+    let flickerTimer = 0;
+
+    // Random jumpscare sound
+    const scareSound = document.getElementById("scare");
+
+    setInterval(() => {
+      if (Math.random() < 0.3) {
+        ghost.position.copy(controls.getObject().position).add(new THREE.Vector3(0, 0, 5).applyQuaternion(camera.quaternion));
+        ghost.visible = true;
+        setTimeout(() => ghost.visible = false, 1000);
+        if (Math.random() < 0.5) scareSound.play();
+      }
+    }, 7000);
+
+    const keys = {};
     document.addEventListener('keydown', e => keys[e.code] = true);
     document.addEventListener('keyup', e => keys[e.code] = false);
-
-    const raycaster = new THREE.Raycaster();
-    let heldMaterial = null;
-
-    function grabBlock() {
-      raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
-      const intersects = raycaster.intersectObjects(blocks);
-      if (intersects.length > 0) {
-        const target = intersects[0].object;
-        heldMaterial = target.material.clone();
-        scene.remove(target);
-        blocks.splice(blocks.indexOf(target), 1);
-      }
-    }
-
-    function placeBlock() {
-      if (!heldMaterial) return;
-      raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
-      const intersects = raycaster.intersectObjects(blocks);
-      if (intersects.length > 0) {
-        const point = intersects[0].point;
-        const normal = intersects[0].face.normal;
-        const pos = intersects[0].object.position.clone().add(normal);
-        pos.x = Math.round(pos.x);
-        pos.y = Math.round(pos.y);
-        pos.z = Math.round(pos.z);
-        createBlock(heldMaterial, pos.x, pos.y, pos.z);
-        heldMaterial = null;
-      }
-    }
-
-    document.addEventListener('keydown', e => {
-      if (e.code === 'KeyF') grabBlock();
-      if (e.code === 'KeyG') placeBlock();
-    });
 
     const velocity = new THREE.Vector3();
     const direction = new THREE.Vector3();
@@ -109,7 +111,13 @@
 
     function animate() {
       requestAnimationFrame(animate);
+
       const delta = clock.getDelta();
+      flickerTimer += delta;
+      if (flickerTimer > 0.05) {
+        light.intensity = Math.random() * 0.6 + 0.4;
+        flickerTimer = 0;
+      }
 
       direction.set(0, 0, 0);
       if (keys['KeyW']) direction.z -= 1;
@@ -119,9 +127,10 @@
 
       direction.normalize();
       direction.applyQuaternion(camera.quaternion);
-      velocity.copy(direction).multiplyScalar(5 * delta);
+      velocity.copy(direction).multiplyScalar(2.5 * delta);
 
       controls.getObject().position.add(velocity);
+      light.position.copy(controls.getObject().position);
       renderer.render(scene, camera);
     }
 
