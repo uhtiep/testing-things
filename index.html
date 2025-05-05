@@ -1,138 +1,131 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Block Grab & Place</title>
-    <style>
-      body { margin: 0; overflow: hidden; }
-      canvas { display: block; }
-      #cursor {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 24px;
-        color: white;
-        z-index: 1;
-        pointer-events: none;
-        user-select: none;
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>3D Block Test</title>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    canvas { display: block; }
+    #cursor {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 24px;
+      color: white;
+      z-index: 10;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="cursor">.</div>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/controls/PointerLockControls.js"></script>
+  <script>
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    const controls = new THREE.PointerLockControls(camera, document.body);
+    document.body.addEventListener('click', () => controls.lock());
+
+    const loader = new THREE.TextureLoader();
+    const dirtTexture = loader.load('dirt.png');
+    const oakTexture = loader.load('oak.png');
+
+    const dirtMaterial = new THREE.MeshBasicMaterial({ map: dirtTexture });
+    const oakMaterial = new THREE.MeshBasicMaterial({ map: oakTexture });
+
+    const blocks = [];
+
+    function createBlock(material, x, y, z) {
+      const geometry = new THREE.BoxGeometry(1, 1, 1);
+      const mesh = new THREE.Mesh(geometry, material.clone());
+      mesh.position.set(x, y, z);
+      scene.add(mesh);
+      blocks.push(mesh);
+      return mesh;
+    }
+
+    // Place dirt ground
+    for (let x = -5; x <= 5; x++) {
+      for (let z = -5; z <= 5; z++) {
+        createBlock(dirtMaterial, x, -1, z);
       }
-    </style>
-  </head>
-  <body>
-    <div id="cursor">.</div>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/controls/PointerLockControls.js"></script>
-    <script>
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-      const renderer = new THREE.WebGLRenderer();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      document.body.appendChild(renderer.domElement);
+    }
 
-      const textureLoader = new THREE.TextureLoader();
-      const dirtTexture = textureLoader.load('dirt.png');
-      const oakTexture = textureLoader.load('oak.png');
+    // Place a few oak standing
+    for (let y = 0; y < 3; y++) {
+      createBlock(oakMaterial, 0, y, 0);
+    }
 
-      const dirtMaterial = new THREE.MeshBasicMaterial({ map: dirtTexture });
-      const oakMaterial = new THREE.MeshBasicMaterial({ map: oakTexture });
+    camera.position.y = 2;
+    const keys = {};
 
-      const blocks = [];
+    document.addEventListener('keydown', e => keys[e.code] = true);
+    document.addEventListener('keyup', e => keys[e.code] = false);
 
-      function createBlock(material, x, y, z) {
-        const geometry = new THREE.BoxGeometry(1, 1, 1);
-        const cube = new THREE.Mesh(geometry, material.clone());
-        cube.position.set(x, y, z);
-        scene.add(cube);
-        blocks.push(cube);
-        return cube;
+    const raycaster = new THREE.Raycaster();
+    let heldMaterial = null;
+
+    function grabBlock() {
+      raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+      const intersects = raycaster.intersectObjects(blocks);
+      if (intersects.length > 0) {
+        const target = intersects[0].object;
+        heldMaterial = target.material.clone();
+        scene.remove(target);
+        blocks.splice(blocks.indexOf(target), 1);
       }
+    }
 
-      // Create dirt ground
-      for (let x = -5; x <= 5; x++) {
-        for (let z = -5; z <= 5; z++) {
-          createBlock(dirtMaterial, x, -1, z);
-        }
+    function placeBlock() {
+      if (!heldMaterial) return;
+      raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+      const intersects = raycaster.intersectObjects(blocks);
+      if (intersects.length > 0) {
+        const point = intersects[0].point;
+        const normal = intersects[0].face.normal;
+        const pos = intersects[0].object.position.clone().add(normal);
+        pos.x = Math.round(pos.x);
+        pos.y = Math.round(pos.y);
+        pos.z = Math.round(pos.z);
+        createBlock(heldMaterial, pos.x, pos.y, pos.z);
+        heldMaterial = null;
       }
+    }
 
-      // Oak pillar
-      for (let y = 0; y < 3; y++) {
-        createBlock(oakMaterial, 0, y, 0);
-      }
+    document.addEventListener('keydown', e => {
+      if (e.code === 'KeyF') grabBlock();
+      if (e.code === 'KeyG') placeBlock();
+    });
 
-      // Lighting
-      const light = new THREE.AmbientLight(0xffffff);
-      scene.add(light);
+    const velocity = new THREE.Vector3();
+    const direction = new THREE.Vector3();
+    const clock = new THREE.Clock();
 
-      // Controls
-      const controls = new THREE.PointerLockControls(camera, document.body);
-      document.body.addEventListener('click', () => controls.lock());
+    function animate() {
+      requestAnimationFrame(animate);
+      const delta = clock.getDelta();
 
-      const velocity = new THREE.Vector3();
-      const direction = new THREE.Vector3();
-      const keys = {};
+      direction.set(0, 0, 0);
+      if (keys['KeyW']) direction.z -= 1;
+      if (keys['KeyS']) direction.z += 1;
+      if (keys['KeyA']) direction.x -= 1;
+      if (keys['KeyD']) direction.x += 1;
 
-      document.addEventListener('keydown', e => keys[e.code] = true);
-      document.addEventListener('keyup', e => keys[e.code] = false);
+      direction.normalize();
+      direction.applyQuaternion(camera.quaternion);
+      velocity.copy(direction).multiplyScalar(5 * delta);
 
-      // Raycaster for interacting
-      const raycaster = new THREE.Raycaster();
-      let heldMaterial = null;
+      controls.getObject().position.add(velocity);
+      renderer.render(scene, camera);
+    }
 
-      function grabBlock() {
-        raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
-        const intersects = raycaster.intersectObjects(blocks);
-        if (intersects.length > 0) {
-          const target = intersects[0].object;
-          heldMaterial = target.material.clone();
-          scene.remove(target);
-          blocks.splice(blocks.indexOf(target), 1);
-        }
-      }
-
-      function placeBlock() {
-        if (!heldMaterial) return;
-        raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
-        const intersects = raycaster.intersectObjects(blocks);
-        if (intersects.length > 0) {
-          const point = intersects[0].point;
-          const normal = intersects[0].face.normal;
-          const pos = intersects[0].object.position.clone().add(normal);
-          pos.x = Math.round(pos.x);
-          pos.y = Math.round(pos.y);
-          pos.z = Math.round(pos.z);
-          createBlock(heldMaterial, pos.x, pos.y, pos.z);
-          heldMaterial = null;
-        }
-      }
-
-      document.addEventListener('keydown', e => {
-        if (e.code === 'KeyF') grabBlock();
-        if (e.code === 'KeyG') placeBlock();
-      });
-
-      // Game loop
-      camera.position.y = 2;
-      const clock = new THREE.Clock();
-
-      function animate() {
-        requestAnimationFrame(animate);
-        const delta = clock.getDelta();
-
-        direction.set(0, 0, 0);
-        if (keys['KeyW']) direction.z -= 1;
-        if (keys['KeyS']) direction.z += 1;
-        if (keys['KeyA']) direction.x -= 1;
-        if (keys['KeyD']) direction.x += 1;
-
-        direction.normalize();
-        direction.applyQuaternion(camera.quaternion);
-        velocity.copy(direction).multiplyScalar(5 * delta);
-
-        controls.getObject().position.add(velocity);
-        renderer.render(scene, camera);
-      }
-
-      animate();
-    </script>
-  </body>
+    animate();
+  </script>
+</body>
 </html>
