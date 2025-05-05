@@ -4,37 +4,30 @@ const gameArea = document.getElementById("gameArea");
 const player = document.getElementById("player");
 const enemy = document.getElementById("enemy");
 
+let keys = {};
+let dashCooldown = true;
+let canBlock = true;
+
 let playerState = {
-  x: 0,
-  y: 0,
+  x: window.innerWidth / 2,
+  y: window.innerHeight / 2,
+  speed: 3,
   blocking: false,
-  blockDir: null,
-  canBlock: true
+  blockDir: null
 };
 
-document.addEventListener("mousemove", e => {
-  playerState.x = e.clientX;
-  playerState.y = e.clientY;
-  player.style.left = `${playerState.x - 10}px`;
-  player.style.top = `${playerState.y - 10}px`;
-});
-
-let keys = {};
+// Input Handling
 document.addEventListener("keydown", e => {
   keys[e.key] = true;
 
-  if (e.key === "z" && playerState.canBlock) {
-    let dir = null;
-    if (keys["ArrowLeft"]) dir = "left";
-    if (keys["ArrowRight"]) dir = "right";
-    if (keys["ArrowUp"]) dir = "up";
-    if (keys["ArrowDown"]) dir = "down";
-
+  // Block
+  if (e.key === "z" && canBlock) {
+    const dir = getHeldDirection();
     if (dir) {
       playerState.blocking = true;
       playerState.blockDir = dir;
       player.classList.add("block");
-      playerState.canBlock = false;
+      canBlock = false;
 
       setTimeout(() => {
         playerState.blocking = false;
@@ -42,30 +35,87 @@ document.addEventListener("keydown", e => {
         playerState.blockDir = null;
       }, 1000);
 
-      setTimeout(() => playerState.canBlock = true, 5000);
+      setTimeout(() => canBlock = true, 5000);
+    }
+  }
+
+  // Dash
+  if (e.key === "x" && dashCooldown) {
+    const dir = getHeldDirection();
+    if (dir) {
+      dashCooldown = false;
+      let dashX = 0, dashY = 0;
+
+      if (dir === "up") dashY = -1;
+      if (dir === "down") dashY = 1;
+      if (dir === "left") dashX = -1;
+      if (dir === "right") dashX = 1;
+
+      playerState.x += dashX * 60;
+      playerState.y += dashY * 60;
+      updatePlayerPos();
+
+      player.style.background = "#aaa";
+      setTimeout(() => {
+        player.style.background = "white";
+      }, 200);
+
+      setTimeout(() => dashCooldown = true, 1500); // cooldown
     }
   }
 });
+
 document.addEventListener("keyup", e => keys[e.key] = false);
 
-// Spawning logic
+function getHeldDirection() {
+  if (keys["ArrowUp"]) return "up";
+  if (keys["ArrowDown"]) return "down";
+  if (keys["ArrowLeft"]) return "left";
+  if (keys["ArrowRight"]) return "right";
+  return null;
+}
+
+// Movement loop
+function movePlayer() {
+  if (keys["ArrowLeft"]) playerState.x -= playerState.speed;
+  if (keys["ArrowRight"]) playerState.x += playerState.speed;
+  if (keys["ArrowUp"]) playerState.y -= playerState.speed;
+  if (keys["ArrowDown"]) playerState.y += playerState.speed;
+
+  playerState.x = Math.max(0, Math.min(window.innerWidth - 20, playerState.x));
+  playerState.y = Math.max(0, Math.min(window.innerHeight - 100, playerState.y));
+
+  updatePlayerPos();
+  requestAnimationFrame(movePlayer);
+}
+
+function updatePlayerPos() {
+  player.style.left = `${playerState.x}px`;
+  player.style.top = `${playerState.y}px`;
+}
+
+// Attacks
 function spawnAttack(x, y, dx, dy) {
   const shape = document.createElement("div");
   shape.classList.add("shape");
   shape.style.left = `${x}px`;
   shape.style.top = `${y}px`;
+  shape.style.background = getRandomColor();
   gameArea.appendChild(shape);
+
+  let rotation = 0;
 
   const interval = setInterval(() => {
     x += dx;
     y += dy;
+    rotation += 5;
     shape.style.left = `${x}px`;
     shape.style.top = `${y}px`;
+    shape.style.transform = `rotate(${rotation}deg)`;
 
     const rect = shape.getBoundingClientRect();
     const playerRect = player.getBoundingClientRect();
 
-    // Check hit or block
     if (
       rect.top < playerRect.bottom &&
       rect.bottom > playerRect.top &&
@@ -90,7 +140,11 @@ function spawnAttack(x, y, dx, dy) {
   }, 16);
 }
 
-// Direction match
+function getRandomColor() {
+  const colors = ["cyan", "magenta", "yellow", "lime", "orange", "aqua"];
+  return colors[Math.floor(Math.random() * colors.length)];
+}
+
 function matchDirection(dx, dy, dir) {
   if (dir === "up" && dy > 0) return true;
   if (dir === "down" && dy < 0) return true;
@@ -99,13 +153,11 @@ function matchDirection(dx, dy, dir) {
   return false;
 }
 
-// Reflect back to enemy
 function reflectToEnemy(shape, x, y) {
   const enemyX = enemy.offsetLeft + 30;
   const enemyY = enemy.offsetTop + 30;
   const angle = Math.atan2(enemyY - y, enemyX - x);
   const speed = 4;
-
   const dx = Math.cos(angle) * speed;
   const dy = Math.sin(angle) * speed;
 
@@ -131,25 +183,33 @@ function reflectToEnemy(shape, x, y) {
   }, 16);
 }
 
-// Enemy attack patterns
+// Attack patterns
 function randomPattern() {
   const type = Math.floor(Math.random() * 3);
 
   switch (type) {
     case 0:
-      for (let i = 0; i < 5; i++) {
-        setTimeout(() => spawnAttack(enemy.offsetLeft + 30, 70, (Math.random() - 0.5) * 2, 3), i * 200);
+      for (let i = 0; i < 7; i++) {
+        setTimeout(() => {
+          spawnAttack(enemy.offsetLeft + 30, 70, (Math.random() - 0.5) * 4, 3 + Math.random() * 2);
+        }, i * 100);
       }
       break;
+
     case 1:
-      for (let angle = 0; angle < 360; angle += 30) {
+      for (let angle = 0; angle < 360; angle += 20) {
         const rad = angle * Math.PI / 180;
-        spawnAttack(enemy.offsetLeft + 30, 70, Math.cos(rad) * 2, Math.sin(rad) * 2);
+        spawnAttack(enemy.offsetLeft + 30, 70, Math.cos(rad) * 2.5, Math.sin(rad) * 2.5);
       }
       break;
+
     case 2:
-      for (let i = 0; i < 4; i++) {
-        setTimeout(() => spawnAttack(50 + i * 100, 70, 0, 3), i * 300);
+      for (let i = 0; i < 6; i++) {
+        spawnAttack(80 + i * 100, 70, 0, 4 + Math.random());
+      }
+      for (let i = 0; i < 3; i++) {
+        const randX = Math.random() * window.innerWidth;
+        spawnAttack(randX, 70, (Math.random() - 0.5) * 6, 2 + Math.random());
       }
       break;
   }
@@ -158,5 +218,6 @@ function randomPattern() {
 // Start game
 startBtn.addEventListener("click", () => {
   audio.play();
-  setInterval(() => randomPattern(), 2000);
+  setInterval(() => randomPattern(), 1500);
+  movePlayer();
 });

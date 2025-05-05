@@ -12,7 +12,6 @@ body {
   height: 80vh;
   background-color: #222;
   overflow: hidden;
-  cursor: none;
 }
 
 #player {
@@ -20,7 +19,7 @@ body {
   width: 20px;
   height: 20px;
   background: white;
-  border-radius: 50%;
+  border: 2px solid cyan;
   pointer-events: none;
   z-index: 10;
 }
@@ -42,7 +41,9 @@ body {
   height: 20px;
   border-radius: 50%;
   background: cyan;
+  transition: transform 0.1s linear;
 }
+
 .block {
-  border: 2px solid yellow;
+  box-shadow: 0 0 8px yellow;
 }
