@@ -25,26 +25,24 @@ body {
   z-index: 10;
 }
 
+#enemy {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  width: 60px;
+  height: 60px;
+  margin-left: -30px;
+  background: crimson;
+  border-radius: 10px;
+}
+
 .shape {
   position: absolute;
-  width: 30px;
-  height: 30px;
-  opacity: 1;
-}
-
-.circle {
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  background-color: #FF3C3C;
+  background: cyan;
 }
-
-.square {
-  background-color: #3CFF3C;
-}
-
-.triangle {
-  width: 0;
-  height: 0;
-  border-left: 15px solid transparent;
-  border-right: 15px solid transparent;
-  border-bottom: 30px solid #3C3CFF;
+.block {
+  border: 2px solid yellow;
 }
