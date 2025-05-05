@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Forsaken Generator Puzzle</title>
+  <title>Forsaken Flow Puzzle</title>
   <style>
     body {
       font-family: sans-serif;
@@ -21,19 +21,23 @@
     #grid {
       display: grid;
       grid-template-columns: repeat(5, 60px);
-      gap: 5px;
+      grid-template-rows: repeat(5, 60px);
+      gap: 3px;
     }
-    .tile {
+    .cell {
       width: 60px;
       height: 60px;
-      background-color: red;
-      border: 2px solid #333;
-      cursor: pointer;
-      transition: background-color 0.2s;
+      background-color: #222;
+      border: 1px solid #444;
+      box-sizing: border-box;
     }
-    .green {
-      background-color: green !important;
+    .cell[data-type="dot"] {
+      border-radius: 50%;
     }
+    .red { background-color: red !important; }
+    .blue { background-color: blue !important; }
+    .path-red { background-color: #aa0000; }
+    .path-blue { background-color: #0000aa; }
     #message {
       margin-top: 20px;
       font-size: 1.2em;
@@ -53,63 +57,118 @@
   </style>
 </head>
 <body>
-  <h1>Forsaken Generator Puzzle</h1>
+  <h1>Forsaken Flow Puzzle</h1>
   <div id="grid"></div>
   <div id="message"></div>
-  <button onclick="init()">Restart Puzzle</button>
+  <button onclick="init()">Restart</button>
 
   <script>
     const size = 5;
-    let tiles = [];
+    let grid = [];
+    let currentColor = null;
+    let isDrawing = false;
+    let pathCells = [];
+    
+    const pairs = {
+      red: [[0,0], [4,4]],
+      blue: [[0,4], [4,0]]
+    };
 
-    function createTile(x, y) {
+    function createCell(x, y) {
       const div = document.createElement('div');
-      div.className = 'tile';
+      div.className = 'cell';
       div.dataset.x = x;
       div.dataset.y = y;
-      div.onclick = () => toggleTile(x, y);
+      div.dataset.type = 'empty';
+      div.onmousedown = onMouseDown;
+      div.onmouseover = onMouseOver;
+      div.onmouseup = onMouseUp;
       return div;
     }
 
-    function toggleTile(x, y) {
-      const coords = [[x,y], [x-1,y], [x+1,y], [x,y-1], [x,y+1]];
-      coords.forEach(([i,j]) => {
-        if (i >= 0 && i < size && j >= 0 && j < size) {
-          const tile = tiles[i][j];
-          tile.classList.toggle('green');
-        }
-      });
-      checkWin();
+    function onMouseDown(e) {
+      const cell = e.target;
+      const color = getColorClass(cell.classList);
+      if (color && cell.dataset.type === 'dot') {
+        isDrawing = true;
+        currentColor = color;
+        pathCells = [];
+      }
+    }
+
+    function onMouseOver(e) {
+      if (!isDrawing || !currentColor) return;
+      const cell = e.target;
+      const x = parseInt(cell.dataset.x);
+      const y = parseInt(cell.dataset.y);
+      if (cell.dataset.type === 'empty') {
+        cell.classList.add(`path-${currentColor}`);
+        cell.dataset.type = `path-${currentColor}`;
+        pathCells.push(cell);
+      }
+    }
+
+    function onMouseUp(e) {
+      if (!isDrawing || !currentColor) return;
+      const cell = e.target;
+      const [goalX, goalY] = pairs[currentColor][1];
+      if (parseInt(cell.dataset.x) === goalX && parseInt(cell.dataset.y) === goalY) {
+        checkWin();
+      } else {
+        // Clear the path
+        pathCells.forEach(c => {
+          c.className = 'cell';
+          c.dataset.type = 'empty';
+        });
+      }
+      pathCells = [];
+      isDrawing = false;
+      currentColor = null;
+    }
+
+    function getColorClass(classes) {
+      for (let c of classes) {
+        if (["red", "blue"].includes(c)) return c;
+      }
+      return null;
     }
 
     function checkWin() {
-      for (let row of tiles) {
-        for (let tile of row) {
-          if (!tile.classList.contains('green')) {
-            document.getElementById('message').textContent = "";
-            return;
-          }
-        }
+      let win = true;
+      for (let color in pairs) {
+        let hasPath = false;
+        document.querySelectorAll(`.path-${color}`).forEach(cell => {
+          hasPath = true;
+        });
+        if (!hasPath) win = false;
       }
-      document.getElementById('message').textContent = "Puzzle Complete!";
+      if (win) document.getElementById("message").textContent = "Puzzle Complete!";
     }
 
     function init() {
-      const grid = document.getElementById('grid');
-      grid.innerHTML = '';
-      tiles = [];
+      const container = document.getElementById("grid");
+      container.innerHTML = '';
+      grid = [];
+      document.getElementById("message").textContent = "";
 
       for (let y = 0; y < size; y++) {
         const row = [];
         for (let x = 0; x < size; x++) {
-          const tile = createTile(x, y);
-          if (Math.random() < 0.4) tile.classList.add('green'); // Random start
-          grid.appendChild(tile);
-          row.push(tile);
+          const cell = createCell(x, y);
+          container.appendChild(cell);
+          row.push(cell);
         }
-        tiles.push(row);
+        grid.push(row);
       }
-      document.getElementById('message').textContent = "";
+
+      // Place dots
+      for (let color in pairs) {
+        for (let [x, y] of pairs[color]) {
+          const cell = grid[y][x];
+          cell.classList.add(color);
+          cell.dataset.type = 'dot';
+        }
+      }
     }
 
     window.onload = init;
