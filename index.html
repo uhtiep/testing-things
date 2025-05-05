@@ -2,254 +2,117 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Forsaken Generator</title>
+  <title>Forsaken Generator Puzzle</title>
   <style>
     body {
-      background: #0c0c0c;
+      font-family: sans-serif;
+      background-color: #111;
       color: white;
-      font-family: 'Segoe UI', sans-serif;
-      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
     }
-    #genBtn {
+    h1 {
+      margin-bottom: 10px;
+    }
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(5, 60px);
+      gap: 5px;
+    }
+    .tile {
+      width: 60px;
+      height: 60px;
+      background-color: red;
+      border: 2px solid #333;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .green {
+      background-color: green !important;
+    }
+    #message {
       margin-top: 20px;
-      padding: 12px 24px;
-      font-size: 20px;
-      background: #1f1f1f;
+      font-size: 1.2em;
+      color: lime;
+    }
+    button {
+      margin-top: 15px;
+      padding: 8px 12px;
+      background: #444;
       color: white;
-      border: 2px solid #555;
-      border-radius: 8px;
+      border: none;
       cursor: pointer;
     }
-    canvas {
-      display: block;
-      margin: 40px auto;
-      background: #151515;
-      box-shadow: 0 0 20px #00f5ff33;
-      border: 2px solid #00f5ff55;
+    button:hover {
+      background: #666;
     }
   </style>
 </head>
 <body>
-  <h1>Forsaken Generator</h1>
-  <button id="genBtn">Get New Generator</button>
-  <canvas id="puzzle" width="600" height="600"></canvas>
-
-  <audio id="snap" src="snap.mp3"></audio>
-  <audio id="connect" src="connect.mp3"></audio>
-  <audio id="complete" src="rblx-complete.mp3"></audio>
+  <h1>Forsaken Generator Puzzle</h1>
+  <div id="grid"></div>
+  <div id="message"></div>
+  <button onclick="init()">Restart Puzzle</button>
 
   <script>
-    const canvas = document.getElementById('puzzle');
-    const ctx = canvas.getContext('2d');
-    const size = 6;
-    const tileSize = canvas.width / size;
-    const genBtn = document.getElementById('genBtn');
-    const snapSound = document.getElementById('snap');
-    const connectSound = document.getElementById('connect');
-    const completeSound = document.getElementById('complete');
+    const size = 5;
+    let tiles = [];
 
-    const colors = ['#FF5C5C', '#5CFFB0', '#5CC7FF', '#FFCA5C', '#D85CFF', '#5CFFEC'];
-    let puzzleSet = [], connections = [], dragging = false, startDot = null, lastSnap = null;
-    let active = false, puzzleIndex = 0, maxPuzzles = 4;
-
-    // Create the grid and handle drawing of lines
-    function drawGrid() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // grid lines
-      ctx.strokeStyle = "#333";
-      ctx.lineWidth = 1;
-      for (let i = 0; i <= size; i++) {
-        ctx.beginPath();
-        ctx.moveTo(i * tileSize, 0);
-        ctx.lineTo(i * tileSize, canvas.height);
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(0, i * tileSize);
-        ctx.lineTo(canvas.width, i * tileSize);
-        ctx.stroke();
-      }
-
-      // Draw connections
-      ctx.lineWidth = 6;
-      for (let c of connections) {
-        ctx.strokeStyle = c.color;
-        ctx.beginPath();
-        ctx.moveTo(c.from[0] * tileSize + tileSize / 2, c.from[1] * tileSize + tileSize / 2);
-        ctx.lineTo(c.to[0] * tileSize + tileSize / 2, c.to[1] * tileSize + tileSize / 2);
-        ctx.stroke();
-      }
-
-      // Draw current dragging line
-      if (dragging && currentLine) {
-        ctx.strokeStyle = currentLine.color;
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.moveTo(currentLine.fromX, currentLine.fromY);
-        ctx.lineTo(currentLine.toX, currentLine.toY);
-        ctx.stroke();
-      }
-
-      // Draw dots with labels
-      for (let i = 0; i < puzzleSet.length; i++) {
-        const dot = puzzleSet[i];
-        const [x, y] = dot.pos;
-        ctx.fillStyle = dot.color;
-        ctx.beginPath();
-        ctx.arc(x * tileSize + tileSize / 2, y * tileSize + tileSize / 2, 14, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = "#000";
-        ctx.font = "bold 16px sans-serif";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(dot.label, x * tileSize + tileSize / 2, y * tileSize + tileSize / 2);
-      }
+    function createTile(x, y) {
+      const div = document.createElement('div');
+      div.className = 'tile';
+      div.dataset.x = x;
+      div.dataset.y = y;
+      div.onclick = () => toggleTile(x, y);
+      return div;
     }
 
-    // Generate a random puzzle with 3 pairs of dots
-    function randomPuzzle() {
-      puzzleSet = [];
-      const used = new Set();
-      const taken = new Set();
-      for (let i = 0; i < 3; i++) {
-        let label = i + 1;
-        let color = colors[i];
-        let pair = [];
-        while (pair.length < 2) {
-          let x = Math.floor(Math.random() * size);
-          let y = Math.floor(Math.random() * size);
-          let key = x + "," + y;
-          if (!taken.has(key)) {
-            pair.push({ pos: [x, y], label, color });
-            taken.add(key);
+    function toggleTile(x, y) {
+      const coords = [[x,y], [x-1,y], [x+1,y], [x,y-1], [x,y+1]];
+      coords.forEach(([i,j]) => {
+        if (i >= 0 && i < size && j >= 0 && j < size) {
+          const tile = tiles[i][j];
+          tile.classList.toggle('green');
+        }
+      });
+      checkWin();
+    }
+
+    function checkWin() {
+      for (let row of tiles) {
+        for (let tile of row) {
+          if (!tile.classList.contains('green')) {
+            document.getElementById('message').textContent = "";
+            return;
           }
         }
-        puzzleSet.push(...pair);
       }
-      connections = [];
+      document.getElementById('message').textContent = "Puzzle Complete!";
     }
 
-    // Get the grid tile under the mouse position
-    function getTile(e) {
-      const rect = canvas.getBoundingClientRect();
-      return [
-        Math.floor((e.clientX - rect.left) / tileSize),
-        Math.floor((e.clientY - rect.top) / tileSize)
-      ];
-    }
+    function init() {
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '';
+      tiles = [];
 
-    // Find dot by position
-    function findDotAt(x, y) {
-      return puzzleSet.find(dot => dot.pos[0] === x && dot.pos[1] === y);
-    }
-
-    let currentLine = null;
-
-    // Handle mouse down event (start line)
-    canvas.onmousedown = e => {
-      if (!active) return;
-      const [x, y] = getTile(e);
-      const dot = findDotAt(x, y);
-      if (dot) {
-        dragging = true;
-        startDot = dot;
-        lastSnap = [x, y];
-      }
-    };
-
-    // Handle mouse move event (draw line while dragging)
-    canvas.onmousemove = e => {
-      if (!dragging || !startDot) return;
-      const [x, y] = getTile(e);
-
-      // Ensure movement is either horizontal or vertical
-      let endX = startDot.pos[0] * tileSize + tileSize / 2;
-      let endY = startDot.pos[1] * tileSize + tileSize / 2;
-      if (x !== startDot.pos[0]) {
-        endX = x * tileSize + tileSize / 2;
-      }
-      if (y !== startDot.pos[1]) {
-        endY = y * tileSize + tileSize / 2;
-      }
-
-      currentLine = {
-        color: startDot.color,
-        fromX: startDot.pos[0] * tileSize + tileSize / 2,
-        fromY: startDot.pos[1] * tileSize + tileSize / 2,
-        toX: endX,
-        toY: endY
-      };
-
-      // Snapping behavior
-      if ((x !== lastSnap[0] || y !== lastSnap[1])) {
-        snapSound.currentTime = 0;
-        snapSound.play();
-        lastSnap = [x, y];
-      }
-
-      drawGrid();
-    };
-
-    // Handle mouse up event (complete line)
-    canvas.onmouseup = e => {
-      if (!dragging || !startDot) return;
-      const [x, y] = getTile(e);
-      const endDot = findDotAt(x, y);
-      if (
-        endDot &&
-        endDot.label === startDot.label &&
-        !(endDot.pos[0] === startDot.pos[0] && endDot.pos[1] === startDot.pos[1])
-      ) {
-        if (!connections.some(c =>
-          (c.from[0] === startDot.pos[0] && c.from[1] === startDot.pos[1]) ||
-          (c.to[0] === startDot.pos[0] && c.to[1] === startDot.pos[1])
-        )) {
-          connections.push({
-            from: startDot.pos,
-            to: endDot.pos,
-            color: startDot.color
-          });
-          connectSound.currentTime = 0;
-          connectSound.play();
+      for (let y = 0; y < size; y++) {
+        const row = [];
+        for (let x = 0; x < size; x++) {
+          const tile = createTile(x, y);
+          if (Math.random() < 0.4) tile.classList.add('green'); // Random start
+          grid.appendChild(tile);
+          row.push(tile);
         }
+        tiles.push(row);
       }
-      dragging = false;
-      currentLine = null;
-      startDot = null;
-      drawGrid();
-      checkSolved();
-    };
-
-    // Check if the puzzle is solved
-    function checkSolved() {
-      if (connections.length === 3) {
-        puzzleIndex++;
-        if (puzzleIndex >= maxPuzzles) {
-          completeSound.play();
-          active = false;
-          genBtn.style.display = "inline-block";
-        } else {
-          setTimeout(() => {
-            randomPuzzle();
-            drawGrid();
-          }, 500);
-        }
-      }
+      document.getElementById('message').textContent = "";
     }
 
-    // Set up a new puzzle
-    function startNewGenerator() {
-      active = true;
-      genBtn.style.display = "none";
-      randomPuzzle();
-      drawGrid();
-    }
-
-    // Button event
-    genBtn.onclick = startNewGenerator;
-
-    startNewGenerator(); // Start with a random generator
+    window.onload = init;
   </script>
 </body>
 </html>
