@@ -65,13 +65,14 @@ document.addEventListener("keydown", e => {
         player.classList.add("block");
         canBlock = false;
 
+        // Block cooldown
         setTimeout(() => {
           playerState.blocking = false;
           player.classList.remove("block");
           playerState.blockDir = null;
-        }, 1000);
+        }, 1000); // Blocking duration: 1 second
 
-        setTimeout(() => canBlock = true, 5000);
+        setTimeout(() => canBlock = true, 5000); // Block cooldown: 5 seconds
       }
     }
   }

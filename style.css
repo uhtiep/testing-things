@@ -85,3 +85,10 @@ body {
 #playerHealthBar {
   background: lime;
 }
+
+/* Add this to your existing CSS */
+
+.block {
+  background-color: #00ff00; /* Change color to indicate blocking */
+  border: 2px solid #00ff00; /* Optional: Outline the player in green when blocking */
+}
