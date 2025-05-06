@@ -52,25 +52,6 @@ let playerState = {
 document.addEventListener("keydown", e => {
   keys[e.key] = true;
 
-  // Block
-  if (e.key === "z" && canBlock) {
-    const dir = getHeldDirection();
-    if (dir) {
-      playerState.blocking = true;
-      playerState.blockDir = dir;
-      player.classList.add("block");
-      canBlock = false;
-
-      setTimeout(() => {
-        playerState.blocking = false;
-        player.classList.remove("block");
-        playerState.blockDir = null;
-      }, 1000);
-
-      setTimeout(() => canBlock = true, 5000);
-    }
-  }
-
   // Dash
   if (e.key === "x" && dashCooldown) {
     const dir = getHeldDirection();
