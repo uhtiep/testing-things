@@ -130,36 +130,46 @@ function updatePlayerPos() {
   player.style.top = `${playerState.y}px`;
 }
 
-// Boss Tracking Logic
-const boss = document.getElementById("enemy");
-let bossState = {
-  x: boss.offsetLeft,
-  y: boss.offsetTop,
-  speed: 2,
-  health: 100,
-  maxHealth: 100,
-  attackCooldown: 3000, // 3 seconds cooldown between attacks
-  lastAttackTime: 0
-};
+// Boss Attack - Bullets
+function spawnBullet(x, y, dx, dy) {
+  const bullet = document.createElement("div");
+  bullet.classList.add("shape");
+  bullet.style.left = `${x}px`;
+  bullet.style.top = `${y}px`;
+  bullet.style.width = "10px";
+  bullet.style.height = "10px";
+  bullet.style.borderRadius = "50%";
+  bullet.style.background = "red"; // Red bullets
+  gameArea.appendChild(bullet);
 
-function moveBoss() {
-  const playerCenterX = playerState.x + 10; // Player's center X
-  const playerCenterY = playerState.y + 10; // Player's center Y
+  const interval = setInterval(() => {
+    x += dx;
+    y += dy;
+    bullet.style.left = `${x}px`;
+    bullet.style.top = `${y}px`;
 
-  const angle = Math.atan2(playerCenterY - bossState.y, playerCenterX - bossState.x);
-  const dx = Math.cos(angle) * bossState.speed;
-  const dy = Math.sin(angle) * bossState.speed;
+    const rect = bullet.getBoundingClientRect();
+    const playerRect = player.getBoundingClientRect();
 
-  bossState.x += dx;
-  bossState.y += dy;
+    if (
+      rect.top < playerRect.bottom &&
+      rect.bottom > playerRect.top &&
+      rect.left < playerRect.right &&
+      rect.right > playerRect.left
+    ) {
+      takeDamage(10);
+      clearInterval(interval);
+      bullet.remove();
+    }
 
-  // Update boss position
-  boss.style.left = `${bossState.x}px`;
-  boss.style.top = `${bossState.y}px`;
-
-  requestAnimationFrame(moveBoss);
+    if (x < -10 || x > window.innerWidth + 10 || y < -10 || y > window.innerHeight + 10) {
+      clearInterval(interval);
+      bullet.remove();
+    }
+  }, 16);
 }
 
+// Boss Attack - Beams
 function spawnBeam(x, y, width = 10, height = 200, delay = 1000) {
   const beam = document.createElement("div");
   beam.classList.add("shape");
@@ -167,13 +177,13 @@ function spawnBeam(x, y, width = 10, height = 200, delay = 1000) {
   beam.style.top = `${y}px`;
   beam.style.width = `${width}px`;
   beam.style.height = `${height}px`;
-  beam.style.background = "rgba(255, 0, 255, 0.3)"; // Initially transparent magenta
+  beam.style.background = "rgba(255, 0, 0, 0.3)"; // Initially transparent red
   gameArea.appendChild(beam);
 
   let harmful = false;
 
   setTimeout(() => {
-    beam.style.background = "magenta"; // Fully visible and harmful
+    beam.style.background = "red"; // Fully visible and harmful
     harmful = true;
   }, delay);
 
@@ -188,36 +198,38 @@ function spawnBeam(x, y, width = 10, height = 200, delay = 1000) {
       rect.left < playerRect.right &&
       rect.right > playerRect.left
     ) {
-      takeDamage(20);
-      beam.remove();
+      takeDamage(15);
       clearInterval(interval);
+      beam.remove();
     }
-  }, 50);
 
-  setTimeout(() => {
-    beam.remove();
-    clearInterval(interval);
-  }, delay + 1500);
+    if (y > window.innerHeight) {
+      clearInterval(interval);
+      beam.remove();
+    }
+  }, 16);
 }
 
-function bossAttack() {
-  const now = Date.now();
-  if (now - bossState.lastAttackTime >= bossState.attackCooldown) {
-    bossState.lastAttackTime = now;
-    spawnBeam(bossState.x + 30, bossState.y + 60, 10, gameArea.offsetHeight, 1000); // Horizontal beam
+// Random Attack Patterns
+function randomPattern() {
+  const type = Math.floor(Math.random() * 2);
+
+  switch (type) {
+    case 0:
+      // Fire Bullets
+      spawnBullet(enemy.offsetLeft + 30, 70, (Math.random() - 0.5) * 4, 3);
+      break;
+    case 1:
+      // Fire Beam
+      spawnBeam(enemy.offsetLeft + 30, 70, 10, 200, 1000);
+      break;
   }
 }
 
-function gameLoop() {
-  moveBoss();
-  bossAttack();
-  requestAnimationFrame(gameLoop);
-}
-
-// Start game
+// Start Game
 startBtn.addEventListener("click", () => {
   audio.play();
   updateHealthBars();
+  setInterval(randomPattern, 800); // Trigger random attacks every 800ms
   movePlayer();
-  gameLoop();
 });
