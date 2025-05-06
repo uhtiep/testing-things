@@ -130,8 +130,8 @@ function updatePlayerPos() {
   player.style.top = `${playerState.y}px`;
 }
 
-// Boss Attack - Bullets
-function spawnBullet(x, y, dx, dy) {
+// Boss Attack - Bullets (Track Player)
+function spawnBullet(x, y, targetX, targetY) {
   const bullet = document.createElement("div");
   bullet.classList.add("shape");
   bullet.style.left = `${x}px`;
@@ -141,6 +141,12 @@ function spawnBullet(x, y, dx, dy) {
   bullet.style.borderRadius = "50%";
   bullet.style.background = "red"; // Red bullets
   gameArea.appendChild(bullet);
+
+  // Calculate the direction to the player
+  const angle = Math.atan2(targetY - y, targetX - x);
+  const speed = 4;
+  const dx = Math.cos(angle) * speed;
+  const dy = Math.sin(angle) * speed;
 
   const interval = setInterval(() => {
     x += dx;
@@ -169,16 +175,20 @@ function spawnBullet(x, y, dx, dy) {
   }, 16);
 }
 
-// Boss Attack - Beams
-function spawnBeam(x, y, width = 10, height = 200, delay = 1000) {
+// Boss Attack - Beams (Track Player)
+function spawnBeam(x, y, targetX, targetY, delay = 1000) {
   const beam = document.createElement("div");
   beam.classList.add("shape");
   beam.style.left = `${x}px`;
   beam.style.top = `${y}px`;
-  beam.style.width = `${width}px`;
-  beam.style.height = `${height}px`;
+  beam.style.width = "10px";
+  beam.style.height = "200px"; // height of beam
   beam.style.background = "rgba(255, 0, 0, 0.3)"; // Initially transparent red
   gameArea.appendChild(beam);
+
+  // Calculate the direction to the player
+  const angle = Math.atan2(targetY - y, targetX - x);
+  const speed = 4;
 
   let harmful = false;
 
@@ -210,18 +220,22 @@ function spawnBeam(x, y, width = 10, height = 200, delay = 1000) {
   }, 16);
 }
 
-// Random Attack Patterns
+// Random Attack Patterns (Now tracks player)
 function randomPattern() {
   const type = Math.floor(Math.random() * 2);
 
+  // Get player's current position
+  const targetX = playerState.x;
+  const targetY = playerState.y;
+
   switch (type) {
     case 0:
-      // Fire Bullets
-      spawnBullet(enemy.offsetLeft + 30, 70, (Math.random() - 0.5) * 4, 3);
+      // Fire Bullets towards the player
+      spawnBullet(enemy.offsetLeft + 30, 70, targetX, targetY);
       break;
     case 1:
-      // Fire Beam
-      spawnBeam(enemy.offsetLeft + 30, 70, 10, 200, 1000);
+      // Fire Beams towards the player
+      spawnBeam(enemy.offsetLeft + 30, 70, targetX, targetY, 1000);
       break;
   }
 }
