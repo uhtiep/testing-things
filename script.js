@@ -217,7 +217,7 @@ function randomPattern() {
 
   attackCooldown = true; // Start cooldown
 
-  const type = Math.floor(Math.random() * 6);
+  const type = Math.floor(Math.random() * 3); // Adjusted to produce different attack types
 
   switch (type) {
     case 0:
@@ -244,6 +244,6 @@ function randomPattern() {
 startBtn.addEventListener("click", () => {
   audio.play();
   updateHealthBars();
-  setInterval(() => randomPattern(), 800);
+  setInterval(() => randomPattern(), 2000); // Now triggers attacks every 2 seconds
   movePlayer();
 });
