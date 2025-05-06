@@ -52,6 +52,25 @@ let playerState = {
 document.addEventListener("keydown", e => {
   keys[e.key] = true;
 
+  // Block
+  if (e.key === "z" && canBlock) {
+    const dir = getHeldDirection();
+    if (dir) {
+      playerState.blocking = true;
+      playerState.blockDir = dir;
+      player.classList.add("block");
+      canBlock = false;
+
+      setTimeout(() => {
+        playerState.blocking = false;
+        player.classList.remove("block");
+        playerState.blockDir = null;
+      }, 1000);
+
+      setTimeout(() => canBlock = true, 5000);
+    }
+  }
+
   // Dash
   if (e.key === "x" && dashCooldown) {
     const dir = getHeldDirection();
@@ -77,7 +96,7 @@ document.addEventListener("keydown", e => {
         invincibleDuringDash = false;
       }, 200);
 
-      setTimeout(() => dashCooldown = true, 2000); // 2s cooldown
+      setTimeout(() => dashCooldown = true, 2000);
     }
   }
 });
@@ -111,7 +130,7 @@ function updatePlayerPos() {
   player.style.top = `${playerState.y}px`;
 }
 
-// Boss Attack - Bullets (Track Player)
+// Bullet Attack
 function spawnBullet(x, y, targetX, targetY) {
   const bullet = document.createElement("div");
   bullet.classList.add("shape");
@@ -119,11 +138,9 @@ function spawnBullet(x, y, targetX, targetY) {
   bullet.style.top = `${y}px`;
   bullet.style.width = "10px";
   bullet.style.height = "10px";
-  bullet.style.borderRadius = "50%";
-  bullet.style.background = "red"; // Red bullets
+  bullet.style.background = "red";
   gameArea.appendChild(bullet);
 
-  // Calculate the direction to the player
   const angle = Math.atan2(targetY - y, targetX - x);
   const speed = 4;
   const dx = Math.cos(angle) * speed;
@@ -144,80 +161,81 @@ function spawnBullet(x, y, targetX, targetY) {
       rect.left < playerRect.right &&
       rect.right > playerRect.left
     ) {
-      takeDamage(10);
-      clearInterval(interval);
+      if (playerState.blocking) {
+        damageBoss(5);
+      } else {
+        takeDamage(10);
+      }
       bullet.remove();
+      clearInterval(interval);
     }
 
     if (x < -10 || x > window.innerWidth + 10 || y < -10 || y > window.innerHeight + 10) {
-      clearInterval(interval);
       bullet.remove();
+      clearInterval(interval);
     }
   }, 16);
 }
 
-// Boss Attack - Beams (Track Player)
-function spawnBeam(x, y, targetX, targetY, delay = 1000) {
+// Beam Attack
+function spawnBeam(x, y, targetX, targetY, warnTime = 800) {
   const beam = document.createElement("div");
   beam.classList.add("shape");
+  beam.style.position = "absolute";
+  beam.style.width = "200px";
+  beam.style.height = "40px";
+  beam.style.background = "rgba(255, 0, 0, 0.2)";
   beam.style.left = `${x}px`;
   beam.style.top = `${y}px`;
-  beam.style.width = "10px";
-  beam.style.height = "200px"; // height of beam
-  beam.style.background = "rgba(255, 0, 0, 0.3)"; // Initially transparent red
   gameArea.appendChild(beam);
 
-  // Calculate the direction to the player
   const angle = Math.atan2(targetY - y, targetX - x);
-  const speed = 4;
+  beam.style.transform = `rotate(${angle}rad)`;
+  beam.style.transformOrigin = "top left";
 
-  let harmful = false;
-
+  // After warnTime, beam becomes harmful
   setTimeout(() => {
-    beam.style.background = "red"; // Fully visible and harmful
-    harmful = true;
-  }, delay);
+    beam.style.background = "red";
 
-  const interval = setInterval(() => {
-    const rect = beam.getBoundingClientRect();
-    const playerRect = player.getBoundingClientRect();
+    const interval = setInterval(() => {
+      const rect = beam.getBoundingClientRect();
+      const playerRect = player.getBoundingClientRect();
 
-    if (
-      harmful &&
-      rect.top < playerRect.bottom &&
-      rect.bottom > playerRect.top &&
-      rect.left < playerRect.right &&
-      rect.right > playerRect.left
-    ) {
-      takeDamage(15);
-      clearInterval(interval);
+      if (
+        rect.top < playerRect.bottom &&
+        rect.bottom > playerRect.top &&
+        rect.left < playerRect.right &&
+        rect.right > playerRect.left
+      ) {
+        if (playerState.blocking) {
+          damageBoss(5);
+        } else {
+          takeDamage(20);
+        }
+        beam.remove();
+        clearInterval(interval);
+      }
+    }, 50);
+
+    // Remove beam after some time
+    setTimeout(() => {
       beam.remove();
-    }
-
-    if (y > window.innerHeight) {
       clearInterval(interval);
-      beam.remove();
-    }
-  }, 16);
+    }, 1000);
+  }, warnTime);
 }
 
-// Random Attack Patterns (Now tracks player)
+// Attack Pattern
 function randomPattern() {
-  const type = Math.floor(Math.random() * 2);
+  const pattern = Math.floor(Math.random() * 2);
+  const playerRect = player.getBoundingClientRect();
+  const targetX = playerRect.left + playerRect.width / 2;
+  const targetY = playerRect.top + playerRect.height / 2;
 
-  // Get player's current position
-  const targetX = playerState.x;
-  const targetY = playerState.y;
-
-  switch (type) {
-    case 0:
-      // Fire Bullets towards the player
-      spawnBullet(enemy.offsetLeft + 30, 70, targetX, targetY);
-      break;
-    case 1:
-      // Fire Beams towards the player
-      spawnBeam(enemy.offsetLeft + 30, 70, targetX, targetY, 1000);
-      break;
+  if (pattern === 0) {
+    spawnBullet(enemy.offsetLeft + 30, 70, targetX, targetY);
+  } else {
+    spawnBeam(enemy.offsetLeft + 30, 70, targetX, targetY);
   }
 }
 
@@ -225,6 +243,6 @@ function randomPattern() {
 startBtn.addEventListener("click", () => {
   audio.play();
   updateHealthBars();
-  setInterval(randomPattern, 800); // Trigger random attacks every 800ms
+  setInterval(randomPattern, 800);
   movePlayer();
 });
