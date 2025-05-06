@@ -130,136 +130,94 @@ function updatePlayerPos() {
   player.style.top = `${playerState.y}px`;
 }
 
-// Spawn Attacks
-function spawnAttack(x, y, dx, dy) {
-  const shape = document.createElement("div");
-  shape.classList.add("shape");
-  shape.style.left = `${x}px`;
-  shape.style.top = `${y}px`;
-  shape.style.background = getRandomColor();
-  gameArea.appendChild(shape);
+// Boss Tracking Logic
+const boss = document.getElementById("enemy");
+let bossState = {
+  x: boss.offsetLeft,
+  y: boss.offsetTop,
+  speed: 2,
+  health: 100,
+  maxHealth: 100,
+  attackCooldown: 3000, // 3 seconds cooldown between attacks
+  lastAttackTime: 0
+};
 
-  let rotation = 0;
+function moveBoss() {
+  const playerCenterX = playerState.x + 10; // Player's center X
+  const playerCenterY = playerState.y + 10; // Player's center Y
+
+  const angle = Math.atan2(playerCenterY - bossState.y, playerCenterX - bossState.x);
+  const dx = Math.cos(angle) * bossState.speed;
+  const dy = Math.sin(angle) * bossState.speed;
+
+  bossState.x += dx;
+  bossState.y += dy;
+
+  // Update boss position
+  boss.style.left = `${bossState.x}px`;
+  boss.style.top = `${bossState.y}px`;
+
+  requestAnimationFrame(moveBoss);
+}
+
+function spawnBeam(x, y, width = 10, height = 200, delay = 1000) {
+  const beam = document.createElement("div");
+  beam.classList.add("shape");
+  beam.style.left = `${x}px`;
+  beam.style.top = `${y}px`;
+  beam.style.width = `${width}px`;
+  beam.style.height = `${height}px`;
+  beam.style.background = "rgba(255, 0, 255, 0.3)"; // Initially transparent magenta
+  gameArea.appendChild(beam);
+
+  let harmful = false;
+
+  setTimeout(() => {
+    beam.style.background = "magenta"; // Fully visible and harmful
+    harmful = true;
+  }, delay);
 
   const interval = setInterval(() => {
-    x += dx;
-    y += dy;
-    rotation += 5;
-    shape.style.left = `${x}px`;
-    shape.style.top = `${y}px`;
-    shape.style.transform = `rotate(${rotation}deg)`;
-
-    const rect = shape.getBoundingClientRect();
+    const rect = beam.getBoundingClientRect();
     const playerRect = player.getBoundingClientRect();
 
     if (
-      !playerState.isDashing &&
+      harmful &&
       rect.top < playerRect.bottom &&
       rect.bottom > playerRect.top &&
       rect.left < playerRect.right &&
       rect.right > playerRect.left
     ) {
-      if (playerState.blocking && matchDirection(dx, dy, playerState.blockDir)) {
-        clearInterval(interval);
-        shape.style.background = "red";
-        reflectToEnemy(shape, x, y);
-      } else {
-        shape.remove();
-        clearInterval(interval);
-        takeDamage(10);
-      }
-    }
-
-    if (y > window.innerHeight + 30 || x < -30 || x > window.innerWidth + 30) {
-      shape.remove();
+      takeDamage(20);
+      beam.remove();
       clearInterval(interval);
     }
-  }, 16);
+  }, 50);
+
+  setTimeout(() => {
+    beam.remove();
+    clearInterval(interval);
+  }, delay + 1500);
 }
 
-function matchDirection(dx, dy, dir) {
-  if (dir === "up" && dy > 0) return true;
-  if (dir === "down" && dy < 0) return true;
-  if (dir === "left" && dx > 0) return true;
-  if (dir === "right" && dx < 0) return true;
-  return false;
-}
-
-function reflectToEnemy(shape, x, y) {
-  const enemyX = enemy.offsetLeft + 30;
-  const enemyY = enemy.offsetTop + 30;
-  const angle = Math.atan2(enemyY - y, enemyX - x);
-  const speed = 4;
-  const dx = Math.cos(angle) * speed;
-  const dy = Math.sin(angle) * speed;
-
-  const interval = setInterval(() => {
-    x += dx;
-    y += dy;
-    shape.style.left = `${x}px`;
-    shape.style.top = `${y}px`;
-
-    const rect = shape.getBoundingClientRect();
-    const enemyRect = enemy.getBoundingClientRect();
-
-    if (
-      rect.top < enemyRect.bottom &&
-      rect.bottom > enemyRect.top &&
-      rect.left < enemyRect.right &&
-      rect.right > enemyRect.left
-    ) {
-      shape.remove();
-      clearInterval(interval);
-      damageBoss(5);
-    }
-  }, 16);
-}
-
-function getRandomColor() {
-  const colors = ["cyan", "magenta", "yellow", "lime", "orange", "aqua"];
-  return colors[Math.floor(Math.random() * colors.length)];
-}
-
-// Chaotic Attack Patterns
-function randomPattern() {
-  const type = Math.floor(Math.random() * 4);
-
-  switch (type) {
-    case 0:
-      for (let i = 0; i < 7; i++) {
-        setTimeout(() => {
-          spawnAttack(enemy.offsetLeft + 30, 70, (Math.random() - 0.5) * 6, 4 + Math.random() * 3);
-        }, i * 50);
-      }
-      break;
-    case 1:
-      for (let angle = 0; angle < 360; angle += 10) {
-        const rad = angle * Math.PI / 180;
-        spawnAttack(enemy.offsetLeft + 30, 70, Math.cos(rad) * 3, Math.sin(rad) * 3);
-      }
-      break;
-    case 2:
-      for (let i = 0; i < 6; i++) {
-        spawnAttack(80 + i * 100, 70, 0, 6 + Math.random() * 3);
-      }
-      for (let i = 0; i < 5; i++) {
-        const randX = Math.random() * window.innerWidth;
-        spawnAttack(randX, 70, (Math.random() - 0.5) * 8, 2 + Math.random());
-      }
-      break;
-    case 3:
-      for (let angle = 0; angle < 360; angle += 15) {
-        const rad = angle * Math.PI / 180;
-        spawnAttack(enemy.offsetLeft + 30, 70, Math.cos(rad) * 3, Math.sin(rad) * 3);
-      }
-      break;
+function bossAttack() {
+  const now = Date.now();
+  if (now - bossState.lastAttackTime >= bossState.attackCooldown) {
+    bossState.lastAttackTime = now;
+    spawnBeam(bossState.x + 30, bossState.y + 60, 10, gameArea.offsetHeight, 1000); // Horizontal beam
   }
+}
+
+function gameLoop() {
+  moveBoss();
+  bossAttack();
+  requestAnimationFrame(gameLoop);
 }
 
 // Start game
 startBtn.addEventListener("click", () => {
   audio.play();
   updateHealthBars();
-  setInterval(() => randomPattern(), 800);
   movePlayer();
+  gameLoop();
 });
