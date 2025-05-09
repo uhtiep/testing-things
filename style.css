@@ -1,94 +1,51 @@
 body {
-  margin: 0;
   font-family: sans-serif;
-  background-color: #111;
-  color: white;
+  background: #0d0d0d;
+  color: #eee;
   text-align: center;
+  padding: 20px;
 }
 
-#gameArea {
-  position: relative;
-  width: 100vw;
-  height: 80vh;
-  background-color: #222;
-  overflow: hidden;
+.skills {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 20px;
 }
 
-#player {
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  background: white;
-  border: 2px solid cyan;
-  pointer-events: none;
-  z-index: 10;
+.btn, .skill-btn {
+  background: #222;
+  color: #fff;
+  border: 2px solid #444;
+  padding: 10px 15px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: 0.2s;
 }
 
-#enemy {
-  position: absolute;
-  top: 10px;
-  left: 50%;
-  width: 60px;
-  height: 60px;
-  margin-left: -30px;
-  background: crimson;
-  border-radius: 10px;
+.btn:hover, .skill-btn:hover {
+  background: #444;
 }
 
-.shape {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: red;
-  transition: transform 0.1s linear;
+.enemy {
+  margin: 30px auto;
+  padding: 20px;
+  background: #aa2e2e;
+  width: 200px;
+  font-size: 1.2em;
+  border-radius: 12px;
 }
 
-.block {
-  box-shadow: 0 0 8px yellow;
+.log {
+  margin-top: 20px;
+  min-height: 40px;
+  font-size: 1.1em;
+  color: #f3f36c;
 }
 
-.beam {
-  position: absolute;
-  background: rgba(255, 0, 0, 0.1);
-  border-radius: 10px;
-  z-index: 5;
-  transition: background 0.2s ease;
-}
-
-#bossHealthBarContainer,
-#playerHealthBarContainer {
-  width: 100%;
-  height: 20px;
-  background: #333;
-  position: fixed;
-  left: 0;
-  z-index: 100;
-}
-
-#bossHealthBarContainer {
-  top: 0;
-}
-
-#playerHealthBarContainer {
-  bottom: 0;
-}
-
-#bossHealthBar,
-#playerHealthBar {
-  height: 100%;
-  width: 100%;
-  background: red;
-  transition: width 0.3s ease;
-}
-
-#playerHealthBar {
-  background: lime;
-}
-
-/* Add this to your existing CSS */
-
-.block {
-  background-color: #00ff00; /* Change color to indicate blocking */
-  border: 2px solid #00ff00; /* Optional: Outline the player in green when blocking */
+.sanity-bar {
+  font-size: 1.1em;
+  margin-bottom: 15px;
 }

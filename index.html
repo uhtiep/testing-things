@@ -2,28 +2,27 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>JSAB Bullet Hell – Close to Me</title>
+  <title>Limbus-Like Combat</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>JSAB Bullet Hell – Close to Me</h1>
-  <button id="startBtn">Start</button>
-  <audio id="bgm" src="close_to_me.mp3" preload="auto"></audio>
+  <h1>Limbus-Inspired Battle</h1>
 
-  <!-- Boss Health Bar -->
-  <div id="bossHealthBarContainer">
-    <div id="bossHealthBar"></div>
+  <div class="sanity-bar">
+    Player Sanity: <span id="sanity">0</span>
   </div>
 
-  <div id="gameArea">
-    <div id="enemy"></div>
-    <div id="player"></div>
+  <div class="skills" id="skills">
+    <!-- Skill buttons will be injected here -->
   </div>
 
-  <!-- Player Health Bar -->
-  <div id="playerHealthBarContainer">
-    <div id="playerHealthBar"></div>
+  <button class="btn" onclick="startChain()">Start Chain</button>
+
+  <div class="enemy" id="enemy">
+    🛡️ Enemy<br><span id="enemy-hp">HP: 100</span>
   </div>
+
+  <div class="log" id="log">Select skills to chain attacks!</div>
 
   <script src="script.js"></script>
 </body>
